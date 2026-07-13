@@ -4,6 +4,43 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini izle
 
 ## [Unreleased]
 
+### Phase 3 — Customer Module
+
+#### Eklendi
+
+- Müşteri CRUD: ekleme, düzenleme, kalıcı silme (onay dialogu ile).
+- **Bireysel / kurumsal müşteri tipi.** Form tipe göre şekil değiştirir:
+  bireysel müşteride yetkili kişi ve vergi dairesi alanları gösterilmez.
+  Tek zorunlu alan **ad**'dır; kalan sekiz alan isteğe bağlıdır.
+- Müşteri arama: ad, yetkili kişi ve telefon üzerinde, Türkçe karakter duyarsız.
+- Doğrulama: e-posta biçimi, TCKN 11 hane / vergi no 10 hane (checksum yok).
+- `core/utils/turkish_text.dart`: arama normalizasyonu ortak hale getirildi.
+
+#### Şema
+
+- **schemaVersion 2 → 3.** `customers` tablosu eklendi (`name` üzerinde index).
+  Migration yalnızca yeni tablo yaratır; mevcut veriye dokunmaz.
+- `type` sütunu metin olarak saklanır (`'individual'` / `'company'`) ve
+  `CHECK` kısıtıyla veritabanı seviyesinde sınırlandırılır. Enum index'i
+  saklanmaz: sıralamayı değiştiren bir refactor tüm müşterileri sessizce
+  yanlış tipe çevirirdi.
+
+#### Düzeltildi
+
+- **Türkçe arama eksikti.** Yalnızca noktasız `ı` katlanıyordu; `ş/ğ/ü/ö/ç`
+  olduğu gibi kalıyordu. "Işık Elektrik" kaydı "isik" aramasıyla bulunmuyordu.
+  Artık tüm Türkçe harfler ASCII'ye katlanıyor — **ürün araması da düzeldi**.
+- **Drift şema dump'ları (`drift_schema_v*.json`) repoya eklendi.** v1 ve v2
+  dump'ları daha önce commit edilmemişti; `schema generate` bu klasörden
+  çalıştığı için eski sürüm helper'ları bir sonraki üretimde yok olacak ve
+  tüm migration testleri sessizce çöpe gidecekti. Dump'lar git geçmişindeki
+  şemalardan yeniden üretildi (`schema_v1/v2.dart` çıktıları birebir aynı).
+
+#### Bilinen eksikler
+
+- Doğrulama mesajları hâlâ Türkçe hardcoded (ürün modülüyle aynı borç).
+  Phase 4'te ARB'ye taşınacak; `Failure` mesaj yerine hata kodu taşımalı.
+
 ### Phase 2 — Product Module
 
 #### Eklendi

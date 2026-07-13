@@ -11,6 +11,26 @@ Bu doküman projenin geliştirme planını içerir.
 - Her phase sonunda Git commit atılmalıdır.
 - Büyük feature'lar tek seferde geliştirilmemelidir.
 
+## Çapraz Kesen Gereksinim — Çok Dillilik (TR + EN)
+
+Uygulama **Türkçe ve İngilizce** desteklemelidir. Bu tek bir phase'in işi değil,
+tüm UI'ı kesen bir gereksinimdir:
+
+- Kullanıcıya görünen her metin `l10n` dosyalarından gelir (`context.l10n.xxx`).
+  Hardcoded string yasak (CLAUDE.md: Coding Standards).
+- Dil seçimi Ayarlar'da yapılır: **Sistem / Türkçe / İngilizce** (Phase 4).
+- Tarih, sayı ve para biçimi `intl` ile **locale'e göre** üretilir.
+  Ondalık ayracı Türkçe'de `,`, İngilizce'de `.` olur — `MoneyField` ve
+  `Money.format()` bunu locale'den almalıdır (şu an `,` sabit).
+- **Para birimi dilden bağımsızdır.** İngilizce arayüz kullanan biri de ₺ ile
+  teklif verebilir. Locale biçimi belirler, para birimini değil.
+- **Veritabanı içeriği çevrilmez.** Kullanıcının yazdığı ürün/müşteri adları ve
+  seed edilen "Genel" kategorisi kullanıcı verisidir; dil değişince değişmez
+  (kullanıcı isterse yeniden adlandırır).
+
+**Mevcut borç:** Phase 1–2 ekranlarındaki metinler Türkçe hardcoded yazıldı.
+l10n altyapısı kurulduğunda bu ekranlar da geriye dönük taşınacaktır.
+
 ---
 
 # Phase 1 - Project Foundation
@@ -112,27 +132,83 @@ Müşteri yönetimini tamamlamak.
 
 ## Yapılacaklar
 
-- Customer Entity
-- CRUD
-- Listeleme
-- Arama
-- Güncelleme
-- Silme
-- Validation
+- [x] Customer Entity + `CustomerType` (bireysel / kurumsal)
+- [x] **Şema değişikliği:** `schemaVersion` 2 → 3, `customers` tablosu + migration testi
+- [x] Customer Repository (arayüz + Drift implementasyonu)
+- [x] Listeleme (empty / loading / error state)
+- [x] Arama (Türkçe karakter duyarlı — ürünle aynı normalize kuralı)
+- [x] Create / Edit formu (tipe göre uyarlanan alanlar)
+- [x] Silme (kalıcı, onay dialogu ile)
+- [x] Validation (ad zorunlu; e-posta biçimi; TCKN 11 / VKN 10 hane)
+- [x] Dashboard "Müşteriler" kartı aktifleştirildi
+
+## Alanlar
+
+`name` **tek zorunlu alandır.** Diğer her şey opsiyoneldir — sahada müşterinin
+vergi dairesini soracak vakit yoktur; teklif çıkar, detay sonra doldurulur.
+
+| Alan | Bireysel | Kurumsal |
+|---|---|---|
+| `type` | `individual` | `company` |
+| `name` | **Ad Soyad** (zorunlu) | **Firma Ünvanı** (zorunlu) |
+| `contactPerson` | *gösterilmez* | Yetkili Kişi (ops.) |
+| `phone` / `email` / `address` | ops. | ops. |
+| `taxOffice` | *gösterilmez* | Vergi Dairesi (ops.) |
+| `taxNumber` | TCKN, 11 hane (ops.) | Vergi No, 10 hane (ops.) |
+| `notes` | ops. | ops. |
+
+## Bu phase'de alınan kararlar
+
+- **Müşteri tipini kullanıcı seçer** (bireysel / kurumsal); form buna göre şekil
+  değiştirir. Tip, alan sayısını artırmaz — sadece doğru alanları gösterir.
+- **Tek tablo, ayrı tablo değil.** İki tabloya bölmek teklif tarafında
+  polimorfik FK'ye yol açardı. Alanların çoğu ortaktır.
+- **`type` metin olarak saklanır** (`'individual'` / `'company'`), enum index'i
+  olarak değil: enum sırasını değiştiren bir refactor, index saklansaydı tüm
+  müşterileri sessizce yanlış tipe çevirirdi. Ayrıca DB seviyesinde
+  `CHECK (type IN ('individual','company'))` kısıtı konur.
+- **Boş string yerine `NULL`.** Repository sınırında `''` → `null` normalize
+  edilir; aksi halde "telefonu yok" iki farklı şekilde temsil edilir.
+- **Vergi/TC no'da checksum doğrulaması yok**, yalnızca uzunluk. Geçerli ama
+  alışılmadık bir numarada kullanıcıyı bloklamak, hatalı numaraya izin
+  vermekten daha kötüdür.
+- **`isArchived` yok.** Teklif, müşteri bilgilerini oluşturulma anında
+  **snapshot** alır (tıpkı teklif satırının ürün fiyatını kopyalaması gibi).
+  Bu yüzden müşteri serbestçe silinebilir; eski teklifler bozulmaz.
+  Teklifteki `customerId` nullable olur ve `ON DELETE SET NULL` ile bağlanır
+  (yalnızca "bu müşteriye kaç teklif verdim" raporu için). → Phase 5
+- **Arama tüm Türkçe diyakritikleri ASCII'ye katlar** (`ç→c`, `ş→s`, `ğ→g`,
+  `ü→u`, `ö→o`, `ı→i`). Sahadaki kullanıcı telefon klavyesinde şapkalı harflerle
+  uğraşmaz; "cekic" yazıp "Çekiç"i bulmalıdır. Mantık `core/utils/turkish_text.dart`
+  içinde ortaklandı — ürün araması da bundan faydalandı.
+- **Arama üç alanda birden yapılır:** ad, yetkili kişi ve telefon. Kullanıcı
+  firmanın ünvanını değil, muhatabının adını hatırlar.
 
 ## Çıktı
 
-Müşteri yönetimi tamamlanmış olmalı.
+Müşteri yönetimi tamamlandı. ✅
+
+`flutter analyze` temiz, 149/149 test geçiyor.
 
 ---
 
-# Phase 4 - Settings Module
+# Phase 4 - Settings & Localization
 
 ## Amaç
 
-Uygulama ayarlarını tamamlamak.
+Uygulama ayarlarını tamamlamak ve çok dilliliği (TR + EN) devreye almak.
 
 ## Yapılacaklar
+
+Lokalizasyon (i18n)
+
+- `flutter_localizations` + `intl` ARB altyapısı (`lib/l10n/app_tr.arb`, `app_en.arb`)
+- `BuildContextX.l10n` extension'ı
+- Dil seçimi: Sistem / Türkçe / İngilizce (kalıcı, `settings` tablosunda)
+- **Phase 1–3 ekranlarındaki hardcoded Türkçe metinlerin ARB'ye taşınması**
+- `Money.format()` ve `MoneyField` ondalık ayracını locale'den alsın
+  (TR `12,50` / EN `12.50`) — para birimi sabit kalır
+- Her iki dilde ekran testi: metin taşması ve kırık layout kontrolü
 
 Tema
 
@@ -154,6 +230,7 @@ Firma Bilgileri
 ## Çıktı
 
 Firma bilgileri local database'de saklanıyor olmalı.
+Uygulama Türkçe ve İngilizce olarak eksiksiz kullanılabiliyor olmalı.
 
 ---
 
