@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:isimcebimde/core/database/app_database.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/turkish_text.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/domain/repositories/product_repository.dart';
 
@@ -20,33 +21,21 @@ class ProductRepositoryImpl implements ProductRepository {
       statement.where((p) => p.categoryId.equals(categoryId));
     }
 
-    final search = _normalize(query ?? '');
+    final search = query ?? '';
 
     return statement
         .watch()
         .map((rows) => rows.map(_toDomain).toList())
         .map(
-          (products) => search.isEmpty
-              ? products
-              : products
-                    .where((p) => _normalize(p.name).contains(search))
-                    .toList(),
+          // Arama SQL'de değil Dart'ta filtrelenir; gerekçe: core/utils/turkish_text.dart
+          (products) => products
+              .where((p) => containsNormalized(p.name, search))
+              .toList(),
         )
         .handleError(
           (Object e) => throw DatabaseFailure('Ürünler okunamadı.', cause: e),
         );
   }
-
-  /// Arama SQL'de değil, Dart'ta filtrelenir.
-  ///
-  /// SQLite'ın `LIKE`/`lower()` fonksiyonları yalnızca ASCII için harf
-  /// duyarsızdır: "Çekiç" kaydı SQL'de "çekiç" aramasıyla **eşleşmez**.
-  /// Türkçe bir üründe bu kabul edilemez. Ürün sayısı bir kullanıcı için
-  /// birkaç bini geçmeyeceğinden Dart tarafında filtrelemek hem doğru hem
-  /// yeterince hızlıdır. Ölçek sorun olursa çözüm, normalize edilmiş bir
-  /// arama sütunu eklemektir (yeni migration).
-  static String _normalize(String value) =>
-      value.trim().toLowerCase().replaceAll('ı', 'i').replaceAll('İ', 'i');
 
   @override
   Stream<Product?> watchById(int id) {
