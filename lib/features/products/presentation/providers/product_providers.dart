@@ -11,7 +11,19 @@ part 'product_providers.g.dart';
 ProductRepository productRepository(Ref ref) =>
     ProductRepositoryImpl(ref.watch(appDatabaseProvider));
 
-/// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
+/// Ürün listesindeki arama metni. Boş string = filtre yok.
 @riverpod
-Stream<List<Product>> productList(Ref ref) =>
-    ref.watch(productRepositoryProvider).watchAll();
+class ProductSearchQuery extends _$ProductSearchQuery {
+  @override
+  String build() => '';
+
+  void update(String query) => state = query;
+}
+
+/// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
+/// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
+@riverpod
+Stream<List<Product>> productList(Ref ref) {
+  final query = ref.watch(productSearchQueryProvider);
+  return ref.watch(productRepositoryProvider).watchAll(query: query);
+}

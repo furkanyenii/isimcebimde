@@ -60,12 +60,73 @@ final class ProductRepositoryProvider
 
 String _$productRepositoryHash() => r'6a61007d1525ad19233cc2f69f49035aba68e633';
 
+/// Ürün listesindeki arama metni. Boş string = filtre yok.
+
+@ProviderFor(ProductSearchQuery)
+final productSearchQueryProvider = ProductSearchQueryProvider._();
+
+/// Ürün listesindeki arama metni. Boş string = filtre yok.
+final class ProductSearchQueryProvider
+    extends $NotifierProvider<ProductSearchQuery, String> {
+  /// Ürün listesindeki arama metni. Boş string = filtre yok.
+  ProductSearchQueryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'productSearchQueryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$productSearchQueryHash();
+
+  @$internal
+  @override
+  ProductSearchQuery create() => ProductSearchQuery();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String>(value),
+    );
+  }
+}
+
+String _$productSearchQueryHash() =>
+    r'93d9af36560d846f0053a881a4a8c05edb0f0f7d';
+
+/// Ürün listesindeki arama metni. Boş string = filtre yok.
+
+abstract class _$ProductSearchQuery extends $Notifier<String> {
+  String build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<String, String>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String, String>,
+              String,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
+/// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
 
 @ProviderFor(productList)
 final productListProvider = ProductListProvider._();
 
 /// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
+/// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
 
 final class ProductListProvider
     extends
@@ -76,6 +137,7 @@ final class ProductListProvider
         >
     with $FutureModifier<List<Product>>, $StreamProvider<List<Product>> {
   /// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
+  /// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
   ProductListProvider._()
     : super(
         from: null,
@@ -102,4 +164,4 @@ final class ProductListProvider
   }
 }
 
-String _$productListHash() => r'68193d0e2edb749c585ed73aef0b0a383e7c3824';
+String _$productListHash() => r'da6a09976f21dae0e2b9cd7f5fae74717942b4ef';

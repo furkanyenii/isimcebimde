@@ -20,6 +20,7 @@ dependencies:
   # Veritabanı (offline-first, tek kaynak)
   drift: 2.34.0 # drift_dev 2.34.0 ile birebir eşleşmeli (schema tooling kırılıyor)
   drift_flutter: ^0.3.1
+  sqlite3: ^3.4.0 # SqliteException: kısıt ihlallerini tip güvenli yakalamak için
 
   # Routing
   go_router: ^17.3.0

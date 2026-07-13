@@ -19,10 +19,20 @@ class _FakeProductRepository implements ProductRepository {
   final StreamController<List<Product>> _controller;
 
   @override
-  Stream<List<Product>> watchAll() => _controller.stream;
+  Stream<List<Product>> watchAll({String? query, int? categoryId}) =>
+      _controller.stream;
 
   @override
-  Future<void> add(Product product) async {}
+  Stream<Product?> watchById(int id) => const Stream.empty();
+
+  @override
+  Future<int> create(Product product) async => 1;
+
+  @override
+  Future<void> update(Product product) async {}
+
+  @override
+  Future<void> delete(int id) async {}
 }
 
 void main() {
