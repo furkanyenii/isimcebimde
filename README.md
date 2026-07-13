@@ -1,17 +1,34 @@
-# isimcebimde
+# Quotra
 
-A new Flutter project.
+Saha satış ekipleri, pazarlamacılar ve KOBİ'ler için **tamamen offline çalışan mobil teklif hazırlama uygulaması.**
 
-## Getting Started
+> Dart paket adı `isimcebimde` olarak kalır (repo geçmişiyle uyum için); ürün adı **Quotra**'dır.
 
-This project is a starting point for a Flutter application.
+Kullanıcı ürünlerini ve müşterilerini kaydeder, dakikalar içinde teklif oluşturur, PDF olarak dışa aktarır ve WhatsApp/e-posta üzerinden paylaşır. İnternet gerekmez.
 
-A few resources to get you started if this is your first Flutter project:
+> **Mimari ve kod kuralları [CLAUDE.md](CLAUDE.md) dosyasındadır.** Kod yazmadan önce okunması zorunludur.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Teknoloji
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Flutter · Riverpod (codegen) · Drift (SQLite) · GoRouter · Material 3 · Clean Architecture (feature-first)
+
+## Kurulum
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
+
+## Geliştirme komutları
+
+```bash
+dart run build_runner watch --delete-conflicting-outputs   # geliştirme sırasında
+flutter analyze                                            # sıfır uyarı hedefi
+flutter test
+dart format .
+```
+
+## Commit öncesi
+
+`dart format .` → `build_runner build` → `flutter analyze` → `flutter test`. Hepsi temiz geçmeden commit atılmaz.
