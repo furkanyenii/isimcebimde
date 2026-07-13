@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:isimcebimde/features/customers/presentation/screens/customer_list_screen.dart';
 import 'package:isimcebimde/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:isimcebimde/features/products/presentation/screens/product_list_screen.dart';
 import 'package:isimcebimde/features/splash/presentation/screens/splash_screen.dart';
@@ -8,6 +9,7 @@ abstract final class AppRoutes {
   static const String splash = '/splash';
   static const String dashboard = '/';
   static const String products = '/products';
+  static const String customers = '/customers';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -27,6 +29,11 @@ final GoRouter appRouter = GoRouter(
           path: 'products',
           name: 'products',
           builder: (context, state) => const ProductListScreen(),
+        ),
+        GoRoute(
+          path: 'customers',
+          name: 'customers',
+          builder: (context, state) => const CustomerListScreen(),
         ),
       ],
     ),

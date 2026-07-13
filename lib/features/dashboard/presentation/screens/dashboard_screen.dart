@@ -43,9 +43,10 @@ class DashboardScreen extends StatelessWidget {
                       label: 'Ürünler',
                       onTap: () => context.go(AppRoutes.products),
                     ),
-                    const _ModuleCard(
+                    _ModuleCard(
                       icon: Icons.people_outline,
-                      label: 'Müşteriler', // Phase 3
+                      label: 'Müşteriler',
+                      onTap: () => context.go(AppRoutes.customers),
                     ),
                     const _ModuleCard(
                       icon: Icons.settings_outlined,

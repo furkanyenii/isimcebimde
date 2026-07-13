@@ -19,8 +19,9 @@ void main() {
   ) async {
     await tester.pumpWidget(buildSubject());
 
-    // Teklifler, Müşteriler, Ayarlar henüz yazılmadı; Ürünler hazır.
-    expect(find.text('Yakında'), findsNWidgets(3));
+    // Teklifler (Phase 5) ve Ayarlar (Phase 4) henüz yazılmadı;
+    // Ürünler ve Müşteriler hazır.
+    expect(find.text('Yakında'), findsNWidgets(2));
   });
 
   testWidgets('teklif modülü hazır olmadığı için Yeni Teklif butonu pasiftir', (
