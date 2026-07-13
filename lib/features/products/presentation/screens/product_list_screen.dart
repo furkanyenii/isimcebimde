@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
-import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
@@ -39,19 +38,7 @@ class ProductListScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addSampleProduct(ref),
-        icon: const Icon(Icons.add),
-        label: const Text('Örnek ürün'),
-      ),
-    );
-  }
-
-  /// Yalnızca hattı doğrulamak için. Faz 1'de gerçek ürün formuyla değişecek.
-  Future<void> _addSampleProduct(WidgetRef ref) async {
-    final repository = ref.read(productRepositoryProvider);
-    await repository.add(
-      Product(name: 'Örnek Ürün', price: Money.fromLira(19, 99), id: null),
+      // Gerçek "Yeni Ürün" formu bu fazın (Phase 2) ilerleyen adımında gelir.
     );
   }
 }

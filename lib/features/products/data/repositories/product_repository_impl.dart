@@ -33,6 +33,8 @@ class ProductRepositoryImpl implements ProductRepository {
             ProductsCompanion.insert(
               name: product.name,
               priceMinor: product.price.minor,
+              categoryId: product.categoryId,
+              vatRateBasisPoints: Value(product.vatRate.basisPoints),
             ),
           );
     } on Object catch (e) {
@@ -45,6 +47,8 @@ class ProductRepositoryImpl implements ProductRepository {
     id: row.id,
     name: row.name,
     price: Money(row.priceMinor),
+    categoryId: row.categoryId,
+    vatRate: Percent.fromBasisPoints(row.vatRateBasisPoints),
     isArchived: row.isArchived,
   );
 }

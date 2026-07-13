@@ -63,7 +63,12 @@ void main() {
   ) async {
     await tester.pumpWidget(buildSubject());
     controller.add([
-      Product(id: 1, name: 'Vida M8', price: Money.fromLira(12, 50)),
+      Product(
+        id: 1,
+        name: 'Vida M8',
+        price: Money.fromLira(12, 50),
+        categoryId: 1,
+      ),
     ]);
     await tester.pumpAndSettle();
 

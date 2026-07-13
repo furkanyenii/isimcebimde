@@ -18,7 +18,7 @@ dependencies:
   riverpod_annotation: ^4.0.3
 
   # Veritabanı (offline-first, tek kaynak)
-  drift: ^2.34.1
+  drift: 2.34.0 # drift_dev 2.34.0 ile birebir eşleşmeli (schema tooling kırılıyor)
   drift_flutter: ^0.3.1
 
   # Routing

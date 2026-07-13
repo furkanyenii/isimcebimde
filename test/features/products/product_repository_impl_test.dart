@@ -13,10 +13,13 @@ import 'package:isimcebimde/features/products/domain/entities/product.dart';
 void main() {
   late AppDatabase db;
   late ProductRepositoryImpl repository;
+  late int categoryId;
 
-  setUp(() {
+  setUp(() async {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     repository = ProductRepositoryImpl(db);
+    // Kategori zorunlu; onCreate varsayılan "Genel" kategorisini kurar.
+    categoryId = (await db.select(db.categories).getSingle()).id;
   });
 
   tearDown(() => db.close());
@@ -27,7 +30,12 @@ void main() {
 
   test('eklenen ürün domain entity olarak geri okunur', () async {
     await repository.add(
-      Product(id: null, name: 'Vida M8', price: Money.fromLira(12, 50)),
+      Product(
+        id: null,
+        name: 'Vida M8',
+        price: Money.fromLira(12, 50),
+        categoryId: categoryId,
+      ),
     );
 
     final products = await repository.watchAll().first;
@@ -46,7 +54,12 @@ void main() {
 
     await pumpEventQueue();
     await repository.add(
-      Product(id: null, name: 'Somun', price: Money.fromLira(3)),
+      Product(
+        id: null,
+        name: 'Somun',
+        price: Money.fromLira(3),
+        categoryId: categoryId,
+      ),
     );
     await pumpEventQueue();
 
@@ -58,7 +71,12 @@ void main() {
 
   test('arşivlenmiş ürün listede görünmez', () async {
     await repository.add(
-      Product(id: null, name: 'Eski Ürün', price: Money.fromLira(1)),
+      Product(
+        id: null,
+        name: 'Eski Ürün',
+        price: Money.fromLira(1),
+        categoryId: categoryId,
+      ),
     );
     await db.customStatement('UPDATE products SET is_archived = 1');
 
@@ -67,10 +85,20 @@ void main() {
 
   test('ürünler isme göre sıralı gelir', () async {
     await repository.add(
-      Product(id: null, name: 'Zımba', price: Money.fromLira(1)),
+      Product(
+        id: null,
+        name: 'Zımba',
+        price: Money.fromLira(1),
+        categoryId: categoryId,
+      ),
     );
     await repository.add(
-      Product(id: null, name: 'Anahtar', price: Money.fromLira(2)),
+      Product(
+        id: null,
+        name: 'Anahtar',
+        price: Money.fromLira(2),
+        categoryId: categoryId,
+      ),
     );
 
     final names = (await repository.watchAll().first)

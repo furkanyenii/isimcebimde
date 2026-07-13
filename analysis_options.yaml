@@ -15,6 +15,7 @@ analyzer:
     - "**/*.drift.dart"
     - "**/generated_plugin_registrant.dart"
     - "lib/l10n/generated/**"
+    - "test/drift_schemas/**" # drift_dev tarafından üretilir, elle düzenlenmez
 
 linter:
   rules:
