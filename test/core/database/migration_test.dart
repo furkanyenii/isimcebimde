@@ -5,6 +5,7 @@ import 'package:isimcebimde/core/database/app_database.dart';
 
 import '../../drift_schemas/schema.dart';
 import '../../drift_schemas/schema_v1.dart' as v1;
+import '../../drift_schemas/schema_v2.dart' as v2;
 
 /// Kullanıcının cihazındaki veri geri getirilemez: backend yok, sunucuda yedek yok.
 /// Bu yüzden migration'lar **testsiz merge edilmez** (CLAUDE.md: Database Rules).
@@ -75,6 +76,76 @@ void main() {
       expect(products.every((p) => p.vatRateBasisPoints == 2000), isTrue);
     },
   );
+
+  test('v2 → v3 sonrası şema beklenen hale gelir', () async {
+    final connection = await verifier.startAt(2);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 3);
+  });
+
+  test('v1 → v3 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
+    // Uygulamayı uzun süre güncellemeyen kullanıcı doğrudan v1'den v3'e atlar.
+    // Migration adımlarının sırayla çalıştığının kanıtı budur.
+    final connection = await verifier.startAt(1);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 3);
+  });
+
+  test('v2\'deki ürün ve kategoriler v3\'e kayıpsız taşınır', () async {
+    // v2 → v3 yalnızca yeni tablo ekler; mevcut veriye dokunmamalı.
+    final schema = await verifier.schemaAt(2);
+    final oldDb = v2.DatabaseAtV2(schema.newConnection());
+
+    await oldDb.customStatement(
+      'INSERT INTO categories (id, name) VALUES (1, ?)',
+      ['Genel'],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO products (name, price_minor, category_id, vat_rate_basis_points) '
+      'VALUES (?, ?, 1, 1000)',
+      ['Vida M8', 1250],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 3);
+
+    final products = await db.select(db.products).get();
+    expect(products, hasLength(1));
+    expect(products.single.name, 'Vida M8');
+    expect(products.single.priceMinor, 1250);
+    expect(products.single.categoryId, 1);
+    // Ürüne özel KDV oranı varsayılana ezilmemeli.
+    expect(products.single.vatRateBasisPoints, 1000);
+
+    // Yeni tablo boş ama kullanılabilir olmalı.
+    expect(await db.select(db.customers).get(), isEmpty);
+  });
+
+  test('müşteri tipi veritabanı seviyesinde kısıtlanır (CHECK)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    // Repository'de bir hata olsa bile tabloya çöp tip giremez.
+    await expectLater(
+      db.customStatement('INSERT INTO customers (type, name) VALUES (?, ?)', [
+        'kurumsal', // geçerli değerler: 'individual' | 'company'
+        'Yılmaz İnşaat',
+      ]),
+      throwsA(isA<Exception>()),
+    );
+
+    await db.customStatement(
+      'INSERT INTO customers (type, name) VALUES (?, ?)',
+      ['company', 'Yılmaz İnşaat'],
+    );
+    expect(await db.select(db.customers).get(), hasLength(1));
+  });
 
   test('yeni kurulumda (onCreate) varsayılan kategori hazır gelir', () async {
     final db = AppDatabase.forTesting(NativeDatabase.memory());

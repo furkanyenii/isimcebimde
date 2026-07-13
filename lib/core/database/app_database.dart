@@ -33,9 +33,44 @@ class Products extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// Müşteriler.
+///
+/// Bireysel ve kurumsal müşteri **tek tabloda** tutulur; iki tabloya bölmek
+/// teklif tarafında polimorfik foreign key'e yol açardı. Alanların çoğu ortaktır,
+/// tipe özel olanlar (yetkili kişi, vergi dairesi) yalnızca kurumsalda doldurulur.
+///
+/// [type] enum *index'i* değil, metin olarak saklanır: enum sırasını değiştiren
+/// bir refactor, index saklansaydı tüm müşterileri sessizce yanlış tipe çevirirdi.
+/// Geçerli değerler `CustomerType.wireName` ile aynıdır ve CHECK kısıtıyla
+/// veritabanı seviyesinde garanti altına alınır — repository'de bir hata olsa
+/// bile tabloya çöp değer giremez.
+///
+/// Boş alanlar `''` değil `NULL` tutulur; repository sınırında normalize edilir.
+@DataClassName('CustomerRow')
+@TableIndex(name: 'idx_customers_name', columns: {#name})
+class Customers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get type => text().withLength(min: 1, max: 20)();
+  TextColumn get name => text().withLength(min: 1, max: 200)();
+  TextColumn get contactPerson => text().withLength(max: 200).nullable()();
+  TextColumn get phone => text().withLength(max: 32).nullable()();
+  TextColumn get email => text().withLength(max: 200).nullable()();
+  TextColumn get address => text().withLength(max: 500).nullable()();
+  TextColumn get taxOffice => text().withLength(max: 100).nullable()();
+  TextColumn get taxNumber => text().withLength(max: 11).nullable()();
+  TextColumn get notes => text().withLength(max: 1000).nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  List<String> get customConstraints => const [
+    // Değerler CustomerType.wireName ile eşleşmek zorundadır.
+    "CHECK (type IN ('individual', 'company'))",
+  ];
+}
+
 /// Uygulamanın tek veri kaynağı. Backend yok — bu dosyadaki her şema
 /// değişikliği geri alınamaz kullanıcı verisine dokunur (CLAUDE.md: Database Rules).
-@DriftDatabase(tables: [Products, Categories])
+@DriftDatabase(tables: [Products, Categories, Customers])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'isimcebimde'));
 
@@ -43,7 +78,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -55,8 +90,14 @@ class AppDatabase extends _$AppDatabase {
       ).insert(CategoriesCompanion.insert(name: kDefaultCategoryName));
     },
     onUpgrade: (m, from, to) async {
+      // Adımlar sırayla çalışır; sürüm atlanamaz (CLAUDE.md: Migration stratejisi).
       if (from < 2) {
         await _migrateV1ToV2(m);
+      }
+      if (from < 3) {
+        // v2 → v3: müşteri modülü. Yalnızca yeni tablo — mevcut veriye dokunulmaz.
+        await m.createTable(customers);
+        await m.createIndex(idxCustomersName);
       }
     },
     beforeOpen: (details) async {
