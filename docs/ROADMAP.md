@@ -75,22 +75,32 @@ olmadığı için test edilebilir migration şart. Detay: `CLAUDE.md`.
 
 ## Yapılacaklar
 
-- Product Create (form + validation)
-- Product Edit
-- Product Delete (onay + geri alma)
-- Product Detail
-- Ürün arama
-- Kategori Entity + tablo (`categories`) ve ürün → kategori ilişkisi (FK)
-- Kategori seçimi
-- Yeni kategori oluşturma (Dialog)
-- Kategori listesinin otomatik güncellenmesi
-- **Şema değişikliği:** `products` tablosuna `categoryId` eklenecek →
-  `schemaVersion` 1 → 2, migration + migration testi zorunlu (CLAUDE.md).
-- Phase 1'deki geçici "Örnek ürün" butonu gerçek "Yeni Ürün" formuyla değişecek.
+- [x] Product Create (form + validation)
+- [x] Product Edit
+- [x] Product Delete (kalıcı, onay dialogu ile)
+- [x] Product Detail (form ekranı düzenleme modunda)
+- [x] Ürün arama (Türkçe karakter duyarlı)
+- [x] Kategori Entity + tablo (`categories`), ürün → kategori FK
+- [x] Kategori seçimi
+- [x] Yeni kategori oluşturma (Dialog)
+- [x] Kategori listesinin otomatik güncellenmesi (Drift stream)
+- [x] **Şema değişikliği:** `schemaVersion` 1 → 2, migration + migration testi
+- [x] Geçici "Örnek ürün" butonu gerçek "Yeni Ürün" formuyla değiştirildi
+
+## Bu phase'de alınan kararlar
+
+- **Kategori zorunlu.** Ürün kategorisiz olamaz. Migration mevcut ürünleri
+  "Genel" kategorisine bağlar.
+- **Silme kalıcıdır** (arşivleme değil), onay dialogu ile. Geçmiş teklifler
+  bozulmaz: teklif satırı ürünün ad/fiyat snapshot'ını tutacak.
+- **KDV oranı üründe varsayılan olarak tutulur**, teklif satırında
+  değiştirilebilecek → Phase 5'te ek migration gerekmeyecek.
+- **Arama SQL'de değil Dart'ta yapılır.** SQLite'ın `lower()`/`LIKE`'ı yalnızca
+  ASCII için harf duyarsız; Türkçe'de "Çekiç" ≠ "çekiç" olurdu.
 
 ## Çıktı
 
-Ürün yönetimi tamamen çalışıyor olmalı.
+Ürün yönetimi tamamen çalışıyor. ✅
 
 ---
 
