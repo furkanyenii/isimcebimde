@@ -8,6 +8,8 @@ import 'package:isimcebimde/features/customers/domain/repositories/customer_repo
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/customers/presentation/screens/customer_form_screen.dart';
 
+import '../../support/localized_app.dart';
+
 class _FakeCustomerRepository implements CustomerRepository {
   final List<Customer> created = [];
   final List<Customer> updated = [];
@@ -42,6 +44,9 @@ class _FakeCustomerRepository implements CustomerRepository {
 }
 
 void main() {
+  // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
+  final tr = l10nFor(const Locale('tr'));
+
   late _FakeCustomerRepository customers;
 
   setUp(() => customers = _FakeCustomerRepository());
@@ -49,11 +54,11 @@ void main() {
   Widget buildSubject({Customer? customer}) => ProviderScope(
     retry: (retryCount, error) => null,
     overrides: [customerRepositoryProvider.overrideWithValue(customers)],
-    child: MaterialApp(home: CustomerFormScreen(customer: customer)),
+    child: localizedApp(CustomerFormScreen(customer: customer)),
   );
 
   Future<void> selectCompany(WidgetTester tester) async {
-    await tester.tap(find.text('Kurumsal'));
+    await tester.tap(find.text(tr.customerTypeCompany));
     await tester.pumpAndSettle();
   }
 
@@ -64,11 +69,11 @@ void main() {
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
 
-      expect(find.text('Ad soyad'), findsOneWidget);
-      expect(find.text('TC Kimlik No'), findsOneWidget);
+      expect(find.text(tr.fullNameLabel), findsOneWidget);
+      expect(find.text(tr.nationalIdLabel), findsOneWidget);
       // Bireysel müşteride bunlar anlamsız — gösterilmemeli.
-      expect(find.text('Yetkili kişi'), findsNothing);
-      expect(find.text('Vergi dairesi'), findsNothing);
+      expect(find.text(tr.contactPersonLabel), findsNothing);
+      expect(find.text(tr.taxOfficeLabel), findsNothing);
     });
 
     testWidgets('kurumsal seçilince ilgili alanlar açılır', (tester) async {
@@ -77,11 +82,11 @@ void main() {
 
       await selectCompany(tester);
 
-      expect(find.text('Firma ünvanı'), findsOneWidget);
-      expect(find.text('Yetkili kişi'), findsOneWidget);
-      expect(find.text('Vergi dairesi'), findsOneWidget);
-      expect(find.text('Vergi no'), findsOneWidget);
-      expect(find.text('TC Kimlik No'), findsNothing);
+      expect(find.text(tr.companyNameLabel), findsOneWidget);
+      expect(find.text(tr.contactPersonLabel), findsOneWidget);
+      expect(find.text(tr.taxOfficeLabel), findsOneWidget);
+      expect(find.text(tr.taxNumberLabel), findsOneWidget);
+      expect(find.text(tr.nationalIdLabel), findsNothing);
     });
   });
 
@@ -90,10 +95,10 @@ void main() {
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('Ad soyad boş olamaz'), findsOneWidget);
+      expect(find.text(tr.fullNameRequired), findsOneWidget);
       expect(customers.created, isEmpty);
     });
 
@@ -102,17 +107,17 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Ad soyad'),
+        find.widgetWithText(TextFormField, tr.fullNameLabel),
         'Ayşe Demir',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'E-posta'),
+        find.widgetWithText(TextFormField, tr.emailLabel),
         'ayse[at]demir',
       );
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('E-posta adresi geçersiz'), findsOneWidget);
+      expect(find.text(tr.errorEmailInvalid), findsOneWidget);
       expect(customers.created, isEmpty);
     });
 
@@ -121,17 +126,17 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Ad soyad'),
+        find.widgetWithText(TextFormField, tr.fullNameLabel),
         'Ayşe Demir',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'TC Kimlik No'),
+        find.widgetWithText(TextFormField, tr.nationalIdLabel),
         '123',
       );
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('TC Kimlik No 11 haneli olmalı'), findsOneWidget);
+      expect(find.text(tr.errorNationalIdLength), findsOneWidget);
       expect(customers.created, isEmpty);
     });
 
@@ -141,17 +146,17 @@ void main() {
       await selectCompany(tester);
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Firma ünvanı'),
+        find.widgetWithText(TextFormField, tr.companyNameLabel),
         'Yılmaz İnşaat',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Vergi no'),
+        find.widgetWithText(TextFormField, tr.taxNumberLabel),
         '12345678901', // 11 hane — bireysel uzunluğu
       );
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('Vergi No 10 haneli olmalı'), findsOneWidget);
+      expect(find.text(tr.errorTaxNumberLength), findsOneWidget);
     });
   });
 
@@ -162,10 +167,10 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Ad soyad'),
+        find.widgetWithText(TextFormField, tr.fullNameLabel),
         'Ayşe Demir',
       );
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
       expect(customers.created, hasLength(1));
@@ -181,14 +186,14 @@ void main() {
       await selectCompany(tester);
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Firma ünvanı'),
+        find.widgetWithText(TextFormField, tr.companyNameLabel),
         'Yılmaz İnşaat',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Yetkili kişi'),
+        find.widgetWithText(TextFormField, tr.contactPersonLabel),
         'Ahmet Yılmaz',
       );
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
       final saved = customers.created.single;
@@ -210,11 +215,11 @@ void main() {
       await tester.pumpWidget(buildSubject(customer: existing));
       await tester.pumpAndSettle();
 
-      expect(find.text('Müşteriyi Düzenle'), findsOneWidget);
+      expect(find.text(tr.customerEdit), findsOneWidget);
       expect(find.text('Yılmaz İnşaat'), findsOneWidget);
       expect(find.text('Ahmet Yılmaz'), findsOneWidget);
       // Kurumsal olarak açılmalı.
-      expect(find.text('Vergi dairesi'), findsOneWidget);
+      expect(find.text(tr.taxOfficeLabel), findsOneWidget);
     });
 
     testWidgets('kaydetmek update çağırır, create değil', (tester) async {
@@ -222,10 +227,10 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Firma ünvanı'),
+        find.widgetWithText(TextFormField, tr.companyNameLabel),
         'Yılmaz İnşaat A.Ş.',
       );
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
       expect(customers.created, isEmpty);
@@ -242,7 +247,7 @@ void main() {
 
       expect(find.textContaining('geri alınamaz'), findsOneWidget);
 
-      await tester.tap(find.text('Vazgeç'));
+      await tester.tap(find.text(tr.actionCancel));
       await tester.pumpAndSettle();
 
       expect(customers.deleted, isEmpty);
@@ -254,7 +259,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.delete_outline));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Sil'));
+      await tester.tap(find.widgetWithText(FilledButton, tr.actionDelete));
       await tester.pumpAndSettle();
 
       expect(customers.deleted, [7]);
@@ -262,18 +267,22 @@ void main() {
   });
 
   testWidgets('kayıt hatası kullanıcıya gösterilir', (tester) async {
-    customers.failure = const DatabaseFailure('Müşteri kaydedilemedi.');
+    customers.failure = const DatabaseFailure(
+      DataOperation.create,
+      EntityKind.customer,
+    );
 
     await tester.pumpWidget(buildSubject());
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, 'Ad soyad'),
+      find.widgetWithText(TextFormField, tr.fullNameLabel),
       'Ayşe Demir',
     );
-    await tester.tap(find.text('Kaydet'));
+    await tester.tap(find.text(tr.actionSave));
     await tester.pumpAndSettle();
 
-    expect(find.text('Müşteri kaydedilemedi.'), findsOneWidget);
+    // Beklenen metin ARB'den okunur, elle yazılmaz.
+    expect(find.text(tr.errorCustomerSave), findsOneWidget);
   });
 }

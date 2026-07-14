@@ -1,0 +1,179 @@
+{
+  "@@locale": "en",
+
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionDelete": "Delete",
+  "actionAdd": "Add",
+  "actionRetry": "Try again",
+  "optionalField": "Optional",
+  "comingSoon": "Coming soon",
+  "comingSoonSemantics": "{label}, coming soon",
+  "@comingSoonSemantics": {
+    "description": "Semantics label of a module card that is not available yet.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "Quotes"
+      }
+    }
+  },
+  "deleteConfirmMessage": "\"{name}\" will be deleted permanently. This cannot be undone.",
+  "@deleteConfirmMessage": {
+    "description": "Confirmation body shown before a permanent delete.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Hammer"
+      }
+    }
+  },
+  "emptySearchTitle": "No results",
+  "emptySearchDescription": "Try a different search.",
+
+  "appTagline": "Quotes in minutes",
+  "splashInitError": "The app could not start. The database cannot be opened.",
+
+  "moduleQuotes": "Quotes",
+  "moduleProducts": "Products",
+  "moduleCustomers": "Customers",
+  "moduleSettings": "Settings",
+  "quoteNew": "New Quote",
+
+  "settingsCompany": "Company Details",
+  "settingsCompanySubtitle": "Shown on your quotes",
+  "companyNameFieldLabel": "Company name",
+  "companyLogo": "Logo",
+  "companyLogoAdd": "Choose logo",
+  "companyLogoRemove": "Remove logo",
+  "websiteLabel": "Website",
+  "taxNumberFieldLabel": "Tax number",
+
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "settingsSystemDefault": "System",
+  "@settingsSystemDefault": {
+    "description": "Follow the device setting, for both language and theme."
+  },
+  "settingsThemeLight": "Light",
+  "settingsThemeDark": "Dark",
+  "languageTurkish": "Turkish",
+  "languageEnglish": "English",
+
+  "productNew": "New Product",
+  "productEdit": "Edit Product",
+  "productDelete": "Delete product",
+  "productAdd": "Add product",
+  "productSearchHint": "Search products",
+  "productNameLabel": "Product name",
+  "productsLoadError": "Products could not be loaded.",
+  "productsEmptyTitle": "No products yet",
+  "productsEmptyDescription": "Add your products first so you can prepare quotes.",
+
+  "vatRateLabel": "VAT rate",
+  "vatRateShort": "VAT {rate}%",
+  "@vatRateShort": {
+    "description": "VAT rate shown on a product row. The percent sign leads in Turkish, trails in English.",
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "20"
+      }
+    }
+  },
+  "percentValue": "{rate}%",
+  "@percentValue": {
+    "placeholders": {
+      "rate": {
+        "type": "String",
+        "example": "20"
+      }
+    }
+  },
+
+  "priceLabel": "Price",
+  "priceMustBePositive": "Price must be greater than zero",
+
+  "categoryLabel": "Category",
+  "categoryRequired": "Pick a category",
+  "categoryNew": "New category",
+  "categoryNameLabel": "Category name",
+  "categoriesLoadError": "Categories could not be loaded.",
+
+  "customerNew": "New Customer",
+  "customerEdit": "Edit Customer",
+  "customerDelete": "Delete customer",
+  "customerAdd": "Add customer",
+  "customerSearchHint": "Search name, contact or phone",
+  "customersLoadError": "Customers could not be loaded.",
+  "customersEmptyTitle": "No customers yet",
+  "customersEmptyDescription": "Add your customers first so you can send quotes.",
+
+  "customerTypeIndividual": "Individual",
+  "customerTypeCompany": "Company",
+  "companyNameLabel": "Company name",
+  "companyNameRequired": "Company name cannot be empty",
+  "fullNameLabel": "Full name",
+  "fullNameRequired": "Full name cannot be empty",
+  "contactPersonLabel": "Contact person",
+  "phoneLabel": "Phone",
+  "emailLabel": "Email",
+  "addressLabel": "Address",
+  "taxOfficeLabel": "Tax office",
+  "taxNumberLabel": "Tax number",
+  "nationalIdLabel": "National ID",
+  "notesLabel": "Notes",
+
+  "errorGeneric": "The operation could not be completed.",
+  "@errorGeneric": {
+    "description": "Fallback when a failure has no specific message."
+  },
+
+  "errorProductsLoad": "Products could not be loaded.",
+  "errorProductSave": "The product could not be saved.",
+  "errorProductUpdate": "The product could not be updated.",
+  "errorProductDelete": "The product could not be deleted.",
+  "errorProductNameEmpty": "Product name cannot be empty.",
+  "errorProductNotSaved": "An unsaved product cannot be updated.",
+  "errorPriceNegative": "Price cannot be negative.",
+
+  "errorCategoriesLoad": "Categories could not be loaded.",
+  "errorCategorySave": "The category could not be saved.",
+  "errorCategoryUpdate": "The category could not be updated.",
+  "errorCategoryDelete": "The category could not be deleted.",
+  "errorCategoryNameEmpty": "Category name cannot be empty.",
+  "errorCategoryNotSaved": "An unsaved category cannot be updated.",
+  "errorCategoryDuplicate": "A category named \"{name}\" already exists.",
+  "@errorCategoryDuplicate": {
+    "description": "Category names are unique.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Hardware"
+      }
+    }
+  },
+  "errorCategoryInUse": "This category has products in it. Move the products to another category first.",
+
+  "errorCustomersLoad": "Customers could not be loaded.",
+  "errorCustomerSave": "The customer could not be saved.",
+  "errorCustomerUpdate": "The customer could not be updated.",
+  "errorCustomerDelete": "The customer could not be deleted.",
+  "errorCustomerNameEmpty": "Customer name cannot be empty.",
+  "errorCustomerNotSaved": "An unsaved customer cannot be updated.",
+  "errorEmailInvalid": "The email address is not valid.",
+
+  "errorSettingsLoad": "Settings could not be loaded.",
+  "errorSettingsSave": "Settings could not be saved.",
+
+  "errorNationalIdLength": "National ID must be 11 digits.",
+  "@errorNationalIdLength": {
+    "description": "Individual customers. Not merged with errorTaxNumberLength: the two differ by field name, not just digit count."
+  },
+  "errorTaxNumberLength": "Tax number must be 10 digits.",
+  "@errorTaxNumberLength": {
+    "description": "Company customers."
+  },
+
+  "errorExport": "The file could not be created."
+}

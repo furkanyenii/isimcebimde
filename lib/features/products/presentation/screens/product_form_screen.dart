@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
-import 'package:isimcebimde/core/errors/failure.dart';
+import 'package:isimcebimde/core/errors/failure_localizer.dart';
+import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/widgets/money_field.dart';
 import 'package:isimcebimde/features/categories/presentation/widgets/category_picker.dart';
@@ -56,30 +57,27 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   Widget build(BuildContext context) {
     final formState = ref.watch(productFormControllerProvider);
     final isSaving = formState.isLoading;
+    final l10n = context.l10n;
 
     // Hata kullanıcıya yan etki olarak gösterilir (CLAUDE.md: ref.listen).
     ref.listen(productFormControllerProvider, (previous, next) {
       final error = next.error;
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              error is Failure ? error.message : 'İşlem tamamlanamadı.',
-            ),
-          ),
+          SnackBar(content: Text(localizeError(error, context.l10n))),
         );
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Ürünü Düzenle' : 'Yeni Ürün'),
+        title: Text(_isEditing ? l10n.productEdit : l10n.productNew),
         actions: [
           if (_isEditing)
             IconButton(
               onPressed: isSaving ? null : _confirmDelete,
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Sil',
+              tooltip: l10n.actionDelete,
             ),
         ],
       ),
@@ -93,9 +91,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                 controller: _nameController,
                 autofocus: !_isEditing,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(labelText: 'Ürün adı'),
+                decoration: InputDecoration(labelText: l10n.productNameLabel),
                 validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Ürün adı boş olamaz'
+                    ? l10n.errorProductNameEmpty
                     : null,
               ),
               const SizedBox(height: AppSizes.md),
@@ -111,12 +109,14 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               const SizedBox(height: AppSizes.md),
               DropdownButtonFormField<Percent>(
                 initialValue: _vatRate,
-                decoration: const InputDecoration(labelText: 'KDV oranı'),
+                decoration: InputDecoration(labelText: l10n.vatRateLabel),
                 items: [
                   for (final rate in _vatOptions)
                     DropdownMenuItem(
                       value: rate,
-                      child: Text('%${rate.asPercent.toStringAsFixed(0)}'),
+                      child: Text(
+                        l10n.percentValue(rate.asPercent.toStringAsFixed(0)),
+                      ),
                     ),
                 ],
                 onChanged: (rate) {
@@ -132,7 +132,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                         height: AppSizes.iconSm,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : const Text('Kaydet'),
+                    : Text(l10n.actionSave),
               ),
             ],
           ),
@@ -169,26 +169,26 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     // Kalıcı silme geri alınamaz; onay zorunlu (CLAUDE.md: UI Rules).
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Ürünü sil'),
-        content: Text(
-          '"${widget.product!.name}" kalıcı olarak silinecek. '
-          'Bu işlem geri alınamaz.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Vazgeç'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+      builder: (context) {
+        final l10n = context.l10n;
+        return AlertDialog(
+          title: Text(l10n.productDelete),
+          content: Text(l10n.deleteConfirmMessage(widget.product!.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.actionCancel),
             ),
-            child: const Text('Sil'),
-          ),
-        ],
-      ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.colors.error,
+              ),
+              child: Text(l10n.actionDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) return;

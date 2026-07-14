@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
-import 'package:isimcebimde/core/errors/failure.dart';
+import 'package:isimcebimde/core/errors/failure_localizer.dart';
+import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_form_controller.dart';
@@ -76,30 +77,27 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
   Widget build(BuildContext context) {
     final formState = ref.watch(customerFormControllerProvider);
     final isSaving = formState.isLoading;
+    final l10n = context.l10n;
 
     // Hata kullanıcıya yan etki olarak gösterilir (CLAUDE.md: ref.listen).
     ref.listen(customerFormControllerProvider, (previous, next) {
       final error = next.error;
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              error is Failure ? error.message : 'İşlem tamamlanamadı.',
-            ),
-          ),
+          SnackBar(content: Text(localizeError(error, context.l10n))),
         );
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Müşteriyi Düzenle' : 'Yeni Müşteri'),
+        title: Text(_isEditing ? l10n.customerEdit : l10n.customerNew),
         actions: [
           if (_isEditing)
             IconButton(
               onPressed: isSaving ? null : _confirmDelete,
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Sil',
+              tooltip: l10n.actionDelete,
             ),
         ],
       ),
@@ -123,12 +121,14 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   autofocus: !_isEditing,
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
-                    labelText: _isCompany ? 'Firma ünvanı' : 'Ad soyad',
+                    labelText: _isCompany
+                        ? l10n.companyNameLabel
+                        : l10n.fullNameLabel,
                   ),
                   validator: (value) => (value == null || value.trim().isEmpty)
                       ? (_isCompany
-                            ? 'Firma ünvanı boş olamaz'
-                            : 'Ad soyad boş olamaz')
+                            ? l10n.companyNameRequired
+                            : l10n.fullNameRequired)
                       : null,
                 ),
                 if (_isCompany) ...[
@@ -136,9 +136,9 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   TextFormField(
                     controller: _contactPerson,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Yetkili kişi',
-                      helperText: 'İsteğe bağlı',
+                    decoration: InputDecoration(
+                      labelText: l10n.contactPersonLabel,
+                      helperText: l10n.optionalField,
                     ),
                   ),
                 ],
@@ -146,18 +146,18 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                 TextFormField(
                   controller: _phone,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
-                    labelText: 'Telefon',
-                    helperText: 'İsteğe bağlı',
+                  decoration: InputDecoration(
+                    labelText: l10n.phoneLabel,
+                    helperText: l10n.optionalField,
                   ),
                 ),
                 const SizedBox(height: AppSizes.md),
                 TextFormField(
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'E-posta',
-                    helperText: 'İsteğe bağlı',
+                  decoration: InputDecoration(
+                    labelText: l10n.emailLabel,
+                    helperText: l10n.optionalField,
                   ),
                   validator: _validateEmail,
                 ),
@@ -166,9 +166,9 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   controller: _address,
                   maxLines: 2,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    labelText: 'Adres',
-                    helperText: 'İsteğe bağlı',
+                  decoration: InputDecoration(
+                    labelText: l10n.addressLabel,
+                    helperText: l10n.optionalField,
                   ),
                 ),
                 if (_isCompany) ...[
@@ -176,9 +176,9 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   TextFormField(
                     controller: _taxOffice,
                     textCapitalization: TextCapitalization.words,
-                    decoration: const InputDecoration(
-                      labelText: 'Vergi dairesi',
-                      helperText: 'İsteğe bağlı',
+                    decoration: InputDecoration(
+                      labelText: l10n.taxOfficeLabel,
+                      helperText: l10n.optionalField,
                     ),
                   ),
                 ],
@@ -188,8 +188,10 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
-                    labelText: _isCompany ? 'Vergi no' : 'TC Kimlik No',
-                    helperText: 'İsteğe bağlı',
+                    labelText: _isCompany
+                        ? l10n.taxNumberLabel
+                        : l10n.nationalIdLabel,
+                    helperText: l10n.optionalField,
                   ),
                   validator: _validateTaxNumber,
                 ),
@@ -198,9 +200,9 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                   controller: _notes,
                   maxLines: 3,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
-                    labelText: 'Not',
-                    helperText: 'İsteğe bağlı',
+                  decoration: InputDecoration(
+                    labelText: l10n.notesLabel,
+                    helperText: l10n.optionalField,
                   ),
                 ),
               ],
@@ -221,7 +223,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                     height: AppSizes.iconSm,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Kaydet'),
+                : Text(l10n.actionSave),
           ),
         ),
       ),
@@ -235,7 +237,7 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     if (email.isEmpty) return null; // isteğe bağlı
     return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)
         ? null
-        : 'E-posta adresi geçersiz';
+        : context.l10n.errorEmailInvalid;
   }
 
   String? _validateTaxNumber(String? value) {
@@ -245,8 +247,8 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     final expected = _isCompany ? 10 : 11;
     if (digits.length != expected) {
       return _isCompany
-          ? 'Vergi No 10 haneli olmalı'
-          : 'TC Kimlik No 11 haneli olmalı';
+          ? context.l10n.errorTaxNumberLength
+          : context.l10n.errorNationalIdLength;
     }
     return null;
   }
@@ -282,26 +284,26 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
     // Kalıcı silme geri alınamaz; onay zorunlu (CLAUDE.md: UI Rules).
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Müşteriyi sil'),
-        content: Text(
-          '"${widget.customer!.name}" kalıcı olarak silinecek. '
-          'Bu işlem geri alınamaz.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Vazgeç'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+      builder: (context) {
+        final l10n = context.l10n;
+        return AlertDialog(
+          title: Text(l10n.customerDelete),
+          content: Text(l10n.deleteConfirmMessage(widget.customer!.name)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.actionCancel),
             ),
-            child: const Text('Sil'),
-          ),
-        ],
-      ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.colors.error,
+              ),
+              child: Text(l10n.actionDelete),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) return;

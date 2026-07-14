@@ -22,7 +22,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
   Future<int> create(String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {
-      throw const ValidationFailure('Kategori adı boş olamaz.');
+      throw const EmptyNameFailure(EntityKind.category);
     }
 
     try {
@@ -32,14 +32,19 @@ class CategoryRepositoryImpl implements CategoryRepository {
     } on SqliteException catch (e) {
       // Benzersizlik kısıtı veritabanı seviyesinde; yarış durumunda da tutar.
       if (e.extendedResultCode == _uniqueConstraintCode) {
-        throw DuplicateCategoryFailure(
-          '"$trimmed" adında bir kategori zaten var.',
-          cause: e,
-        );
+        throw DuplicateCategoryFailure(trimmed, cause: e);
       }
-      throw DatabaseFailure('Kategori kaydedilemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.create,
+        EntityKind.category,
+        cause: e,
+      );
     } on Object catch (e) {
-      throw DatabaseFailure('Kategori kaydedilemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.create,
+        EntityKind.category,
+        cause: e,
+      );
     }
   }
 
@@ -54,14 +59,19 @@ class CategoryRepositoryImpl implements CategoryRepository {
       // yazıldığına göre değişebiliyor (787 yerine 1811 de görüldü), bu yüzden
       // sihirli sayıya değil, birincil kısıt koduna ve mesaja bakılır.
       if (_isForeignKeyViolation(e)) {
-        throw CategoryInUseFailure(
-          'Bu kategoride ürün var. Önce ürünleri başka kategoriye taşı.',
-          cause: e,
-        );
+        throw CategoryInUseFailure(cause: e);
       }
-      throw DatabaseFailure('Kategori silinemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.delete,
+        EntityKind.category,
+        cause: e,
+      );
     } on Object catch (e) {
-      throw DatabaseFailure('Kategori silinemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.delete,
+        EntityKind.category,
+        cause: e,
+      );
     }
   }
 

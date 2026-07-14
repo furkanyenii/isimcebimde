@@ -11,6 +11,8 @@ import 'package:isimcebimde/features/customers/domain/repositories/customer_repo
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/customers/presentation/screens/customer_list_screen.dart';
 
+import '../../support/localized_app.dart';
+
 /// Widget testi veritabanını değil, ekranı test eder: repository arayüzünün
 /// sahte bir uygulaması takılır (CLAUDE.md: Test Rules).
 class _FakeCustomerRepository implements CustomerRepository {
@@ -51,6 +53,9 @@ class _FakeCustomerRepository implements CustomerRepository {
 }
 
 void main() {
+  // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
+  final tr = l10nFor(const Locale('tr'));
+
   const company = Customer(
     id: 1,
     type: CustomerType.company,
@@ -69,7 +74,7 @@ void main() {
     // üretimde olmayan bir davranışı doğrular (CLAUDE.md: Test Rules).
     retry: (retryCount, error) => null,
     overrides: [customerRepositoryProvider.overrideWithValue(repository)],
-    child: const MaterialApp(home: CustomerListScreen()),
+    child: localizedApp(const CustomerListScreen()),
   );
 
   testWidgets('loading durumu gösterilir', (tester) async {
@@ -112,8 +117,8 @@ void main() {
     await tester.pumpWidget(buildSubject(_FakeCustomerRepository()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Henüz müşteri yok'), findsOneWidget);
-    expect(find.text('Müşteri ekle'), findsOneWidget);
+    expect(find.text(tr.customersEmptyTitle), findsOneWidget);
+    expect(find.text(tr.customerAdd), findsOneWidget);
   });
 
   testWidgets('arama sonucu boşsa farklı bir boş durum gösterilir', (
@@ -126,8 +131,8 @@ void main() {
     await tester.pumpAndSettle();
 
     // "Hiç müşterin yok" ile "aradığın bulunamadı" farklı mesajlar gerektirir.
-    expect(find.text('Sonuç yok'), findsOneWidget);
-    expect(find.text('Henüz müşteri yok'), findsNothing);
+    expect(find.text(tr.emptySearchTitle), findsOneWidget);
+    expect(find.text(tr.customersEmptyTitle), findsNothing);
   });
 
   testWidgets('hata durumunda spinner değil hata ekranı gösterilir', (
@@ -136,7 +141,7 @@ void main() {
     await tester.pumpWidget(
       buildSubject(
         _FakeCustomerRepository(
-          error: const DatabaseFailure('Müşteriler okunamadı.'),
+          error: const DatabaseFailure(DataOperation.read, EntityKind.customer),
         ),
       ),
     );

@@ -33,7 +33,11 @@ class ProductRepositoryImpl implements ProductRepository {
               .toList(),
         )
         .handleError(
-          (Object e) => throw DatabaseFailure('Ürünler okunamadı.', cause: e),
+          (Object e) => throw DatabaseFailure(
+            DataOperation.read,
+            EntityKind.product,
+            cause: e,
+          ),
         );
   }
 
@@ -62,7 +66,7 @@ class ProductRepositoryImpl implements ProductRepository {
           );
     } on Object catch (e) {
       // Ham Drift hatası üst katmana çıkmaz (CLAUDE.md: Database Rules).
-      throw DatabaseFailure('Ürün kaydedilemedi.', cause: e);
+      throw DatabaseFailure(DataOperation.create, EntityKind.product, cause: e);
     }
   }
 
@@ -70,7 +74,7 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<void> update(Product product) async {
     final id = product.id;
     if (id == null) {
-      throw const ValidationFailure('Kaydedilmemiş ürün güncellenemez.');
+      throw const UnsavedEntityFailure(EntityKind.product);
     }
     _validate(product);
 
@@ -84,7 +88,7 @@ class ProductRepositoryImpl implements ProductRepository {
         ),
       );
     } on Object catch (e) {
-      throw DatabaseFailure('Ürün güncellenemedi.', cause: e);
+      throw DatabaseFailure(DataOperation.update, EntityKind.product, cause: e);
     }
   }
 
@@ -93,7 +97,7 @@ class ProductRepositoryImpl implements ProductRepository {
     try {
       await (_db.delete(_db.products)..where((p) => p.id.equals(id))).go();
     } on Object catch (e) {
-      throw DatabaseFailure('Ürün silinemedi.', cause: e);
+      throw DatabaseFailure(DataOperation.delete, EntityKind.product, cause: e);
     }
   }
 
@@ -101,10 +105,10 @@ class ProductRepositoryImpl implements ProductRepository {
   /// yeterli değildir (repository başka yerden de çağrılabilir).
   void _validate(Product product) {
     if (product.name.trim().isEmpty) {
-      throw const ValidationFailure('Ürün adı boş olamaz.');
+      throw const EmptyNameFailure(EntityKind.product);
     }
     if (product.price.isNegative) {
-      throw const ValidationFailure('Fiyat negatif olamaz.');
+      throw const NegativePriceFailure();
     }
   }
 

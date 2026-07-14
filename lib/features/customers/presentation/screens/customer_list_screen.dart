@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
+import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
@@ -13,9 +14,10 @@ class CustomerListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customers = ref.watch(customerListProvider);
     final query = ref.watch(customerSearchQueryProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Müşteriler')),
+      appBar: AppBar(title: Text(l10n.moduleCustomers)),
       body: Column(
         children: [
           const Padding(
@@ -26,7 +28,7 @@ class CustomerListScreen extends ConsumerWidget {
             child: customers.when(
               loading: () => const AppLoadingView(),
               error: (error, _) => AppErrorView(
-                message: 'Müşteriler yüklenemedi.',
+                message: l10n.customersLoadError,
                 onRetry: () => ref.invalidate(customerListProvider),
               ),
               data: (items) {
@@ -35,16 +37,15 @@ class CustomerListScreen extends ConsumerWidget {
                   return query.trim().isEmpty
                       ? AppEmptyView(
                           icon: Icons.people_outline,
-                          title: 'Henüz müşteri yok',
-                          description:
-                              'Teklif gönderebilmek için önce müşterini ekle.',
-                          actionLabel: 'Müşteri ekle',
+                          title: l10n.customersEmptyTitle,
+                          description: l10n.customersEmptyDescription,
+                          actionLabel: l10n.customerAdd,
                           onAction: () => _openForm(context),
                         )
-                      : const AppEmptyView(
+                      : AppEmptyView(
                           icon: Icons.search_off,
-                          title: 'Sonuç yok',
-                          description: 'Farklı bir arama dene.',
+                          title: l10n.emptySearchTitle,
+                          description: l10n.emptySearchDescription,
                         );
                 }
                 return ListView.builder(
@@ -62,7 +63,7 @@ class CustomerListScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(context),
         icon: const Icon(Icons.add),
-        label: const Text('Yeni Müşteri'),
+        label: Text(l10n.customerNew),
       ),
     );
   }
@@ -98,7 +99,7 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
       controller: _controller,
       decoration: InputDecoration(
         // Sahada kullanıcı firmanın adını değil, muhatabını hatırlar.
-        hintText: 'Ad, yetkili veya telefon ara',
+        hintText: context.l10n.customerSearchHint,
         prefixIcon: const Icon(Icons.search),
         suffixIcon: _controller.text.isEmpty
             ? null

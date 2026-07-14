@@ -30,8 +30,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
           (customers) => customers.where((c) => _matches(c, search)).toList(),
         )
         .handleError(
-          (Object e) =>
-              throw DatabaseFailure('Müşteriler okunamadı.', cause: e),
+          (Object e) => throw DatabaseFailure(
+            DataOperation.read,
+            EntityKind.customer,
+            cause: e,
+          ),
         );
   }
 
@@ -73,7 +76,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
           );
     } on Object catch (e) {
       // Ham Drift hatası üst katmana çıkmaz (CLAUDE.md: Database Rules).
-      throw DatabaseFailure('Müşteri kaydedilemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.create,
+        EntityKind.customer,
+        cause: e,
+      );
     }
   }
 
@@ -81,7 +88,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Future<void> update(Customer customer) async {
     final id = customer.id;
     if (id == null) {
-      throw const ValidationFailure('Kaydedilmemiş müşteri güncellenemez.');
+      throw const UnsavedEntityFailure(EntityKind.customer);
     }
     final clean = _validated(customer);
 
@@ -100,7 +107,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
         ),
       );
     } on Object catch (e) {
-      throw DatabaseFailure('Müşteri güncellenemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.update,
+        EntityKind.customer,
+        cause: e,
+      );
     }
   }
 
@@ -109,7 +120,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
     try {
       await (_db.delete(_db.customers)..where((c) => c.id.equals(id))).go();
     } on Object catch (e) {
-      throw DatabaseFailure('Müşteri silinemedi.', cause: e);
+      throw DatabaseFailure(
+        DataOperation.delete,
+        EntityKind.customer,
+        cause: e,
+      );
     }
   }
 
@@ -120,12 +135,12 @@ class CustomerRepositoryImpl implements CustomerRepository {
   Customer _validated(Customer customer) {
     final name = customer.name.trim();
     if (name.isEmpty) {
-      throw const ValidationFailure('Müşteri adı boş olamaz.');
+      throw const EmptyNameFailure(EntityKind.customer);
     }
 
     final email = _blankToNull(customer.email);
     if (email != null && !_isValidEmail(email)) {
-      throw const ValidationFailure('E-posta adresi geçersiz.');
+      throw const InvalidEmailFailure();
     }
 
     final taxNumber = _digitsOrNull(customer.taxNumber);
@@ -133,13 +148,11 @@ class CustomerRepositoryImpl implements CustomerRepository {
       // Bireysel TCKN 11, kurumsal vergi no 10 hanedir. Checksum doğrulaması
       // yapılmaz: geçerli ama alışılmadık bir numarada kullanıcıyı bloklamak,
       // hatalı numaraya izin vermekten daha kötüdür.
-      final expected = customer.type.isIndividual ? 11 : 10;
-      if (taxNumber.length != expected) {
-        throw ValidationFailure(
-          customer.type.isIndividual
-              ? 'TC Kimlik No 11 haneli olmalı.'
-              : 'Vergi No 10 haneli olmalı.',
-        );
+      if (customer.type.isIndividual && taxNumber.length != 11) {
+        throw const InvalidNationalIdFailure();
+      }
+      if (customer.type.isCompany && taxNumber.length != 10) {
+        throw const InvalidTaxNumberFailure();
       }
     }
 

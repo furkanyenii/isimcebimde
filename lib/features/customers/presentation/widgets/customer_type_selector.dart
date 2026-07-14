@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
 
 /// Bireysel / Kurumsal seçimi.
@@ -18,16 +19,16 @@ class CustomerTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SegmentedButton<CustomerType>(
-      segments: const [
+      segments: [
         ButtonSegment(
           value: CustomerType.individual,
-          label: Text('Bireysel'),
-          icon: Icon(Icons.person_outline),
+          label: Text(context.l10n.customerTypeIndividual),
+          icon: const Icon(Icons.person_outline),
         ),
         ButtonSegment(
           value: CustomerType.company,
-          label: Text('Kurumsal'),
-          icon: Icon(Icons.business_outlined),
+          label: Text(context.l10n.customerTypeCompany),
+          icon: const Icon(Icons.business_outlined),
         ),
       ],
       selected: {value},
