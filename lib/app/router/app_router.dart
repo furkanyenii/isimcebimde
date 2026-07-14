@@ -5,6 +5,7 @@ import 'package:isimcebimde/features/products/presentation/screens/product_list_
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_list_screen.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/template_list_screen.dart';
 import 'package:isimcebimde/features/settings/presentation/screens/company_form_screen.dart';
+import 'package:isimcebimde/features/settings/presentation/screens/preparer_form_screen.dart';
 import 'package:isimcebimde/features/settings/presentation/screens/settings_screen.dart';
 import 'package:isimcebimde/features/splash/presentation/screens/splash_screen.dart';
 
@@ -18,6 +19,7 @@ abstract final class AppRoutes {
   static const String templates = '/quotes/templates';
   static const String settings = '/settings';
   static const String company = '/settings/company';
+  static const String preparer = '/settings/preparer';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -64,6 +66,11 @@ final GoRouter appRouter = GoRouter(
               path: 'company',
               name: 'company',
               builder: (context, state) => const CompanyFormScreen(),
+            ),
+            GoRoute(
+              path: 'preparer',
+              name: 'preparer',
+              builder: (context, state) => const PreparerFormScreen(),
             ),
           ],
         ),

@@ -3,19 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/utils/turkish_text.dart';
+import 'package:isimcebimde/core/widgets/app_picker_sheet.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
+import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
 
 /// Teklife ürün eklerken seçim ekranı.
 ///
 /// `CustomerPicker` ile aynı gerekçe: kendi yerel arama metnini tutar, ekranın
 /// paylaşılan `productSearchQueryProvider`'ını kullanmaz.
 Future<Product?> showProductPicker(BuildContext context) {
-  return showModalBottomSheet<Product>(
+  return showAppPickerSheet<Product>(
     context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
     builder: (context) => const _ProductPickerSheet(),
   );
 }
@@ -37,63 +37,79 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
     super.dispose();
   }
 
+  /// Aranan ürün yoksa akış kesilmez: kullanıcı ürünü buradan oluşturur ve
+  /// oluşturulan ürün doğrudan teklife seçili olarak döner — teklif ekranına
+  /// elleri boş dönüp "önce ürünü ekle" demek zorunda kalmaz.
+  Future<void> _createProduct(String name) async {
+    final created = await Navigator.of(context).push<Product>(
+      MaterialPageRoute(
+        builder: (context) => ProductFormScreen(initialName: name),
+      ),
+    );
+
+    if (created == null || !mounted) return;
+    Navigator.of(context).pop(created);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final products = ref.watch(productListProvider);
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSizes.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _searchController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: l10n.productSearchHint,
-                prefixIcon: const Icon(Icons.search),
-              ),
-              onChanged: (_) => setState(() {}),
+    return Padding(
+      padding: const EdgeInsets.all(AppSizes.md),
+      child: Column(
+        children: [
+          // autofocus yok: sheet klavyesiz açılır, kullanıcı önce listeyi görür.
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: l10n.productSearchHint,
+              prefixIcon: const Icon(Icons.search),
             ),
-            const SizedBox(height: AppSizes.sm),
-            Flexible(
-              child: products.when(
-                loading: () => const AppLoadingView(),
-                error: (error, _) =>
-                    AppErrorView(message: l10n.productsLoadError),
-                data: (items) {
-                  final query = _searchController.text;
-                  final filtered = items
-                      .where((p) => containsNormalized(p.name, query))
-                      .toList();
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSizes.sm),
+          Expanded(
+            child: products.when(
+              loading: () => const AppLoadingView(),
+              error: (error, _) =>
+                  AppErrorView(message: l10n.productsLoadError),
+              data: (items) {
+                final query = _searchController.text.trim();
+                final filtered = items
+                    .where((p) => containsNormalized(p.name, query))
+                    .toList();
 
-                  if (filtered.isEmpty) {
-                    return AppEmptyView(
-                      icon: Icons.search_off,
-                      title: l10n.emptySearchTitle,
-                      description: l10n.emptySearchDescription,
-                    );
-                  }
-
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final product = filtered[index];
-                      return ListTile(
-                        title: Text(product.name),
-                        trailing: Text(context.formatMoney(product.price)),
-                        onTap: () => Navigator.of(context).pop(product),
-                      );
-                    },
+                if (filtered.isEmpty) {
+                  return AppEmptyView(
+                    icon: Icons.search_off,
+                    title: l10n.emptySearchTitle,
+                    description: query.isEmpty
+                        ? l10n.productsEmptyDescription
+                        : l10n.emptySearchDescription,
+                    actionLabel: query.isEmpty
+                        ? l10n.productAdd
+                        : l10n.productCreateFromSearch(query),
+                    onAction: () => _createProduct(query),
                   );
-                },
-              ),
+                }
+
+                return ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final product = filtered[index];
+                    return ListTile(
+                      title: Text(product.name),
+                      trailing: Text(context.formatMoney(product.price)),
+                      onTap: () => Navigator.of(context).pop(product),
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -11,10 +11,19 @@ import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_form_controller.dart';
 
 /// Ürün ekleme ve düzenleme formu. [product] null ise yeni ürün.
+///
+/// Kaydedilen ürünü `Navigator.pop` ile geri döner: ürün picker'ı içinden
+/// açıldığında, oluşturulan ürün doğrudan teklife eklenir.
+///
+/// **KDV alanı yoktur** — oran teklif satırında girilir (bkz. `OfferItem.vatRate`).
 class ProductFormScreen extends ConsumerStatefulWidget {
-  const ProductFormScreen({this.product, super.key});
+  const ProductFormScreen({this.product, this.initialName, super.key});
 
   final Product? product;
+
+  /// Yeni üründe ad alanına hazır gelen metin. Ürün picker'ında aranıp
+  /// bulunamayan sorgu buraya taşınır; kullanıcı aynı şeyi iki kez yazmaz.
+  final String? initialName;
 
   @override
   ConsumerState<ProductFormScreen> createState() => _ProductFormScreenState();
@@ -25,26 +34,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   late final TextEditingController _nameController;
 
   late Money _price;
-  late Percent _vatRate;
   int? _categoryId;
 
   bool get _isEditing => widget.product != null;
-
-  /// Türkiye'de kullanılan KDV oranları.
-  static const List<Percent> _vatOptions = [
-    Percent.fromBasisPoints(2000),
-    Percent.fromBasisPoints(1000),
-    Percent.fromBasisPoints(100),
-    Percent.fromBasisPoints(0),
-  ];
 
   @override
   void initState() {
     super.initState();
     final product = widget.product;
-    _nameController = TextEditingController(text: product?.name ?? '');
+    _nameController = TextEditingController(
+      text: product?.name ?? widget.initialName ?? '',
+    );
     _price = product?.price ?? Money.zero;
-    _vatRate = product?.vatRate ?? Product.defaultVatRate;
     _categoryId = product?.categoryId;
   }
 
@@ -108,23 +109,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                   selectedId: _categoryId,
                   onChanged: (id) => setState(() => _categoryId = id),
                 ),
-                const SizedBox(height: AppSizes.md),
-                DropdownButtonFormField<Percent>(
-                  initialValue: _vatRate,
-                  decoration: InputDecoration(labelText: l10n.vatRateLabel),
-                  items: [
-                    for (final rate in _vatOptions)
-                      DropdownMenuItem(
-                        value: rate,
-                        child: Text(
-                          l10n.percentValue(rate.asPercent.toStringAsFixed(0)),
-                        ),
-                      ),
-                  ],
-                  onChanged: (rate) {
-                    if (rate != null) setState(() => _vatRate = rate);
-                  },
-                ),
                 const SizedBox(height: AppSizes.xl),
                 FilledButton(
                   onPressed: isSaving ? null : _save,
@@ -155,14 +139,13 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       name: _nameController.text,
       price: _price,
       categoryId: categoryId,
-      vatRate: _vatRate,
     );
 
     final saved = await ref
         .read(productFormControllerProvider.notifier)
         .save(product);
 
-    if (saved && mounted) Navigator.of(context).pop();
+    if (saved != null && mounted) Navigator.of(context).pop(saved);
   }
 
   Future<void> _confirmDelete() async {

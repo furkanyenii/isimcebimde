@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:isimcebimde/core/database/app_database.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/currency.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
@@ -165,7 +166,8 @@ class TemplateRepositoryImpl implements TemplateRepository {
     productId: Value(item.productId),
     productName: item.productName,
     unitPriceMinor: item.unitPrice.minor,
-    quantity: item.quantity,
+    quantity: item.quantity.thousandths,
+    unit: Value(item.unit),
     vatRateBasisPoints: item.vatRate.basisPoints,
     discountBasisPoints: Value(item.discount.basisPoints),
     sortOrder: Value(sortOrder),
@@ -193,7 +195,8 @@ class TemplateRepositoryImpl implements TemplateRepository {
     productId: row.productId,
     productName: row.productName,
     unitPrice: Money(row.unitPriceMinor),
-    quantity: row.quantity,
+    quantity: Quantity.fromThousandths(row.quantity),
+    unit: row.unit,
     vatRate: Percent.fromBasisPoints(row.vatRateBasisPoints),
     discount: Percent.fromBasisPoints(row.discountBasisPoints),
   );

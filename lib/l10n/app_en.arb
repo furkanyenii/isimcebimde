@@ -49,6 +49,12 @@
   "websiteLabel": "Website",
   "taxNumberFieldLabel": "Tax number",
 
+  "settingsPreparer": "Your Details",
+  "settingsPreparerSubtitle": "Shown at the bottom of your quotes",
+  "firstNameLabel": "First name",
+  "lastNameLabel": "Last name",
+  "jobTitleLabel": "Job title",
+
   "settingsLanguage": "Language",
   "settingsTheme": "Theme",
   "settingsSystemDefault": "System",
@@ -70,6 +76,16 @@
   "currencyBritishPound": "British Pound (£)",
 
   "quantityLabel": "Quantity",
+  "unitLabel": "Unit",
+  "unitPiece": "pcs",
+  "unitSquareMeter": "m²",
+  "unitCubicMeter": "m³",
+  "unitPackage": "pack",
+  "unitSet": "set",
+  "unitBox": "box",
+  "unitCustomAdd": "Other…",
+  "unitCustomTitle": "New unit",
+  "unitCustomHint": "e.g. ton, hour, roll",
   "discountLabel": "Discount",
   "generalDiscountLabel": "Overall discount",
   "subtotalLabel": "Subtotal",
@@ -136,18 +152,18 @@
   "productsLoadError": "Products could not be loaded.",
   "productsEmptyTitle": "No products yet",
   "productsEmptyDescription": "Add your products first so you can prepare quotes.",
-
-  "vatRateLabel": "VAT rate",
-  "vatRateShort": "VAT {rate}%",
-  "@vatRateShort": {
-    "description": "VAT rate shown on a product row. The percent sign leads in Turkish, trails in English.",
+  "productCreateFromSearch": "Add \"{query}\" as a new product",
+  "@productCreateFromSearch": {
+    "description": "Shown in the product picker when the search matches nothing; creates the product on the spot.",
     "placeholders": {
-      "rate": {
+      "query": {
         "type": "String",
-        "example": "20"
+        "example": "Ceramic tile"
       }
     }
   },
+
+  "vatRateLabel": "VAT rate",
   "percentValue": "{rate}%",
   "@percentValue": {
     "placeholders": {
@@ -241,6 +257,9 @@
   "@errorTaxNumberLength": {
     "description": "Company customers."
   },
+
+  "errorUnitNameEmpty": "Unit name cannot be empty.",
+  "errorUnitSave": "The unit could not be saved.",
 
   "errorExport": "The file could not be created."
 }

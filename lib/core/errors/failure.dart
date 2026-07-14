@@ -28,7 +28,15 @@ sealed class Failure implements Exception {
 }
 
 /// Hatanın hangi kayıt türüyle ilgili olduğu.
-enum EntityKind { product, category, customer, settings, offer, template }
+enum EntityKind {
+  product,
+  category,
+  customer,
+  settings,
+  offer,
+  template,
+  customUnit,
+}
 
 /// Hangi veritabanı işleminin başarısız olduğu.
 enum DataOperation { read, create, update, delete }

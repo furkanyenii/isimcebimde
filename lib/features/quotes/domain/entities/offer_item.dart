@@ -1,4 +1,6 @@
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
+import 'package:isimcebimde/features/quotes/domain/entities/offer_unit.dart';
 import 'package:meta/meta.dart';
 
 /// Bir teklifin tek satırı.
@@ -7,8 +9,11 @@ import 'package:meta/meta.dart';
 ///
 /// [productName] ve [unitPrice] eklendiği andaki ürünün **snapshot**'ıdır.
 /// Ürünün fiyatı sonra değişse (hatta ürün silinse) bile bu satır değişmez —
-/// bu bir muhasebe doğruluğu gereğidir (CLAUDE.md: Database Rules). [vatRate]
-/// da ürünün o anki varsayılanından kopyalanır ama satırda serbestçe değiştirilebilir.
+/// bu bir muhasebe doğruluğu gereğidir (CLAUDE.md: Database Rules).
+///
+/// [vatRate] ürünün değil **satırın** özelliğidir: aynı ürün farklı teklifte
+/// farklı oranla satılabilir, bu yüzden kullanıcı KDV'yi her satırda kendisi
+/// girer; ürün kartında KDV tutulmaz.
 @immutable
 final class OfferItem {
   const OfferItem({
@@ -17,9 +22,14 @@ final class OfferItem {
     required this.productName,
     required this.unitPrice,
     required this.quantity,
-    required this.vatRate,
+    this.unit = kDefaultUnit,
+    this.vatRate = defaultVatRate,
     this.discount = Percent.zero,
   });
+
+  /// Satır eklenirken kullanılan varsayılan KDV oranı (%20). Kullanıcı satırda
+  /// serbestçe değiştirir — bu yalnızca en sık girilen değeri hazır getirir.
+  static const Percent defaultVatRate = Percent.fromBasisPoints(2000);
 
   /// Henüz kaydedilmemiş satır için `null`.
   final int? id;
@@ -32,18 +42,25 @@ final class OfferItem {
   final String productName;
   final Money unitPrice;
 
-  /// Adet tam sayıdır (CLAUDE.md: `Money` — kesirli miktar `scaleBy` gerektirir).
-  /// Sıfır veya negatif olamaz.
-  final int quantity;
+  /// Kesirli olabilir (12,5 m²) — bkz. [Quantity]. Sıfır veya negatif olamaz.
+  final Quantity quantity;
 
-  /// Ürünün eklendiği andaki varsayılanı; bu satırda serbestçe değiştirilebilir.
+  /// Ölçü birimi: hazır birimlerden biri ([OfferUnit]) ya da kullanıcının
+  /// eklediği serbest metin. Yalnızca bir etikettir, hesaba girmez.
+  final String unit;
+
+  /// Bu satıra uygulanan KDV oranı.
   final Percent vatRate;
 
   /// Satır bazlı iskonto. Genel indirimden (bkz. `Offer.generalDiscount`) ayrıdır.
   final Percent discount;
 
   /// İskonto uygulanmış, KDV hariç satır tutarı.
-  Money get lineSubtotal => (unitPrice * quantity).minusRate(discount);
+  ///
+  /// Miktar kesirli olabildiği için çarpım [Money.scaleBy] ile yapılır;
+  /// yuvarlama orada, tek ve ortak kuralla (ticari yuvarlama) gerçekleşir.
+  Money get lineSubtotal =>
+      unitPrice.scaleBy(quantity.asDecimal).minusRate(discount);
 
   /// Bu satırın KDV tutarı.
   Money get lineVat => lineSubtotal.rateOf(vatRate);
@@ -56,7 +73,8 @@ final class OfferItem {
     int? productId,
     String? productName,
     Money? unitPrice,
-    int? quantity,
+    Quantity? quantity,
+    String? unit,
     Percent? vatRate,
     Percent? discount,
   }) => OfferItem(
@@ -65,6 +83,7 @@ final class OfferItem {
     productName: productName ?? this.productName,
     unitPrice: unitPrice ?? this.unitPrice,
     quantity: quantity ?? this.quantity,
+    unit: unit ?? this.unit,
     vatRate: vatRate ?? this.vatRate,
     discount: discount ?? this.discount,
   );
@@ -77,6 +96,7 @@ final class OfferItem {
       other.productName == productName &&
       other.unitPrice == unitPrice &&
       other.quantity == quantity &&
+      other.unit == unit &&
       other.vatRate == vatRate &&
       other.discount == discount;
 
@@ -87,6 +107,7 @@ final class OfferItem {
     productName,
     unitPrice,
     quantity,
+    unit,
     vatRate,
     discount,
   );

@@ -3,6 +3,7 @@ import 'package:isimcebimde/core/database/app_database.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart';
 import 'package:isimcebimde/features/settings/domain/entities/company_info.dart';
+import 'package:isimcebimde/features/settings/domain/entities/preparer_info.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
@@ -51,6 +52,13 @@ class SettingsRepositoryImpl implements SettingsRepository {
               companyAddress: Value(_nullIfBlank(settings.company.address)),
               companyTaxOffice: Value(_nullIfBlank(settings.company.taxOffice)),
               companyTaxNumber: Value(_nullIfBlank(settings.company.taxNumber)),
+              preparerFirstName: Value(
+                _nullIfBlank(settings.preparer.firstName),
+              ),
+              preparerLastName: Value(_nullIfBlank(settings.preparer.lastName)),
+              preparerTitle: Value(_nullIfBlank(settings.preparer.title)),
+              preparerEmail: Value(_nullIfBlank(settings.preparer.email)),
+              preparerPhone: Value(_nullIfBlank(settings.preparer.phone)),
             ),
           );
     } on Object catch (e) {
@@ -74,6 +82,13 @@ class SettingsRepositoryImpl implements SettingsRepository {
       address: row.companyAddress,
       taxOffice: row.companyTaxOffice,
       taxNumber: row.companyTaxNumber,
+    ),
+    preparer: PreparerInfo(
+      firstName: row.preparerFirstName,
+      lastName: row.preparerLastName,
+      title: row.preparerTitle,
+      email: row.preparerEmail,
+      phone: row.preparerPhone,
     ),
   );
 

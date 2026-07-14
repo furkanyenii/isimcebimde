@@ -13,19 +13,25 @@ class ProductFormController extends _$ProductFormController {
   @override
   FutureOr<void> build() {}
 
-  Future<bool> save(Product product) async {
+  /// Kaydedilen ürünü döner (yeni üründe artık `id` doludur), hata halinde
+  /// `null`. Çağıran, id'ye ihtiyaç duyar: ürün picker'ı içinden oluşturulan
+  /// ürün doğrudan teklife eklenir.
+  Future<Product?> save(Product product) async {
     state = const AsyncLoading();
     final repository = ref.read(productRepositoryProvider);
 
+    Product? saved;
     state = await AsyncValue.guard(() async {
       if (product.id == null) {
-        await repository.create(product);
+        final id = await repository.create(product);
+        saved = product.copyWith(id: id);
       } else {
         await repository.update(product);
+        saved = product;
       }
     });
 
-    return !state.hasError;
+    return state.hasError ? null : saved;
   }
 
   Future<bool> delete(int id) async {

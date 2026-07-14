@@ -61,7 +61,6 @@ class ProductRepositoryImpl implements ProductRepository {
               name: product.name.trim(),
               priceMinor: product.price.minor,
               categoryId: product.categoryId,
-              vatRateBasisPoints: Value(product.vatRate.basisPoints),
             ),
           );
     } on Object catch (e) {
@@ -84,7 +83,6 @@ class ProductRepositoryImpl implements ProductRepository {
           name: Value(product.name.trim()),
           priceMinor: Value(product.price.minor),
           categoryId: Value(product.categoryId),
-          vatRateBasisPoints: Value(product.vatRate.basisPoints),
         ),
       );
     } on Object catch (e) {
@@ -117,7 +115,6 @@ class ProductRepositoryImpl implements ProductRepository {
     name: row.name,
     price: Money(row.priceMinor),
     categoryId: row.categoryId,
-    vatRate: Percent.fromBasisPoints(row.vatRateBasisPoints),
     isArchived: row.isArchived,
   );
 }

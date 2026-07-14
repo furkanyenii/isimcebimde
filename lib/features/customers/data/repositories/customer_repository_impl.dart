@@ -144,20 +144,17 @@ class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     final taxNumber = _digitsOrNull(customer.taxNumber);
-    if (taxNumber != null) {
-      // Bireysel TCKN 11, kurumsal vergi no 10 hanedir. Checksum doğrulaması
-      // yapılmaz: geçerli ama alışılmadık bir numarada kullanıcıyı bloklamak,
-      // hatalı numaraya izin vermekten daha kötüdür.
-      if (customer.type.isIndividual && taxNumber.length != 11) {
-        throw const InvalidNationalIdFailure();
-      }
-      if (customer.type.isCompany && taxNumber.length != 10) {
-        throw const InvalidTaxNumberFailure();
-      }
+    // Vergi no her iki tipte de sorulur (şahıs firması da vergiye tabidir):
+    // 10 hane vergi no, 11 hane ise eskiden TCKN olarak girilmiş kayıt.
+    // Checksum doğrulaması yapılmaz: geçerli ama alışılmadık bir numarada
+    // kullanıcıyı bloklamak, hatalı numaraya izin vermekten daha kötüdür.
+    if (taxNumber != null && taxNumber.length != 10 && taxNumber.length != 11) {
+      throw const InvalidTaxNumberFailure();
     }
 
-    // Kurumsala özel alanlar bireysel müşteride saklanmaz: tip değiştirildiğinde
+    // Yetkili kişi yalnızca kurumsalda anlamlıdır: tip değiştirildiğinde
     // gizlenen alanın eski değeri veritabanında hayalet gibi kalmamalı.
+    // Vergi dairesi artık her iki tipte de görünür, bu yüzden korunur.
     final isCompany = customer.type.isCompany;
 
     return Customer(
@@ -168,7 +165,7 @@ class CustomerRepositoryImpl implements CustomerRepository {
       phone: _blankToNull(customer.phone),
       email: email,
       address: _blankToNull(customer.address),
-      taxOffice: isCompany ? _blankToNull(customer.taxOffice) : null,
+      taxOffice: _blankToNull(customer.taxOffice),
       taxNumber: taxNumber,
       notes: _blankToNull(customer.notes),
     );

@@ -4,12 +4,14 @@ import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/core/widgets/keyboard_dismiss_on_tap.dart';
 import 'package:isimcebimde/features/customers/presentation/widgets/customer_picker.dart';
 import 'package:isimcebimde/features/products/presentation/widgets/product_picker.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
+import 'package:isimcebimde/features/quotes/presentation/providers/custom_unit_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_form_controller.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_pdf_preview_screen.dart';
@@ -60,6 +62,10 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
     final hasCustomer = _offer.customerId != null;
     final canSave = hasCustomer && _offer.items.isNotEmpty;
     final isSaving = ref.watch(offerFormControllerProvider).isLoading;
+    // Birim listesi ikincil veridir: yüklenmediyse hazır birimlerle devam
+    // edilir, teklif akışı bunun için bekletilmez.
+    final customUnits =
+        ref.watch(customUnitListProvider).value ?? const <String>[];
 
     // Hata kullanıcıya yan etki olarak gösterilir (CLAUDE.md: ref.listen).
     ref.listen(offerFormControllerProvider, (previous, next) {
@@ -125,8 +131,10 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
               OfferItemsSection(
                 items: _offer.items,
                 currency: _offer.currency,
+                customUnits: customUnits,
                 onChanged: (items) =>
                     setState(() => _offer = _offer.copyWith(items: items)),
+                onUnitCreated: _createUnit,
                 onAddPressed: _addProduct,
                 addLabel: l10n.productAdd,
               ),
@@ -235,6 +243,19 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
     }
   }
 
+  /// Kullanıcının yazdığı birim kalıcılaştırılır; sonraki tekliflerde de
+  /// listede çıkar. `CategoryPicker._createCategory` ile aynı desen: küçük ve
+  /// tek seferlik bir yazma için ayrı controller kurulmaz.
+  Future<void> _createUnit(String unit) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    try {
+      await ref.read(customUnitRepositoryProvider).add(unit);
+    } on Failure catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.localized(l10n))));
+    }
+  }
+
   Future<void> _addProduct() async {
     final product = await showProductPicker(context);
     if (product == null || !mounted) return;
@@ -247,8 +268,7 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
             productId: product.id,
             productName: product.name,
             unitPrice: product.price,
-            quantity: 1,
-            vatRate: product.vatRate,
+            quantity: Quantity.one,
           ),
         ],
       );

@@ -1524,6 +1524,67 @@ class $SettingsTable extends Settings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _preparerFirstNameMeta = const VerificationMeta(
+    'preparerFirstName',
+  );
+  @override
+  late final GeneratedColumn<String> preparerFirstName =
+      GeneratedColumn<String>(
+        'preparer_first_name',
+        aliasedName,
+        true,
+        additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 100),
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _preparerLastNameMeta = const VerificationMeta(
+    'preparerLastName',
+  );
+  @override
+  late final GeneratedColumn<String> preparerLastName = GeneratedColumn<String>(
+    'preparer_last_name',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 100),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _preparerTitleMeta = const VerificationMeta(
+    'preparerTitle',
+  );
+  @override
+  late final GeneratedColumn<String> preparerTitle = GeneratedColumn<String>(
+    'preparer_title',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 100),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _preparerEmailMeta = const VerificationMeta(
+    'preparerEmail',
+  );
+  @override
+  late final GeneratedColumn<String> preparerEmail = GeneratedColumn<String>(
+    'preparer_email',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 200),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _preparerPhoneMeta = const VerificationMeta(
+    'preparerPhone',
+  );
+  @override
+  late final GeneratedColumn<String> preparerPhone = GeneratedColumn<String>(
+    'preparer_phone',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 32),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1537,6 +1598,11 @@ class $SettingsTable extends Settings
     companyAddress,
     companyTaxOffice,
     companyTaxNumber,
+    preparerFirstName,
+    preparerLastName,
+    preparerTitle,
+    preparerEmail,
+    preparerPhone,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1640,6 +1706,51 @@ class $SettingsTable extends Settings
         ),
       );
     }
+    if (data.containsKey('preparer_first_name')) {
+      context.handle(
+        _preparerFirstNameMeta,
+        preparerFirstName.isAcceptableOrUnknown(
+          data['preparer_first_name']!,
+          _preparerFirstNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preparer_last_name')) {
+      context.handle(
+        _preparerLastNameMeta,
+        preparerLastName.isAcceptableOrUnknown(
+          data['preparer_last_name']!,
+          _preparerLastNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preparer_title')) {
+      context.handle(
+        _preparerTitleMeta,
+        preparerTitle.isAcceptableOrUnknown(
+          data['preparer_title']!,
+          _preparerTitleMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preparer_email')) {
+      context.handle(
+        _preparerEmailMeta,
+        preparerEmail.isAcceptableOrUnknown(
+          data['preparer_email']!,
+          _preparerEmailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preparer_phone')) {
+      context.handle(
+        _preparerPhoneMeta,
+        preparerPhone.isAcceptableOrUnknown(
+          data['preparer_phone']!,
+          _preparerPhoneMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1693,6 +1804,26 @@ class $SettingsTable extends Settings
         DriftSqlType.string,
         data['${effectivePrefix}company_tax_number'],
       ),
+      preparerFirstName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preparer_first_name'],
+      ),
+      preparerLastName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preparer_last_name'],
+      ),
+      preparerTitle: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preparer_title'],
+      ),
+      preparerEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preparer_email'],
+      ),
+      preparerPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preparer_phone'],
+      ),
     );
   }
 
@@ -1714,6 +1845,15 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
   final String? companyAddress;
   final String? companyTaxOffice;
   final String? companyTaxNumber;
+
+  /// Teklifi hazırlayan kişi (bkz. `PreparerInfo`). Firma bilgisinden ayrıdır:
+  /// aynı firmada birden çok satış temsilcisi teklif hazırlar. Hepsi opsiyonel;
+  /// PDF'in altına yalnızca doldurulanlar basılır.
+  final String? preparerFirstName;
+  final String? preparerLastName;
+  final String? preparerTitle;
+  final String? preparerEmail;
+  final String? preparerPhone;
   const SettingsRow({
     required this.id,
     this.languageCode,
@@ -1726,6 +1866,11 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     this.companyAddress,
     this.companyTaxOffice,
     this.companyTaxNumber,
+    this.preparerFirstName,
+    this.preparerLastName,
+    this.preparerTitle,
+    this.preparerEmail,
+    this.preparerPhone,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1758,6 +1903,21 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     }
     if (!nullToAbsent || companyTaxNumber != null) {
       map['company_tax_number'] = Variable<String>(companyTaxNumber);
+    }
+    if (!nullToAbsent || preparerFirstName != null) {
+      map['preparer_first_name'] = Variable<String>(preparerFirstName);
+    }
+    if (!nullToAbsent || preparerLastName != null) {
+      map['preparer_last_name'] = Variable<String>(preparerLastName);
+    }
+    if (!nullToAbsent || preparerTitle != null) {
+      map['preparer_title'] = Variable<String>(preparerTitle);
+    }
+    if (!nullToAbsent || preparerEmail != null) {
+      map['preparer_email'] = Variable<String>(preparerEmail);
+    }
+    if (!nullToAbsent || preparerPhone != null) {
+      map['preparer_phone'] = Variable<String>(preparerPhone);
     }
     return map;
   }
@@ -1793,6 +1953,21 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       companyTaxNumber: companyTaxNumber == null && nullToAbsent
           ? const Value.absent()
           : Value(companyTaxNumber),
+      preparerFirstName: preparerFirstName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preparerFirstName),
+      preparerLastName: preparerLastName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preparerLastName),
+      preparerTitle: preparerTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preparerTitle),
+      preparerEmail: preparerEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preparerEmail),
+      preparerPhone: preparerPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preparerPhone),
     );
   }
 
@@ -1813,6 +1988,13 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       companyAddress: serializer.fromJson<String?>(json['companyAddress']),
       companyTaxOffice: serializer.fromJson<String?>(json['companyTaxOffice']),
       companyTaxNumber: serializer.fromJson<String?>(json['companyTaxNumber']),
+      preparerFirstName: serializer.fromJson<String?>(
+        json['preparerFirstName'],
+      ),
+      preparerLastName: serializer.fromJson<String?>(json['preparerLastName']),
+      preparerTitle: serializer.fromJson<String?>(json['preparerTitle']),
+      preparerEmail: serializer.fromJson<String?>(json['preparerEmail']),
+      preparerPhone: serializer.fromJson<String?>(json['preparerPhone']),
     );
   }
   @override
@@ -1830,6 +2012,11 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       'companyAddress': serializer.toJson<String?>(companyAddress),
       'companyTaxOffice': serializer.toJson<String?>(companyTaxOffice),
       'companyTaxNumber': serializer.toJson<String?>(companyTaxNumber),
+      'preparerFirstName': serializer.toJson<String?>(preparerFirstName),
+      'preparerLastName': serializer.toJson<String?>(preparerLastName),
+      'preparerTitle': serializer.toJson<String?>(preparerTitle),
+      'preparerEmail': serializer.toJson<String?>(preparerEmail),
+      'preparerPhone': serializer.toJson<String?>(preparerPhone),
     };
   }
 
@@ -1845,6 +2032,11 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     Value<String?> companyAddress = const Value.absent(),
     Value<String?> companyTaxOffice = const Value.absent(),
     Value<String?> companyTaxNumber = const Value.absent(),
+    Value<String?> preparerFirstName = const Value.absent(),
+    Value<String?> preparerLastName = const Value.absent(),
+    Value<String?> preparerTitle = const Value.absent(),
+    Value<String?> preparerEmail = const Value.absent(),
+    Value<String?> preparerPhone = const Value.absent(),
   }) => SettingsRow(
     id: id ?? this.id,
     languageCode: languageCode.present ? languageCode.value : this.languageCode,
@@ -1867,6 +2059,21 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     companyTaxNumber: companyTaxNumber.present
         ? companyTaxNumber.value
         : this.companyTaxNumber,
+    preparerFirstName: preparerFirstName.present
+        ? preparerFirstName.value
+        : this.preparerFirstName,
+    preparerLastName: preparerLastName.present
+        ? preparerLastName.value
+        : this.preparerLastName,
+    preparerTitle: preparerTitle.present
+        ? preparerTitle.value
+        : this.preparerTitle,
+    preparerEmail: preparerEmail.present
+        ? preparerEmail.value
+        : this.preparerEmail,
+    preparerPhone: preparerPhone.present
+        ? preparerPhone.value
+        : this.preparerPhone,
   );
   SettingsRow copyWithCompanion(SettingsCompanion data) {
     return SettingsRow(
@@ -1899,6 +2106,21 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
       companyTaxNumber: data.companyTaxNumber.present
           ? data.companyTaxNumber.value
           : this.companyTaxNumber,
+      preparerFirstName: data.preparerFirstName.present
+          ? data.preparerFirstName.value
+          : this.preparerFirstName,
+      preparerLastName: data.preparerLastName.present
+          ? data.preparerLastName.value
+          : this.preparerLastName,
+      preparerTitle: data.preparerTitle.present
+          ? data.preparerTitle.value
+          : this.preparerTitle,
+      preparerEmail: data.preparerEmail.present
+          ? data.preparerEmail.value
+          : this.preparerEmail,
+      preparerPhone: data.preparerPhone.present
+          ? data.preparerPhone.value
+          : this.preparerPhone,
     );
   }
 
@@ -1915,7 +2137,12 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
           ..write('companyWebsite: $companyWebsite, ')
           ..write('companyAddress: $companyAddress, ')
           ..write('companyTaxOffice: $companyTaxOffice, ')
-          ..write('companyTaxNumber: $companyTaxNumber')
+          ..write('companyTaxNumber: $companyTaxNumber, ')
+          ..write('preparerFirstName: $preparerFirstName, ')
+          ..write('preparerLastName: $preparerLastName, ')
+          ..write('preparerTitle: $preparerTitle, ')
+          ..write('preparerEmail: $preparerEmail, ')
+          ..write('preparerPhone: $preparerPhone')
           ..write(')'))
         .toString();
   }
@@ -1933,6 +2160,11 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
     companyAddress,
     companyTaxOffice,
     companyTaxNumber,
+    preparerFirstName,
+    preparerLastName,
+    preparerTitle,
+    preparerEmail,
+    preparerPhone,
   );
   @override
   bool operator ==(Object other) =>
@@ -1948,7 +2180,12 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
           other.companyWebsite == this.companyWebsite &&
           other.companyAddress == this.companyAddress &&
           other.companyTaxOffice == this.companyTaxOffice &&
-          other.companyTaxNumber == this.companyTaxNumber);
+          other.companyTaxNumber == this.companyTaxNumber &&
+          other.preparerFirstName == this.preparerFirstName &&
+          other.preparerLastName == this.preparerLastName &&
+          other.preparerTitle == this.preparerTitle &&
+          other.preparerEmail == this.preparerEmail &&
+          other.preparerPhone == this.preparerPhone);
 }
 
 class SettingsCompanion extends UpdateCompanion<SettingsRow> {
@@ -1963,6 +2200,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
   final Value<String?> companyAddress;
   final Value<String?> companyTaxOffice;
   final Value<String?> companyTaxNumber;
+  final Value<String?> preparerFirstName;
+  final Value<String?> preparerLastName;
+  final Value<String?> preparerTitle;
+  final Value<String?> preparerEmail;
+  final Value<String?> preparerPhone;
   const SettingsCompanion({
     this.id = const Value.absent(),
     this.languageCode = const Value.absent(),
@@ -1975,6 +2217,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
     this.companyAddress = const Value.absent(),
     this.companyTaxOffice = const Value.absent(),
     this.companyTaxNumber = const Value.absent(),
+    this.preparerFirstName = const Value.absent(),
+    this.preparerLastName = const Value.absent(),
+    this.preparerTitle = const Value.absent(),
+    this.preparerEmail = const Value.absent(),
+    this.preparerPhone = const Value.absent(),
   });
   SettingsCompanion.insert({
     this.id = const Value.absent(),
@@ -1988,6 +2235,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
     this.companyAddress = const Value.absent(),
     this.companyTaxOffice = const Value.absent(),
     this.companyTaxNumber = const Value.absent(),
+    this.preparerFirstName = const Value.absent(),
+    this.preparerLastName = const Value.absent(),
+    this.preparerTitle = const Value.absent(),
+    this.preparerEmail = const Value.absent(),
+    this.preparerPhone = const Value.absent(),
   });
   static Insertable<SettingsRow> custom({
     Expression<int>? id,
@@ -2001,6 +2253,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
     Expression<String>? companyAddress,
     Expression<String>? companyTaxOffice,
     Expression<String>? companyTaxNumber,
+    Expression<String>? preparerFirstName,
+    Expression<String>? preparerLastName,
+    Expression<String>? preparerTitle,
+    Expression<String>? preparerEmail,
+    Expression<String>? preparerPhone,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2014,6 +2271,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
       if (companyAddress != null) 'company_address': companyAddress,
       if (companyTaxOffice != null) 'company_tax_office': companyTaxOffice,
       if (companyTaxNumber != null) 'company_tax_number': companyTaxNumber,
+      if (preparerFirstName != null) 'preparer_first_name': preparerFirstName,
+      if (preparerLastName != null) 'preparer_last_name': preparerLastName,
+      if (preparerTitle != null) 'preparer_title': preparerTitle,
+      if (preparerEmail != null) 'preparer_email': preparerEmail,
+      if (preparerPhone != null) 'preparer_phone': preparerPhone,
     });
   }
 
@@ -2029,6 +2291,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
     Value<String?>? companyAddress,
     Value<String?>? companyTaxOffice,
     Value<String?>? companyTaxNumber,
+    Value<String?>? preparerFirstName,
+    Value<String?>? preparerLastName,
+    Value<String?>? preparerTitle,
+    Value<String?>? preparerEmail,
+    Value<String?>? preparerPhone,
   }) {
     return SettingsCompanion(
       id: id ?? this.id,
@@ -2042,6 +2309,11 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
       companyAddress: companyAddress ?? this.companyAddress,
       companyTaxOffice: companyTaxOffice ?? this.companyTaxOffice,
       companyTaxNumber: companyTaxNumber ?? this.companyTaxNumber,
+      preparerFirstName: preparerFirstName ?? this.preparerFirstName,
+      preparerLastName: preparerLastName ?? this.preparerLastName,
+      preparerTitle: preparerTitle ?? this.preparerTitle,
+      preparerEmail: preparerEmail ?? this.preparerEmail,
+      preparerPhone: preparerPhone ?? this.preparerPhone,
     );
   }
 
@@ -2081,6 +2353,21 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
     if (companyTaxNumber.present) {
       map['company_tax_number'] = Variable<String>(companyTaxNumber.value);
     }
+    if (preparerFirstName.present) {
+      map['preparer_first_name'] = Variable<String>(preparerFirstName.value);
+    }
+    if (preparerLastName.present) {
+      map['preparer_last_name'] = Variable<String>(preparerLastName.value);
+    }
+    if (preparerTitle.present) {
+      map['preparer_title'] = Variable<String>(preparerTitle.value);
+    }
+    if (preparerEmail.present) {
+      map['preparer_email'] = Variable<String>(preparerEmail.value);
+    }
+    if (preparerPhone.present) {
+      map['preparer_phone'] = Variable<String>(preparerPhone.value);
+    }
     return map;
   }
 
@@ -2097,7 +2384,12 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
           ..write('companyWebsite: $companyWebsite, ')
           ..write('companyAddress: $companyAddress, ')
           ..write('companyTaxOffice: $companyTaxOffice, ')
-          ..write('companyTaxNumber: $companyTaxNumber')
+          ..write('companyTaxNumber: $companyTaxNumber, ')
+          ..write('preparerFirstName: $preparerFirstName, ')
+          ..write('preparerLastName: $preparerLastName, ')
+          ..write('preparerTitle: $preparerTitle, ')
+          ..write('preparerEmail: $preparerEmail, ')
+          ..write('preparerPhone: $preparerPhone')
           ..write(')'))
         .toString();
   }
@@ -2741,6 +3033,20 @@ class $OfferItemsTable extends OfferItems
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 20,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('adet'),
+  );
   static const VerificationMeta _vatRateBasisPointsMeta =
       const VerificationMeta('vatRateBasisPoints');
   @override
@@ -2782,6 +3088,7 @@ class $OfferItemsTable extends OfferItems
     productName,
     unitPriceMinor,
     quantity,
+    unit,
     vatRateBasisPoints,
     discountBasisPoints,
     sortOrder,
@@ -2845,6 +3152,12 @@ class $OfferItemsTable extends OfferItems
     } else if (isInserting) {
       context.missing(_quantityMeta);
     }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
     if (data.containsKey('vat_rate_basis_points')) {
       context.handle(
         _vatRateBasisPointsMeta,
@@ -2904,6 +3217,10 @@ class $OfferItemsTable extends OfferItems
         DriftSqlType.int,
         data['${effectivePrefix}quantity'],
       )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
       vatRateBasisPoints: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}vat_rate_basis_points'],
@@ -2932,6 +3249,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
   final String productName;
   final int unitPriceMinor;
   final int quantity;
+  final String unit;
   final int vatRateBasisPoints;
   final int discountBasisPoints;
   final int sortOrder;
@@ -2942,6 +3260,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
     required this.productName,
     required this.unitPriceMinor,
     required this.quantity,
+    required this.unit,
     required this.vatRateBasisPoints,
     required this.discountBasisPoints,
     required this.sortOrder,
@@ -2957,6 +3276,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
     map['product_name'] = Variable<String>(productName);
     map['unit_price_minor'] = Variable<int>(unitPriceMinor);
     map['quantity'] = Variable<int>(quantity);
+    map['unit'] = Variable<String>(unit);
     map['vat_rate_basis_points'] = Variable<int>(vatRateBasisPoints);
     map['discount_basis_points'] = Variable<int>(discountBasisPoints);
     map['sort_order'] = Variable<int>(sortOrder);
@@ -2973,6 +3293,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
       productName: Value(productName),
       unitPriceMinor: Value(unitPriceMinor),
       quantity: Value(quantity),
+      unit: Value(unit),
       vatRateBasisPoints: Value(vatRateBasisPoints),
       discountBasisPoints: Value(discountBasisPoints),
       sortOrder: Value(sortOrder),
@@ -2991,6 +3312,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
       productName: serializer.fromJson<String>(json['productName']),
       unitPriceMinor: serializer.fromJson<int>(json['unitPriceMinor']),
       quantity: serializer.fromJson<int>(json['quantity']),
+      unit: serializer.fromJson<String>(json['unit']),
       vatRateBasisPoints: serializer.fromJson<int>(json['vatRateBasisPoints']),
       discountBasisPoints: serializer.fromJson<int>(
         json['discountBasisPoints'],
@@ -3008,6 +3330,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
       'productName': serializer.toJson<String>(productName),
       'unitPriceMinor': serializer.toJson<int>(unitPriceMinor),
       'quantity': serializer.toJson<int>(quantity),
+      'unit': serializer.toJson<String>(unit),
       'vatRateBasisPoints': serializer.toJson<int>(vatRateBasisPoints),
       'discountBasisPoints': serializer.toJson<int>(discountBasisPoints),
       'sortOrder': serializer.toJson<int>(sortOrder),
@@ -3021,6 +3344,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
     String? productName,
     int? unitPriceMinor,
     int? quantity,
+    String? unit,
     int? vatRateBasisPoints,
     int? discountBasisPoints,
     int? sortOrder,
@@ -3031,6 +3355,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
     productName: productName ?? this.productName,
     unitPriceMinor: unitPriceMinor ?? this.unitPriceMinor,
     quantity: quantity ?? this.quantity,
+    unit: unit ?? this.unit,
     vatRateBasisPoints: vatRateBasisPoints ?? this.vatRateBasisPoints,
     discountBasisPoints: discountBasisPoints ?? this.discountBasisPoints,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -3047,6 +3372,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
           ? data.unitPriceMinor.value
           : this.unitPriceMinor,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      unit: data.unit.present ? data.unit.value : this.unit,
       vatRateBasisPoints: data.vatRateBasisPoints.present
           ? data.vatRateBasisPoints.value
           : this.vatRateBasisPoints,
@@ -3066,6 +3392,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
           ..write('productName: $productName, ')
           ..write('unitPriceMinor: $unitPriceMinor, ')
           ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
           ..write('vatRateBasisPoints: $vatRateBasisPoints, ')
           ..write('discountBasisPoints: $discountBasisPoints, ')
           ..write('sortOrder: $sortOrder')
@@ -3081,6 +3408,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
     productName,
     unitPriceMinor,
     quantity,
+    unit,
     vatRateBasisPoints,
     discountBasisPoints,
     sortOrder,
@@ -3095,6 +3423,7 @@ class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
           other.productName == this.productName &&
           other.unitPriceMinor == this.unitPriceMinor &&
           other.quantity == this.quantity &&
+          other.unit == this.unit &&
           other.vatRateBasisPoints == this.vatRateBasisPoints &&
           other.discountBasisPoints == this.discountBasisPoints &&
           other.sortOrder == this.sortOrder);
@@ -3107,6 +3436,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
   final Value<String> productName;
   final Value<int> unitPriceMinor;
   final Value<int> quantity;
+  final Value<String> unit;
   final Value<int> vatRateBasisPoints;
   final Value<int> discountBasisPoints;
   final Value<int> sortOrder;
@@ -3117,6 +3447,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
     this.productName = const Value.absent(),
     this.unitPriceMinor = const Value.absent(),
     this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
     this.vatRateBasisPoints = const Value.absent(),
     this.discountBasisPoints = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -3128,6 +3459,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
     required String productName,
     required int unitPriceMinor,
     required int quantity,
+    this.unit = const Value.absent(),
     required int vatRateBasisPoints,
     this.discountBasisPoints = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -3143,6 +3475,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
     Expression<String>? productName,
     Expression<int>? unitPriceMinor,
     Expression<int>? quantity,
+    Expression<String>? unit,
     Expression<int>? vatRateBasisPoints,
     Expression<int>? discountBasisPoints,
     Expression<int>? sortOrder,
@@ -3154,6 +3487,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
       if (productName != null) 'product_name': productName,
       if (unitPriceMinor != null) 'unit_price_minor': unitPriceMinor,
       if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (vatRateBasisPoints != null)
         'vat_rate_basis_points': vatRateBasisPoints,
       if (discountBasisPoints != null)
@@ -3169,6 +3503,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
     Value<String>? productName,
     Value<int>? unitPriceMinor,
     Value<int>? quantity,
+    Value<String>? unit,
     Value<int>? vatRateBasisPoints,
     Value<int>? discountBasisPoints,
     Value<int>? sortOrder,
@@ -3180,6 +3515,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
       productName: productName ?? this.productName,
       unitPriceMinor: unitPriceMinor ?? this.unitPriceMinor,
       quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
       vatRateBasisPoints: vatRateBasisPoints ?? this.vatRateBasisPoints,
       discountBasisPoints: discountBasisPoints ?? this.discountBasisPoints,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -3207,6 +3543,9 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
     if (quantity.present) {
       map['quantity'] = Variable<int>(quantity.value);
     }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
     if (vatRateBasisPoints.present) {
       map['vat_rate_basis_points'] = Variable<int>(vatRateBasisPoints.value);
     }
@@ -3228,6 +3567,7 @@ class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
           ..write('productName: $productName, ')
           ..write('unitPriceMinor: $unitPriceMinor, ')
           ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
           ..write('vatRateBasisPoints: $vatRateBasisPoints, ')
           ..write('discountBasisPoints: $discountBasisPoints, ')
           ..write('sortOrder: $sortOrder')
@@ -3750,6 +4090,20 @@ class $TemplateItemsTable extends TemplateItems
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _unitMeta = const VerificationMeta('unit');
+  @override
+  late final GeneratedColumn<String> unit = GeneratedColumn<String>(
+    'unit',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 20,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('adet'),
+  );
   static const VerificationMeta _vatRateBasisPointsMeta =
       const VerificationMeta('vatRateBasisPoints');
   @override
@@ -3791,6 +4145,7 @@ class $TemplateItemsTable extends TemplateItems
     productName,
     unitPriceMinor,
     quantity,
+    unit,
     vatRateBasisPoints,
     discountBasisPoints,
     sortOrder,
@@ -3854,6 +4209,12 @@ class $TemplateItemsTable extends TemplateItems
     } else if (isInserting) {
       context.missing(_quantityMeta);
     }
+    if (data.containsKey('unit')) {
+      context.handle(
+        _unitMeta,
+        unit.isAcceptableOrUnknown(data['unit']!, _unitMeta),
+      );
+    }
     if (data.containsKey('vat_rate_basis_points')) {
       context.handle(
         _vatRateBasisPointsMeta,
@@ -3913,6 +4274,10 @@ class $TemplateItemsTable extends TemplateItems
         DriftSqlType.int,
         data['${effectivePrefix}quantity'],
       )!,
+      unit: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}unit'],
+      )!,
       vatRateBasisPoints: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}vat_rate_basis_points'],
@@ -3941,6 +4306,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
   final String productName;
   final int unitPriceMinor;
   final int quantity;
+  final String unit;
   final int vatRateBasisPoints;
   final int discountBasisPoints;
   final int sortOrder;
@@ -3951,6 +4317,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
     required this.productName,
     required this.unitPriceMinor,
     required this.quantity,
+    required this.unit,
     required this.vatRateBasisPoints,
     required this.discountBasisPoints,
     required this.sortOrder,
@@ -3966,6 +4333,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
     map['product_name'] = Variable<String>(productName);
     map['unit_price_minor'] = Variable<int>(unitPriceMinor);
     map['quantity'] = Variable<int>(quantity);
+    map['unit'] = Variable<String>(unit);
     map['vat_rate_basis_points'] = Variable<int>(vatRateBasisPoints);
     map['discount_basis_points'] = Variable<int>(discountBasisPoints);
     map['sort_order'] = Variable<int>(sortOrder);
@@ -3982,6 +4350,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
       productName: Value(productName),
       unitPriceMinor: Value(unitPriceMinor),
       quantity: Value(quantity),
+      unit: Value(unit),
       vatRateBasisPoints: Value(vatRateBasisPoints),
       discountBasisPoints: Value(discountBasisPoints),
       sortOrder: Value(sortOrder),
@@ -4000,6 +4369,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
       productName: serializer.fromJson<String>(json['productName']),
       unitPriceMinor: serializer.fromJson<int>(json['unitPriceMinor']),
       quantity: serializer.fromJson<int>(json['quantity']),
+      unit: serializer.fromJson<String>(json['unit']),
       vatRateBasisPoints: serializer.fromJson<int>(json['vatRateBasisPoints']),
       discountBasisPoints: serializer.fromJson<int>(
         json['discountBasisPoints'],
@@ -4017,6 +4387,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
       'productName': serializer.toJson<String>(productName),
       'unitPriceMinor': serializer.toJson<int>(unitPriceMinor),
       'quantity': serializer.toJson<int>(quantity),
+      'unit': serializer.toJson<String>(unit),
       'vatRateBasisPoints': serializer.toJson<int>(vatRateBasisPoints),
       'discountBasisPoints': serializer.toJson<int>(discountBasisPoints),
       'sortOrder': serializer.toJson<int>(sortOrder),
@@ -4030,6 +4401,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
     String? productName,
     int? unitPriceMinor,
     int? quantity,
+    String? unit,
     int? vatRateBasisPoints,
     int? discountBasisPoints,
     int? sortOrder,
@@ -4040,6 +4412,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
     productName: productName ?? this.productName,
     unitPriceMinor: unitPriceMinor ?? this.unitPriceMinor,
     quantity: quantity ?? this.quantity,
+    unit: unit ?? this.unit,
     vatRateBasisPoints: vatRateBasisPoints ?? this.vatRateBasisPoints,
     discountBasisPoints: discountBasisPoints ?? this.discountBasisPoints,
     sortOrder: sortOrder ?? this.sortOrder,
@@ -4058,6 +4431,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
           ? data.unitPriceMinor.value
           : this.unitPriceMinor,
       quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      unit: data.unit.present ? data.unit.value : this.unit,
       vatRateBasisPoints: data.vatRateBasisPoints.present
           ? data.vatRateBasisPoints.value
           : this.vatRateBasisPoints,
@@ -4077,6 +4451,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
           ..write('productName: $productName, ')
           ..write('unitPriceMinor: $unitPriceMinor, ')
           ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
           ..write('vatRateBasisPoints: $vatRateBasisPoints, ')
           ..write('discountBasisPoints: $discountBasisPoints, ')
           ..write('sortOrder: $sortOrder')
@@ -4092,6 +4467,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
     productName,
     unitPriceMinor,
     quantity,
+    unit,
     vatRateBasisPoints,
     discountBasisPoints,
     sortOrder,
@@ -4106,6 +4482,7 @@ class TemplateItemRow extends DataClass implements Insertable<TemplateItemRow> {
           other.productName == this.productName &&
           other.unitPriceMinor == this.unitPriceMinor &&
           other.quantity == this.quantity &&
+          other.unit == this.unit &&
           other.vatRateBasisPoints == this.vatRateBasisPoints &&
           other.discountBasisPoints == this.discountBasisPoints &&
           other.sortOrder == this.sortOrder);
@@ -4118,6 +4495,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
   final Value<String> productName;
   final Value<int> unitPriceMinor;
   final Value<int> quantity;
+  final Value<String> unit;
   final Value<int> vatRateBasisPoints;
   final Value<int> discountBasisPoints;
   final Value<int> sortOrder;
@@ -4128,6 +4506,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
     this.productName = const Value.absent(),
     this.unitPriceMinor = const Value.absent(),
     this.quantity = const Value.absent(),
+    this.unit = const Value.absent(),
     this.vatRateBasisPoints = const Value.absent(),
     this.discountBasisPoints = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -4139,6 +4518,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
     required String productName,
     required int unitPriceMinor,
     required int quantity,
+    this.unit = const Value.absent(),
     required int vatRateBasisPoints,
     this.discountBasisPoints = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -4154,6 +4534,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
     Expression<String>? productName,
     Expression<int>? unitPriceMinor,
     Expression<int>? quantity,
+    Expression<String>? unit,
     Expression<int>? vatRateBasisPoints,
     Expression<int>? discountBasisPoints,
     Expression<int>? sortOrder,
@@ -4165,6 +4546,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
       if (productName != null) 'product_name': productName,
       if (unitPriceMinor != null) 'unit_price_minor': unitPriceMinor,
       if (quantity != null) 'quantity': quantity,
+      if (unit != null) 'unit': unit,
       if (vatRateBasisPoints != null)
         'vat_rate_basis_points': vatRateBasisPoints,
       if (discountBasisPoints != null)
@@ -4180,6 +4562,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
     Value<String>? productName,
     Value<int>? unitPriceMinor,
     Value<int>? quantity,
+    Value<String>? unit,
     Value<int>? vatRateBasisPoints,
     Value<int>? discountBasisPoints,
     Value<int>? sortOrder,
@@ -4191,6 +4574,7 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
       productName: productName ?? this.productName,
       unitPriceMinor: unitPriceMinor ?? this.unitPriceMinor,
       quantity: quantity ?? this.quantity,
+      unit: unit ?? this.unit,
       vatRateBasisPoints: vatRateBasisPoints ?? this.vatRateBasisPoints,
       discountBasisPoints: discountBasisPoints ?? this.discountBasisPoints,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -4218,6 +4602,9 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
     if (quantity.present) {
       map['quantity'] = Variable<int>(quantity.value);
     }
+    if (unit.present) {
+      map['unit'] = Variable<String>(unit.value);
+    }
     if (vatRateBasisPoints.present) {
       map['vat_rate_basis_points'] = Variable<int>(vatRateBasisPoints.value);
     }
@@ -4239,9 +4626,262 @@ class TemplateItemsCompanion extends UpdateCompanion<TemplateItemRow> {
           ..write('productName: $productName, ')
           ..write('unitPriceMinor: $unitPriceMinor, ')
           ..write('quantity: $quantity, ')
+          ..write('unit: $unit, ')
           ..write('vatRateBasisPoints: $vatRateBasisPoints, ')
           ..write('discountBasisPoints: $discountBasisPoints, ')
           ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CustomUnitsTable extends CustomUnits
+    with TableInfo<$CustomUnitsTable, CustomUnitRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomUnitsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 20,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_units';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CustomUnitRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomUnitRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomUnitRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CustomUnitsTable createAlias(String alias) {
+    return $CustomUnitsTable(attachedDatabase, alias);
+  }
+}
+
+class CustomUnitRow extends DataClass implements Insertable<CustomUnitRow> {
+  final int id;
+  final String name;
+  final DateTime createdAt;
+  const CustomUnitRow({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CustomUnitsCompanion toCompanion(bool nullToAbsent) {
+    return CustomUnitsCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CustomUnitRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomUnitRow(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CustomUnitRow copyWith({int? id, String? name, DateTime? createdAt}) =>
+      CustomUnitRow(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  CustomUnitRow copyWithCompanion(CustomUnitsCompanion data) {
+    return CustomUnitRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomUnitRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomUnitRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
+}
+
+class CustomUnitsCompanion extends UpdateCompanion<CustomUnitRow> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  const CustomUnitsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  CustomUnitsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.createdAt = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<CustomUnitRow> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  CustomUnitsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<DateTime>? createdAt,
+  }) {
+    return CustomUnitsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomUnitsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
@@ -4258,6 +4898,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $OfferItemsTable offerItems = $OfferItemsTable(this);
   late final $TemplatesTable templates = $TemplatesTable(this);
   late final $TemplateItemsTable templateItems = $TemplateItemsTable(this);
+  late final $CustomUnitsTable customUnits = $CustomUnitsTable(this);
   late final Index idxCustomersName = Index(
     'idx_customers_name',
     'CREATE INDEX idx_customers_name ON customers (name)',
@@ -4275,6 +4916,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     offerItems,
     templates,
     templateItems,
+    customUnits,
     idxCustomersName,
   ];
   @override
@@ -5542,6 +6184,11 @@ typedef $$SettingsTableCreateCompanionBuilder =
       Value<String?> companyAddress,
       Value<String?> companyTaxOffice,
       Value<String?> companyTaxNumber,
+      Value<String?> preparerFirstName,
+      Value<String?> preparerLastName,
+      Value<String?> preparerTitle,
+      Value<String?> preparerEmail,
+      Value<String?> preparerPhone,
     });
 typedef $$SettingsTableUpdateCompanionBuilder =
     SettingsCompanion Function({
@@ -5556,6 +6203,11 @@ typedef $$SettingsTableUpdateCompanionBuilder =
       Value<String?> companyAddress,
       Value<String?> companyTaxOffice,
       Value<String?> companyTaxNumber,
+      Value<String?> preparerFirstName,
+      Value<String?> preparerLastName,
+      Value<String?> preparerTitle,
+      Value<String?> preparerEmail,
+      Value<String?> preparerPhone,
     });
 
 class $$SettingsTableFilterComposer
@@ -5619,6 +6271,31 @@ class $$SettingsTableFilterComposer
 
   ColumnFilters<String> get companyTaxNumber => $composableBuilder(
     column: $table.companyTaxNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preparerFirstName => $composableBuilder(
+    column: $table.preparerFirstName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preparerLastName => $composableBuilder(
+    column: $table.preparerLastName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preparerTitle => $composableBuilder(
+    column: $table.preparerTitle,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preparerEmail => $composableBuilder(
+    column: $table.preparerEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preparerPhone => $composableBuilder(
+    column: $table.preparerPhone,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -5686,6 +6363,31 @@ class $$SettingsTableOrderingComposer
     column: $table.companyTaxNumber,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get preparerFirstName => $composableBuilder(
+    column: $table.preparerFirstName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get preparerLastName => $composableBuilder(
+    column: $table.preparerLastName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get preparerTitle => $composableBuilder(
+    column: $table.preparerTitle,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get preparerEmail => $composableBuilder(
+    column: $table.preparerEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get preparerPhone => $composableBuilder(
+    column: $table.preparerPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$SettingsTableAnnotationComposer
@@ -5747,6 +6449,31 @@ class $$SettingsTableAnnotationComposer
     column: $table.companyTaxNumber,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get preparerFirstName => $composableBuilder(
+    column: $table.preparerFirstName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get preparerLastName => $composableBuilder(
+    column: $table.preparerLastName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get preparerTitle => $composableBuilder(
+    column: $table.preparerTitle,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get preparerEmail => $composableBuilder(
+    column: $table.preparerEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get preparerPhone => $composableBuilder(
+    column: $table.preparerPhone,
+    builder: (column) => column,
+  );
 }
 
 class $$SettingsTableTableManager
@@ -5791,6 +6518,11 @@ class $$SettingsTableTableManager
                 Value<String?> companyAddress = const Value.absent(),
                 Value<String?> companyTaxOffice = const Value.absent(),
                 Value<String?> companyTaxNumber = const Value.absent(),
+                Value<String?> preparerFirstName = const Value.absent(),
+                Value<String?> preparerLastName = const Value.absent(),
+                Value<String?> preparerTitle = const Value.absent(),
+                Value<String?> preparerEmail = const Value.absent(),
+                Value<String?> preparerPhone = const Value.absent(),
               }) => SettingsCompanion(
                 id: id,
                 languageCode: languageCode,
@@ -5803,6 +6535,11 @@ class $$SettingsTableTableManager
                 companyAddress: companyAddress,
                 companyTaxOffice: companyTaxOffice,
                 companyTaxNumber: companyTaxNumber,
+                preparerFirstName: preparerFirstName,
+                preparerLastName: preparerLastName,
+                preparerTitle: preparerTitle,
+                preparerEmail: preparerEmail,
+                preparerPhone: preparerPhone,
               ),
           createCompanionCallback:
               ({
@@ -5817,6 +6554,11 @@ class $$SettingsTableTableManager
                 Value<String?> companyAddress = const Value.absent(),
                 Value<String?> companyTaxOffice = const Value.absent(),
                 Value<String?> companyTaxNumber = const Value.absent(),
+                Value<String?> preparerFirstName = const Value.absent(),
+                Value<String?> preparerLastName = const Value.absent(),
+                Value<String?> preparerTitle = const Value.absent(),
+                Value<String?> preparerEmail = const Value.absent(),
+                Value<String?> preparerPhone = const Value.absent(),
               }) => SettingsCompanion.insert(
                 id: id,
                 languageCode: languageCode,
@@ -5829,6 +6571,11 @@ class $$SettingsTableTableManager
                 companyAddress: companyAddress,
                 companyTaxOffice: companyTaxOffice,
                 companyTaxNumber: companyTaxNumber,
+                preparerFirstName: preparerFirstName,
+                preparerLastName: preparerLastName,
+                preparerTitle: preparerTitle,
+                preparerEmail: preparerEmail,
+                preparerPhone: preparerPhone,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -6325,6 +7072,7 @@ typedef $$OfferItemsTableCreateCompanionBuilder =
       required String productName,
       required int unitPriceMinor,
       required int quantity,
+      Value<String> unit,
       required int vatRateBasisPoints,
       Value<int> discountBasisPoints,
       Value<int> sortOrder,
@@ -6337,6 +7085,7 @@ typedef $$OfferItemsTableUpdateCompanionBuilder =
       Value<String> productName,
       Value<int> unitPriceMinor,
       Value<int> quantity,
+      Value<String> unit,
       Value<int> vatRateBasisPoints,
       Value<int> discountBasisPoints,
       Value<int> sortOrder,
@@ -6407,6 +7156,11 @@ class $$OfferItemsTableFilterComposer
 
   ColumnFilters<int> get quantity => $composableBuilder(
     column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6501,6 +7255,11 @@ class $$OfferItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get vatRateBasisPoints => $composableBuilder(
     column: $table.vatRateBasisPoints,
     builder: (column) => ColumnOrderings(column),
@@ -6587,6 +7346,9 @@ class $$OfferItemsTableAnnotationComposer
 
   GeneratedColumn<int> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
 
   GeneratedColumn<int> get vatRateBasisPoints => $composableBuilder(
     column: $table.vatRateBasisPoints,
@@ -6682,6 +7444,7 @@ class $$OfferItemsTableTableManager
                 Value<String> productName = const Value.absent(),
                 Value<int> unitPriceMinor = const Value.absent(),
                 Value<int> quantity = const Value.absent(),
+                Value<String> unit = const Value.absent(),
                 Value<int> vatRateBasisPoints = const Value.absent(),
                 Value<int> discountBasisPoints = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
@@ -6692,6 +7455,7 @@ class $$OfferItemsTableTableManager
                 productName: productName,
                 unitPriceMinor: unitPriceMinor,
                 quantity: quantity,
+                unit: unit,
                 vatRateBasisPoints: vatRateBasisPoints,
                 discountBasisPoints: discountBasisPoints,
                 sortOrder: sortOrder,
@@ -6704,6 +7468,7 @@ class $$OfferItemsTableTableManager
                 required String productName,
                 required int unitPriceMinor,
                 required int quantity,
+                Value<String> unit = const Value.absent(),
                 required int vatRateBasisPoints,
                 Value<int> discountBasisPoints = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
@@ -6714,6 +7479,7 @@ class $$OfferItemsTableTableManager
                 productName: productName,
                 unitPriceMinor: unitPriceMinor,
                 quantity: quantity,
+                unit: unit,
                 vatRateBasisPoints: vatRateBasisPoints,
                 discountBasisPoints: discountBasisPoints,
                 sortOrder: sortOrder,
@@ -7126,6 +7892,7 @@ typedef $$TemplateItemsTableCreateCompanionBuilder =
       required String productName,
       required int unitPriceMinor,
       required int quantity,
+      Value<String> unit,
       required int vatRateBasisPoints,
       Value<int> discountBasisPoints,
       Value<int> sortOrder,
@@ -7138,6 +7905,7 @@ typedef $$TemplateItemsTableUpdateCompanionBuilder =
       Value<String> productName,
       Value<int> unitPriceMinor,
       Value<int> quantity,
+      Value<String> unit,
       Value<int> vatRateBasisPoints,
       Value<int> discountBasisPoints,
       Value<int> sortOrder,
@@ -7213,6 +7981,11 @@ class $$TemplateItemsTableFilterComposer
 
   ColumnFilters<int> get quantity => $composableBuilder(
     column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unit => $composableBuilder(
+    column: $table.unit,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7307,6 +8080,11 @@ class $$TemplateItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get unit => $composableBuilder(
+    column: $table.unit,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get vatRateBasisPoints => $composableBuilder(
     column: $table.vatRateBasisPoints,
     builder: (column) => ColumnOrderings(column),
@@ -7393,6 +8171,9 @@ class $$TemplateItemsTableAnnotationComposer
 
   GeneratedColumn<int> get quantity =>
       $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get unit =>
+      $composableBuilder(column: $table.unit, builder: (column) => column);
 
   GeneratedColumn<int> get vatRateBasisPoints => $composableBuilder(
     column: $table.vatRateBasisPoints,
@@ -7488,6 +8269,7 @@ class $$TemplateItemsTableTableManager
                 Value<String> productName = const Value.absent(),
                 Value<int> unitPriceMinor = const Value.absent(),
                 Value<int> quantity = const Value.absent(),
+                Value<String> unit = const Value.absent(),
                 Value<int> vatRateBasisPoints = const Value.absent(),
                 Value<int> discountBasisPoints = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
@@ -7498,6 +8280,7 @@ class $$TemplateItemsTableTableManager
                 productName: productName,
                 unitPriceMinor: unitPriceMinor,
                 quantity: quantity,
+                unit: unit,
                 vatRateBasisPoints: vatRateBasisPoints,
                 discountBasisPoints: discountBasisPoints,
                 sortOrder: sortOrder,
@@ -7510,6 +8293,7 @@ class $$TemplateItemsTableTableManager
                 required String productName,
                 required int unitPriceMinor,
                 required int quantity,
+                Value<String> unit = const Value.absent(),
                 required int vatRateBasisPoints,
                 Value<int> discountBasisPoints = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
@@ -7520,6 +8304,7 @@ class $$TemplateItemsTableTableManager
                 productName: productName,
                 unitPriceMinor: unitPriceMinor,
                 quantity: quantity,
+                unit: unit,
                 vatRateBasisPoints: vatRateBasisPoints,
                 discountBasisPoints: discountBasisPoints,
                 sortOrder: sortOrder,
@@ -7604,6 +8389,162 @@ typedef $$TemplateItemsTableProcessedTableManager =
       TemplateItemRow,
       PrefetchHooks Function({bool templateId, bool productId})
     >;
+typedef $$CustomUnitsTableCreateCompanionBuilder =
+    CustomUnitsCompanion Function({
+      Value<int> id,
+      required String name,
+      Value<DateTime> createdAt,
+    });
+typedef $$CustomUnitsTableUpdateCompanionBuilder =
+    CustomUnitsCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<DateTime> createdAt,
+    });
+
+class $$CustomUnitsTableFilterComposer
+    extends Composer<_$AppDatabase, $CustomUnitsTable> {
+  $$CustomUnitsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CustomUnitsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CustomUnitsTable> {
+  $$CustomUnitsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CustomUnitsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CustomUnitsTable> {
+  $$CustomUnitsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$CustomUnitsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CustomUnitsTable,
+          CustomUnitRow,
+          $$CustomUnitsTableFilterComposer,
+          $$CustomUnitsTableOrderingComposer,
+          $$CustomUnitsTableAnnotationComposer,
+          $$CustomUnitsTableCreateCompanionBuilder,
+          $$CustomUnitsTableUpdateCompanionBuilder,
+          (
+            CustomUnitRow,
+            BaseReferences<_$AppDatabase, $CustomUnitsTable, CustomUnitRow>,
+          ),
+          CustomUnitRow,
+          PrefetchHooks Function()
+        > {
+  $$CustomUnitsTableTableManager(_$AppDatabase db, $CustomUnitsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomUnitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomUnitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomUnitsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => CustomUnitsCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => CustomUnitsCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CustomUnitsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CustomUnitsTable,
+      CustomUnitRow,
+      $$CustomUnitsTableFilterComposer,
+      $$CustomUnitsTableOrderingComposer,
+      $$CustomUnitsTableAnnotationComposer,
+      $$CustomUnitsTableCreateCompanionBuilder,
+      $$CustomUnitsTableUpdateCompanionBuilder,
+      (
+        CustomUnitRow,
+        BaseReferences<_$AppDatabase, $CustomUnitsTable, CustomUnitRow>,
+      ),
+      CustomUnitRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7624,4 +8565,6 @@ class $AppDatabaseManager {
       $$TemplatesTableTableManager(_db, _db.templates);
   $$TemplateItemsTableTableManager get templateItems =>
       $$TemplateItemsTableTableManager(_db, _db.templateItems);
+  $$CustomUnitsTableTableManager get customUnits =>
+      $$CustomUnitsTableTableManager(_db, _db.customUnits);
 }

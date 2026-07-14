@@ -131,9 +131,6 @@ class _ProductTile extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
       leading: const Icon(Icons.inventory_2_outlined),
       title: Text(product.name),
-      subtitle: Text(
-        context.l10n.vatRateShort(product.vatRate.asPercent.toStringAsFixed(0)),
-      ),
       trailing: Text(
         context.formatMoney(product.price),
         style: context.textStyles.titleMedium,

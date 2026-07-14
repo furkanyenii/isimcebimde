@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
 import 'package:isimcebimde/features/customers/domain/repositories/customer_repository.dart';
@@ -19,6 +20,7 @@ import 'package:isimcebimde/features/quotes/domain/repositories/template_reposit
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/quantity_field.dart';
 
 import '../../support/localized_app.dart';
 
@@ -52,7 +54,6 @@ class _FakeProductRepository implements ProductRepository {
           name: 'Vida M8',
           price: Money.fromLira(12, 50),
           categoryId: 1,
-          vatRate: Percent.of(20),
         ),
       ]);
 
@@ -200,9 +201,40 @@ void main() {
       expect(saved.customerName, 'Ahmet Yılmaz');
       expect(saved.items.single.productName, 'Vida M8');
       expect(saved.items.single.unitPrice.minor, 1250);
-      expect(saved.items.single.quantity, 1);
+      expect(saved.items.single.quantity, Quantity.of(1));
     },
   );
+
+  testWidgets('miktar yazarken satır state\'i (ve odak) korunur', (
+    tester,
+  ) async {
+    // Regresyon: satır anahtarı `item.hashCode`'dan türetiliyordu; her rakamda
+    // anahtar değişince Flutter satırı yeni sanıp state'ini atıyor, klavye
+    // her basamakta kapanıyordu. Aynı satır = aynı state olmalı.
+    await pumpTallSurface(tester, buildSubject());
+    await tester.pumpAndSettle();
+
+    await selectCustomer(tester, 'Ahmet Yılmaz');
+    await addProduct(tester, 'Vida M8');
+
+    final quantityField = find.widgetWithText(TextFormField, tr.quantityLabel);
+    final stateBefore = tester.state(find.byType(QuantityField));
+
+    await tester.enterText(quantityField, '1');
+    await tester.pump();
+    await tester.enterText(quantityField, '12');
+    await tester.pump();
+
+    expect(
+      tester.state(find.byType(QuantityField)),
+      same(stateBefore),
+      reason: 'Satır state\'i her tuş vuruşunda yeniden kurulmamalı',
+    );
+
+    await tester.tap(find.text(tr.actionSave));
+    await tester.pumpAndSettle();
+    expect(offers.created.single.items.single.quantity, Quantity.of(12));
+  });
 
   testWidgets('ürün eklenince ara toplam ve genel toplam güncellenir', (
     tester,
@@ -230,7 +262,7 @@ void main() {
           productId: 1,
           productName: 'Vida M8',
           unitPrice: Money.fromLira(12, 50),
-          quantity: 10,
+          quantity: Quantity.of(10),
           vatRate: Percent.of(20),
         ),
       ],
@@ -256,7 +288,7 @@ void main() {
           productId: 1,
           productName: 'Vida M8',
           unitPrice: Money.fromLira(12, 50),
-          quantity: 10,
+          quantity: Quantity.of(10),
           vatRate: Percent.of(20),
         ),
       ],
@@ -322,7 +354,7 @@ void main() {
             OfferItem(
               productName: 'Rondela',
               unitPrice: Money.fromLira(2),
-              quantity: 50,
+              quantity: Quantity.of(50),
               vatRate: Percent.of(20),
             ),
           ],
@@ -365,7 +397,7 @@ void main() {
           productId: 1,
           productName: 'Vida M8',
           unitPrice: Money.fromLira(12, 50),
-          quantity: 10,
+          quantity: Quantity.of(10),
           vatRate: Percent.of(20),
         ),
       ],

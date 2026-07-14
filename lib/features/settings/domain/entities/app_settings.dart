@@ -1,4 +1,5 @@
 import 'package:isimcebimde/features/settings/domain/entities/company_info.dart';
+import 'package:isimcebimde/features/settings/domain/entities/preparer_info.dart';
 
 /// Kullanıcının seçtiği arayüz dili.
 ///
@@ -51,20 +52,27 @@ class AppSettings {
     this.language = AppLanguage.system,
     this.themeMode = AppThemeMode.system,
     this.company = const CompanyInfo(),
+    this.preparer = const PreparerInfo(),
   });
 
   final AppLanguage language;
   final AppThemeMode themeMode;
   final CompanyInfo company;
 
+  /// Teklifi hazırlayan kişi. Cihaz başına tek kişi varsayılır; teklif başına
+  /// farklı hazırlayan gerekirse bu alan tekliflere taşınır.
+  final PreparerInfo preparer;
+
   AppSettings copyWith({
     AppLanguage? language,
     AppThemeMode? themeMode,
     CompanyInfo? company,
+    PreparerInfo? preparer,
   }) => AppSettings(
     language: language ?? this.language,
     themeMode: themeMode ?? this.themeMode,
     company: company ?? this.company,
+    preparer: preparer ?? this.preparer,
   );
 
   @override
@@ -72,8 +80,9 @@ class AppSettings {
       other is AppSettings &&
       other.language == language &&
       other.themeMode == themeMode &&
-      other.company == company;
+      other.company == company &&
+      other.preparer == preparer;
 
   @override
-  int get hashCode => Object.hash(language, themeMode, company);
+  int get hashCode => Object.hash(language, themeMode, company, preparer);
 }

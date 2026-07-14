@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/utils/turkish_text.dart';
+import 'package:isimcebimde/core/widgets/app_picker_sheet.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
@@ -50,10 +51,8 @@ class CustomerPicker extends StatelessWidget {
   }
 
   Future<void> _open(BuildContext context) async {
-    final customer = await showModalBottomSheet<Customer>(
+    final customer = await showAppPickerSheet<Customer>(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
       builder: (context) => const _CustomerPickerSheet(),
     );
     if (customer != null) onChanged(customer);
@@ -84,65 +83,61 @@ class _CustomerPickerSheetState extends ConsumerState<_CustomerPickerSheet> {
     // yerel metinle uygulanır (yukarıdaki class doc'una bakınız).
     final customers = ref.watch(customerListProvider);
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSizes.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _searchController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: l10n.customerSearchHint,
-                prefixIcon: const Icon(Icons.search),
-              ),
-              onChanged: (_) => setState(() {}),
+    return Padding(
+      padding: const EdgeInsets.all(AppSizes.md),
+      child: Column(
+        children: [
+          // autofocus yok: sheet klavyesiz açılır, kullanıcı önce listeyi görür.
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: l10n.customerSearchHint,
+              prefixIcon: const Icon(Icons.search),
             ),
-            const SizedBox(height: AppSizes.sm),
-            Flexible(
-              child: customers.when(
-                loading: () => const AppLoadingView(),
-                error: (error, _) =>
-                    AppErrorView(message: l10n.customersLoadError),
-                data: (items) {
-                  final query = _searchController.text;
-                  final filtered = items
-                      .where(
-                        (c) =>
-                            containsNormalized(c.name, query) ||
-                            containsNormalized(c.contactPerson ?? '', query) ||
-                            containsNormalized(c.phone ?? '', query),
-                      )
-                      .toList();
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSizes.sm),
+          Expanded(
+            child: customers.when(
+              loading: () => const AppLoadingView(),
+              error: (error, _) =>
+                  AppErrorView(message: l10n.customersLoadError),
+              data: (items) {
+                final query = _searchController.text;
+                final filtered = items
+                    .where(
+                      (c) =>
+                          containsNormalized(c.name, query) ||
+                          containsNormalized(c.contactPerson ?? '', query) ||
+                          containsNormalized(c.phone ?? '', query),
+                    )
+                    .toList();
 
-                  if (filtered.isEmpty) {
-                    return AppEmptyView(
-                      icon: Icons.search_off,
-                      title: l10n.emptySearchTitle,
-                      description: l10n.emptySearchDescription,
-                    );
-                  }
-
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: filtered.length,
-                    itemBuilder: (context, index) {
-                      final customer = filtered[index];
-                      return ListTile(
-                        title: Text(customer.name),
-                        subtitle: customer.contactPerson == null
-                            ? null
-                            : Text(customer.contactPerson!),
-                        onTap: () => Navigator.of(context).pop(customer),
-                      );
-                    },
+                if (filtered.isEmpty) {
+                  return AppEmptyView(
+                    icon: Icons.search_off,
+                    title: l10n.emptySearchTitle,
+                    description: l10n.emptySearchDescription,
                   );
-                },
-              ),
+                }
+
+                return ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final customer = filtered[index];
+                    return ListTile(
+                      title: Text(customer.name),
+                      subtitle: customer.contactPerson == null
+                          ? null
+                          : Text(customer.contactPerson!),
+                      onTap: () => Navigator.of(context).pop(customer),
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

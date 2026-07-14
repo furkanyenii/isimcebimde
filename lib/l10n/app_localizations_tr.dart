@@ -92,6 +92,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get taxNumberFieldLabel => 'Vergi no';
 
   @override
+  String get settingsPreparer => 'Kişisel Bilgiler';
+
+  @override
+  String get settingsPreparerSubtitle => 'Teklifin altında görünür';
+
+  @override
+  String get firstNameLabel => 'Ad';
+
+  @override
+  String get lastNameLabel => 'Soyad';
+
+  @override
+  String get jobTitleLabel => 'Ünvan';
+
+  @override
   String get settingsLanguage => 'Dil';
 
   @override
@@ -135,6 +150,36 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get quantityLabel => 'Miktar';
+
+  @override
+  String get unitLabel => 'Birim';
+
+  @override
+  String get unitPiece => 'adet';
+
+  @override
+  String get unitSquareMeter => 'm²';
+
+  @override
+  String get unitCubicMeter => 'm³';
+
+  @override
+  String get unitPackage => 'paket';
+
+  @override
+  String get unitSet => 'set';
+
+  @override
+  String get unitBox => 'kutu';
+
+  @override
+  String get unitCustomAdd => 'Diğer…';
+
+  @override
+  String get unitCustomTitle => 'Yeni birim';
+
+  @override
+  String get unitCustomHint => 'örn. ton, saat, top';
 
   @override
   String get discountLabel => 'İskonto';
@@ -296,12 +341,12 @@ class AppLocalizationsTr extends AppLocalizations {
       'Teklif hazırlayabilmek için önce ürünlerini ekle.';
 
   @override
-  String get vatRateLabel => 'KDV oranı';
+  String productCreateFromSearch(String query) {
+    return '\"$query\" adıyla yeni ürün ekle';
+  }
 
   @override
-  String vatRateShort(String rate) {
-    return 'KDV %$rate';
-  }
+  String get vatRateLabel => 'KDV oranı';
 
   @override
   String percentValue(String rate) {
@@ -479,6 +524,12 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get errorTaxNumberLength => 'Vergi No 10 haneli olmalı.';
+
+  @override
+  String get errorUnitNameEmpty => 'Birim adı boş olamaz.';
+
+  @override
+  String get errorUnitSave => 'Birim kaydedilemedi.';
 
   @override
   String get errorExport => 'Dosya oluşturulamadı.';

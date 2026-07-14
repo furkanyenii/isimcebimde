@@ -11,6 +11,8 @@ import '../../drift_schemas/schema_v3.dart' as v3;
 import '../../drift_schemas/schema_v4.dart' as v4;
 import '../../drift_schemas/schema_v5.dart' as v5;
 import '../../drift_schemas/schema_v6.dart' as v6;
+import '../../drift_schemas/schema_v7.dart' as v7;
+import '../../drift_schemas/schema_v8.dart' as v8;
 
 /// Kullanıcının cihazındaki veri geri getirilemez: backend yok, sunucuda yedek yok.
 /// Bu yüzden migration'lar **testsiz merge edilmez** (CLAUDE.md: Database Rules).
@@ -132,7 +134,7 @@ void main() {
     expect(await db.select(db.customers).get(), isEmpty);
   });
 
-  test('v3\'teki müşteri ve ürünler v5\'e kayıpsız taşınır', () async {
+  test('v3\'teki müşteri ve ürünler v9\'a kayıpsız taşınır', () async {
     // v3'te ayarlar tablosu hiç yoktu; tablo güncel tanımıyla yaratılır ve
     // mevcut veriye dokunulmaz.
     final schema = await verifier.schemaAt(3);
@@ -154,7 +156,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 9);
 
     expect(await db.select(db.products).get(), hasLength(1));
     expect(await db.select(db.customers).get(), hasLength(1));
@@ -167,24 +169,17 @@ void main() {
     expect(settings.themeMode, 'system');
   });
 
-  test('v4 → v5 sonrası şema beklenen hale gelir', () async {
+  test('v4 → v9 sonrası şema beklenen hale gelir', () async {
     final connection = await verifier.startAt(4);
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 9);
   });
 
-  test('v1 → v5 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
-    final connection = await verifier.startAt(1);
-    final db = AppDatabase.forTesting(connection);
-    addTearDown(db.close);
-
-    await verifier.migrateAndValidate(db, 5);
-  });
-
-  test('v4\'teki dil ve tema tercihi v5\'e kayıpsız taşınır', () async {
-    // v4 → v5 yalnızca nullable sütun ekler; kullanıcının tercihi korunmalı.
+  test('v4\'teki dil ve tema tercihi v9\'a kayıpsız taşınır', () async {
+    // Sonraki sürümler ayarlara yalnızca nullable sütun ekler; kullanıcının
+    // tercihi korunmalı.
     final schema = await verifier.schemaAt(4);
     final oldDb = v4.DatabaseAtV4(schema.newConnection());
 
@@ -196,7 +191,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 9);
 
     final row = await db.select(db.settings).getSingle();
     expect(row.languageCode, 'en');
@@ -234,24 +229,22 @@ void main() {
     );
   });
 
-  test('v5 → v6 sonrası şema beklenen hale gelir', () async {
+  // Not: ara sürüme (ör. 5 → 6) yükseltip doğrulamak artık mümkün değil —
+  // `createTable` tabloyu her zaman **güncel** tanımıyla kurar, dolayısıyla v6
+  // hedefiyle bile `offer_items.unit` sütunu oluşur ve v6 dökümüne uymaz.
+  // Gerçek kullanıcı da hiçbir zaman ara sürümde durmaz: her yükseltme güncel
+  // şemaya kadar gider. Bu yüzden doğrulama hedefi her testte güncel sürümdür.
+  test('v5 → v9 sonrası şema beklenen hale gelir', () async {
     final connection = await verifier.startAt(5);
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 9);
   });
 
-  test('v1 → v6 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
-    final connection = await verifier.startAt(1);
-    final db = AppDatabase.forTesting(connection);
-    addTearDown(db.close);
-
-    await verifier.migrateAndValidate(db, 6);
-  });
-
-  test('v5\'teki ürün, müşteri ve ayarlar v6\'ya kayıpsız taşınır', () async {
-    // v5 → v6 yalnızca teklif tablolarını ekler; mevcut veriye dokunmamalı.
+  test('v5\'teki ürün, müşteri ve ayarlar v8\'e kayıpsız taşınır', () async {
+    // v5'te teklif tabloları hiç yoktu; güncel tanımlarıyla yaratılırlar ve
+    // mevcut veriye dokunulmaz.
     final schema = await verifier.schemaAt(5);
     final oldDb = v5.DatabaseAtV5(schema.newConnection());
 
@@ -271,7 +264,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 9);
 
     expect(await db.select(db.products).get(), hasLength(1));
     expect(await db.select(db.customers).get(), hasLength(1));
@@ -279,24 +272,16 @@ void main() {
     expect(await db.select(db.offers).get(), isEmpty);
   });
 
-  test('v6 → v7 sonrası şema beklenen hale gelir', () async {
+  test('v6 → v9 sonrası şema beklenen hale gelir', () async {
     final connection = await verifier.startAt(6);
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 7);
+    await verifier.migrateAndValidate(db, 9);
   });
 
-  test('v1 → v7 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
-    final connection = await verifier.startAt(1);
-    final db = AppDatabase.forTesting(connection);
-    addTearDown(db.close);
-
-    await verifier.migrateAndValidate(db, 7);
-  });
-
-  test('v6\'daki teklifler v7\'ye kayıpsız taşınır', () async {
-    // v6 → v7 yalnızca şablon tablolarını ekler; mevcut veriye dokunmamalı.
+  test('v6\'daki teklifler v8\'e kayıpsız taşınır', () async {
+    // Teklif verisi korunur; miktar v8'de binde bire ölçeklenir.
     final schema = await verifier.schemaAt(6);
     final oldDb = v6.DatabaseAtV6(schema.newConnection());
 
@@ -325,14 +310,118 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 7);
+    await verifier.migrateAndValidate(db, 9);
 
     expect(await db.select(db.products).get(), hasLength(1));
     expect(await db.select(db.customers).get(), hasLength(1));
     expect(await db.select(db.offers).get(), hasLength(1));
-    expect(await db.select(db.offerItems).get(), hasLength(1));
+
+    final item = await db.select(db.offerItems).getSingle();
+    expect(item.quantity, 100 * 1000);
+    expect(item.unitPriceMinor, 1250);
+
     // Yeni tablolar boş ama kullanılabilir olmalı.
     expect(await db.select(db.templates).get(), isEmpty);
+  });
+
+  test('v7 → v9 sonrası şema beklenen hale gelir', () async {
+    final connection = await verifier.startAt(7);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 9);
+  });
+
+  test('v1 → v9 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
+    final connection = await verifier.startAt(1);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 9);
+  });
+
+  test('v7\'deki miktarlar v8\'de binde bire ölçeklenir, değeri korunur', () async {
+    // v8'de miktarın **anlamı** değişir: adet → binde bir (3 → 3000). Bu adım
+    // atlanırsa kullanıcının "3 adet"i sessizce "0,003"e döner; bu testin tek
+    // işi o felaketi imkânsız kılmaktır.
+    final schema = await verifier.schemaAt(7);
+    final oldDb = v7.DatabaseAtV7(schema.newConnection());
+
+    final offerId = await oldDb.customInsert(
+      'INSERT INTO offers (customer_name) VALUES (?)',
+      variables: [const Variable('Yılmaz İnşaat')],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO offer_items (offer_id, product_name, unit_price_minor, quantity, vat_rate_basis_points) '
+      'VALUES (?, ?, ?, ?, ?)',
+      [offerId, 'Vida M8', 1250, 3, 2000],
+    );
+
+    final templateId = await oldDb.customInsert(
+      'INSERT INTO templates (name) VALUES (?)',
+      variables: [const Variable('Standart Hırdavat')],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO template_items (template_id, product_name, unit_price_minor, quantity, vat_rate_basis_points) '
+      'VALUES (?, ?, ?, ?, ?)',
+      [templateId, 'Vida M8', 1250, 12, 2000],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 9);
+
+    final item = await db.select(db.offerItems).getSingle();
+    expect(item.quantity, 3000, reason: '3 adet, 3,000 olarak taşınmalı');
+    expect(item.unit, 'adet', reason: 'Birimsiz eski satır varsayılanı almalı');
+    expect(item.unitPriceMinor, 1250); // Fiyat bozulmamalı.
+
+    final templateItem = await db.select(db.templateItems).getSingle();
+    expect(templateItem.quantity, 12000);
+    expect(templateItem.unit, 'adet');
+
+    // Yeni tablo boş ama kullanılabilir olmalı.
+    expect(await db.select(db.customUnits).get(), isEmpty);
+  });
+
+  test('v8\'deki firma bilgisi v9\'a kayıpsız taşınır', () async {
+    // v8 → v9 yalnızca nullable sütun ekler: firma bilgisi korunmalı, yeni
+    // "hazırlayan kişi" alanları boş gelmeli.
+    final schema = await verifier.schemaAt(8);
+    final oldDb = v8.DatabaseAtV8(schema.newConnection());
+
+    await oldDb.customStatement(
+      'INSERT INTO settings (id, theme_mode, company_name, company_phone) '
+      'VALUES (1, ?, ?, ?)',
+      ['dark', 'Yılmaz İnşaat', '0532 111 22 33'],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 9);
+
+    final row = await db.select(db.settings).getSingle();
+    expect(row.companyName, 'Yılmaz İnşaat');
+    expect(row.companyPhone, '0532 111 22 33');
+    expect(row.themeMode, 'dark');
+    expect(row.preparerFirstName, isNull);
+    expect(row.preparerTitle, isNull);
+  });
+
+  test('kullanıcının eklediği birim tekrar eklenemez (UNIQUE)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db
+        .into(db.customUnits)
+        .insert(CustomUnitsCompanion.insert(name: 'ton'));
+
+    await expectLater(
+      db.into(db.customUnits).insert(CustomUnitsCompanion.insert(name: 'ton')),
+      throwsA(isA<Exception>()),
+    );
   });
 
   test(

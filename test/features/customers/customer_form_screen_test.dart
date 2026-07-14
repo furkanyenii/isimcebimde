@@ -70,10 +70,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(tr.fullNameLabel), findsOneWidget);
-      expect(find.text(tr.nationalIdLabel), findsOneWidget);
-      // Bireysel müşteride bunlar anlamsız — gösterilmemeli.
+      // Vergi dairesi/no bireyselde de sorulur: şahıs firması da vergiye tabi.
+      expect(find.text(tr.taxOfficeLabel), findsOneWidget);
+      expect(find.text(tr.taxNumberLabel), findsOneWidget);
+      // Yetkili kişi yalnızca kurumsalda anlamlı — gösterilmemeli.
       expect(find.text(tr.contactPersonLabel), findsNothing);
-      expect(find.text(tr.taxOfficeLabel), findsNothing);
     });
 
     testWidgets('kurumsal seçilince ilgili alanlar açılır', (tester) async {
@@ -121,7 +122,7 @@ void main() {
       expect(customers.created, isEmpty);
     });
 
-    testWidgets('eksik haneli TCKN reddedilir', (tester) async {
+    testWidgets('eksik haneli vergi no reddedilir', (tester) async {
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
 
@@ -130,33 +131,37 @@ void main() {
         'Ayşe Demir',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, tr.nationalIdLabel),
+        find.widgetWithText(TextFormField, tr.taxNumberLabel),
         '123',
       );
       await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text(tr.errorNationalIdLength), findsOneWidget);
+      expect(find.text(tr.errorTaxNumberLength), findsOneWidget);
       expect(customers.created, isEmpty);
     });
 
-    testWidgets('kurumsalda vergi no 10 hane beklenir', (tester) async {
+    testWidgets('11 haneli eski kayıt (TCKN) hâlâ kabul edilir', (
+      tester,
+    ) async {
+      // Bu alan eskiden bireyselde TC Kimlik No'ydu; o kayıtları düzenlemeye
+      // açan kullanıcı kendi verisiyle uğraşmak zorunda kalmamalı.
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
-      await selectCompany(tester);
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, tr.companyNameLabel),
-        'Yılmaz İnşaat',
+        find.widgetWithText(TextFormField, tr.fullNameLabel),
+        'Ayşe Demir',
       );
       await tester.enterText(
         find.widgetWithText(TextFormField, tr.taxNumberLabel),
-        '12345678901', // 11 hane — bireysel uzunluğu
+        '12345678901',
       );
       await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text(tr.errorTaxNumberLength), findsOneWidget);
+      expect(find.text(tr.errorTaxNumberLength), findsNothing);
+      expect(customers.created, hasLength(1));
     });
   });
 
