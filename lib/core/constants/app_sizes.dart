@@ -17,6 +17,9 @@ abstract final class AppSizes {
   static const double iconSm = 20;
   static const double iconMd = 24;
   static const double iconLg = 64;
+
+  /// Splash ekranındaki marka logosu.
+  static const double logoSplash = 120;
 }
 
 /// Animasyon süreleri.
@@ -24,4 +27,8 @@ abstract final class AppDurations {
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration normal = Duration(milliseconds: 250);
   static const Duration slow = Duration(milliseconds: 400);
+
+  /// Splash logosunun tek bir "kalp atışı" (büyü-küçül) döngü süresi.
+  /// 5 döngü × 500ms = splash ekranının toplam 2.5sn sürmesini sağlar.
+  static const Duration heartbeat = Duration(milliseconds: 500);
 }

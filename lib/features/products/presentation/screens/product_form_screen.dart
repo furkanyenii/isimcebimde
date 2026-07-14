@@ -4,6 +4,7 @@ import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/widgets/keyboard_dismiss_on_tap.dart';
 import 'package:isimcebimde/core/widgets/money_field.dart';
 import 'package:isimcebimde/features/categories/presentation/widgets/category_picker.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
@@ -81,60 +82,62 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ),
         ],
       ),
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(AppSizes.md),
-            children: [
-              TextFormField(
-                controller: _nameController,
-                autofocus: !_isEditing,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(labelText: l10n.productNameLabel),
-                validator: (value) => (value == null || value.trim().isEmpty)
-                    ? l10n.errorProductNameEmpty
-                    : null,
-              ),
-              const SizedBox(height: AppSizes.md),
-              MoneyField(
-                initialValue: _price,
-                onChanged: (value) => _price = value,
-              ),
-              const SizedBox(height: AppSizes.md),
-              CategoryPicker(
-                selectedId: _categoryId,
-                onChanged: (id) => setState(() => _categoryId = id),
-              ),
-              const SizedBox(height: AppSizes.md),
-              DropdownButtonFormField<Percent>(
-                initialValue: _vatRate,
-                decoration: InputDecoration(labelText: l10n.vatRateLabel),
-                items: [
-                  for (final rate in _vatOptions)
-                    DropdownMenuItem(
-                      value: rate,
-                      child: Text(
-                        l10n.percentValue(rate.asPercent.toStringAsFixed(0)),
+      body: KeyboardDismissOnTap(
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: const EdgeInsets.all(AppSizes.md),
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  autofocus: !_isEditing,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(labelText: l10n.productNameLabel),
+                  validator: (value) => (value == null || value.trim().isEmpty)
+                      ? l10n.errorProductNameEmpty
+                      : null,
+                ),
+                const SizedBox(height: AppSizes.md),
+                MoneyField(
+                  initialValue: _price,
+                  onChanged: (value) => _price = value,
+                ),
+                const SizedBox(height: AppSizes.md),
+                CategoryPicker(
+                  selectedId: _categoryId,
+                  onChanged: (id) => setState(() => _categoryId = id),
+                ),
+                const SizedBox(height: AppSizes.md),
+                DropdownButtonFormField<Percent>(
+                  initialValue: _vatRate,
+                  decoration: InputDecoration(labelText: l10n.vatRateLabel),
+                  items: [
+                    for (final rate in _vatOptions)
+                      DropdownMenuItem(
+                        value: rate,
+                        child: Text(
+                          l10n.percentValue(rate.asPercent.toStringAsFixed(0)),
+                        ),
                       ),
-                    ),
-                ],
-                onChanged: (rate) {
-                  if (rate != null) setState(() => _vatRate = rate);
-                },
-              ),
-              const SizedBox(height: AppSizes.xl),
-              FilledButton(
-                onPressed: isSaving ? null : _save,
-                child: isSaving
-                    ? const SizedBox(
-                        width: AppSizes.iconSm,
-                        height: AppSizes.iconSm,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.actionSave),
-              ),
-            ],
+                  ],
+                  onChanged: (rate) {
+                    if (rate != null) setState(() => _vatRate = rate);
+                  },
+                ),
+                const SizedBox(height: AppSizes.xl),
+                FilledButton(
+                  onPressed: isSaving ? null : _save,
+                  child: isSaving
+                      ? const SizedBox(
+                          width: AppSizes.iconSm,
+                          height: AppSizes.iconSm,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(l10n.actionSave),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/widgets/keyboard_dismiss_on_tap.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_form_controller.dart';
@@ -103,109 +104,112 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       ),
       // Form 9 alanlı; `ListView` ekran dışındaki alanları tembel kurar.
       // Sabit alanlı bir formda bunun faydası yok, sakıncası var.
-      body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSizes.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                CustomerTypeSelector(
-                  value: _type,
-                  onChanged: (type) => setState(() => _type = type),
-                ),
-                const SizedBox(height: AppSizes.lg),
-                TextFormField(
-                  controller: _name,
-                  autofocus: !_isEditing,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    labelText: _isCompany
-                        ? l10n.companyNameLabel
-                        : l10n.fullNameLabel,
+      body: KeyboardDismissOnTap(
+        child: SafeArea(
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSizes.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomerTypeSelector(
+                    value: _type,
+                    onChanged: (type) => setState(() => _type = type),
                   ),
-                  validator: (value) => (value == null || value.trim().isEmpty)
-                      ? (_isCompany
-                            ? l10n.companyNameRequired
-                            : l10n.fullNameRequired)
-                      : null,
-                ),
-                if (_isCompany) ...[
-                  const SizedBox(height: AppSizes.md),
+                  const SizedBox(height: AppSizes.lg),
                   TextFormField(
-                    controller: _contactPerson,
+                    controller: _name,
+                    autofocus: !_isEditing,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(
-                      labelText: l10n.contactPersonLabel,
+                      labelText: _isCompany
+                          ? l10n.companyNameLabel
+                          : l10n.fullNameLabel,
+                    ),
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                        ? (_isCompany
+                              ? l10n.companyNameRequired
+                              : l10n.fullNameRequired)
+                        : null,
+                  ),
+                  if (_isCompany) ...[
+                    const SizedBox(height: AppSizes.md),
+                    TextFormField(
+                      controller: _contactPerson,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: l10n.contactPersonLabel,
+                        helperText: l10n.optionalField,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _phone,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: l10n.phoneLabel,
+                      helperText: l10n.optionalField,
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _email,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: l10n.emailLabel,
+                      helperText: l10n.optionalField,
+                    ),
+                    validator: _validateEmail,
+                  ),
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _address,
+                    maxLines: 2,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      labelText: l10n.addressLabel,
+                      helperText: l10n.optionalField,
+                    ),
+                  ),
+                  if (_isCompany) ...[
+                    const SizedBox(height: AppSizes.md),
+                    TextFormField(
+                      controller: _taxOffice,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                        labelText: l10n.taxOfficeLabel,
+                        helperText: l10n.optionalField,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _taxNumber,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: _isCompany
+                          ? l10n.taxNumberLabel
+                          : l10n.nationalIdLabel,
+                      helperText: l10n.optionalField,
+                    ),
+                    validator: _validateTaxNumber,
+                  ),
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _notes,
+                    maxLines: 3,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      labelText: l10n.notesLabel,
                       helperText: l10n.optionalField,
                     ),
                   ),
                 ],
-                const SizedBox(height: AppSizes.md),
-                TextFormField(
-                  controller: _phone,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: l10n.phoneLabel,
-                    helperText: l10n.optionalField,
-                  ),
-                ),
-                const SizedBox(height: AppSizes.md),
-                TextFormField(
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: l10n.emailLabel,
-                    helperText: l10n.optionalField,
-                  ),
-                  validator: _validateEmail,
-                ),
-                const SizedBox(height: AppSizes.md),
-                TextFormField(
-                  controller: _address,
-                  maxLines: 2,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: l10n.addressLabel,
-                    helperText: l10n.optionalField,
-                  ),
-                ),
-                if (_isCompany) ...[
-                  const SizedBox(height: AppSizes.md),
-                  TextFormField(
-                    controller: _taxOffice,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      labelText: l10n.taxOfficeLabel,
-                      helperText: l10n.optionalField,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: AppSizes.md),
-                TextFormField(
-                  controller: _taxNumber,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: _isCompany
-                        ? l10n.taxNumberLabel
-                        : l10n.nationalIdLabel,
-                    helperText: l10n.optionalField,
-                  ),
-                  validator: _validateTaxNumber,
-                ),
-                const SizedBox(height: AppSizes.md),
-                TextFormField(
-                  controller: _notes,
-                  maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  decoration: InputDecoration(
-                    labelText: l10n.notesLabel,
-                    helperText: l10n.optionalField,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),

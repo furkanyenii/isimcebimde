@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "isimcebimde" "\0"
+            VALUE "FileDescription", "Quotra" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "isimcebimde" "\0"
+            VALUE "InternalName", "Quotra" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "isimcebimde.exe" "\0"
-            VALUE "ProductName", "isimcebimde" "\0"
+            VALUE "OriginalFilename", "Quotra.exe" "\0"
+            VALUE "ProductName", "Quotra" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

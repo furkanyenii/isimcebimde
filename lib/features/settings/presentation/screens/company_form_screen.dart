@@ -7,6 +7,7 @@ import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/keyboard_dismiss_on_tap.dart';
 import 'package:isimcebimde/features/settings/domain/entities/company_info.dart';
 import 'package:isimcebimde/features/settings/presentation/providers/settings_providers.dart';
 
@@ -103,94 +104,96 @@ class _CompanyFormState extends ConsumerState<_CompanyForm> {
     // Logo yolu ekrandan değil, ayarlardan okunur: logo seçimi anında kaydedilir.
     final logoPath = ref.watch(settingsProvider).value?.company.logoPath;
 
-    return SafeArea(
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSizes.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _LogoField(path: logoPath, isBusy: isSaving),
-              const SizedBox(height: AppSizes.lg),
-              TextFormField(
-                controller: _name,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  labelText: l10n.companyNameFieldLabel,
-                  helperText: l10n.optionalField,
+    return KeyboardDismissOnTap(
+      child: SafeArea(
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSizes.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _LogoField(path: logoPath, isBusy: isSaving),
+                const SizedBox(height: AppSizes.lg),
+                TextFormField(
+                  controller: _name,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: l10n.companyNameFieldLabel,
+                    helperText: l10n.optionalField,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _phone,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: l10n.phoneLabel,
-                  helperText: l10n.optionalField,
+                const SizedBox(height: AppSizes.md),
+                TextFormField(
+                  controller: _phone,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: l10n.phoneLabel,
+                    helperText: l10n.optionalField,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: l10n.emailLabel,
-                  helperText: l10n.optionalField,
+                const SizedBox(height: AppSizes.md),
+                TextFormField(
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: l10n.emailLabel,
+                    helperText: l10n.optionalField,
+                  ),
+                  validator: _validateEmail,
                 ),
-                validator: _validateEmail,
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _website,
-                keyboardType: TextInputType.url,
-                decoration: InputDecoration(
-                  labelText: l10n.websiteLabel,
-                  helperText: l10n.optionalField,
+                const SizedBox(height: AppSizes.md),
+                TextFormField(
+                  controller: _website,
+                  keyboardType: TextInputType.url,
+                  decoration: InputDecoration(
+                    labelText: l10n.websiteLabel,
+                    helperText: l10n.optionalField,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _address,
-                maxLines: 2,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  labelText: l10n.addressLabel,
-                  helperText: l10n.optionalField,
+                const SizedBox(height: AppSizes.md),
+                TextFormField(
+                  controller: _address,
+                  maxLines: 2,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    labelText: l10n.addressLabel,
+                    helperText: l10n.optionalField,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _taxOffice,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  labelText: l10n.taxOfficeLabel,
-                  helperText: l10n.optionalField,
+                const SizedBox(height: AppSizes.md),
+                TextFormField(
+                  controller: _taxOffice,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    labelText: l10n.taxOfficeLabel,
+                    helperText: l10n.optionalField,
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _taxNumber,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: l10n.taxNumberFieldLabel,
-                  helperText: l10n.optionalField,
+                const SizedBox(height: AppSizes.md),
+                TextFormField(
+                  controller: _taxNumber,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    labelText: l10n.taxNumberFieldLabel,
+                    helperText: l10n.optionalField,
+                  ),
+                  validator: _validateTaxNumber,
                 ),
-                validator: _validateTaxNumber,
-              ),
-              const SizedBox(height: AppSizes.xl),
-              FilledButton(
-                onPressed: isSaving ? null : _save,
-                child: isSaving
-                    ? const SizedBox(
-                        width: AppSizes.iconSm,
-                        height: AppSizes.iconSm,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.actionSave),
-              ),
-            ],
+                const SizedBox(height: AppSizes.xl),
+                FilledButton(
+                  onPressed: isSaving ? null : _save,
+                  child: isSaving
+                      ? const SizedBox(
+                          width: AppSizes.iconSm,
+                          height: AppSizes.iconSm,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(l10n.actionSave),
+                ),
+              ],
+            ),
           ),
         ),
       ),

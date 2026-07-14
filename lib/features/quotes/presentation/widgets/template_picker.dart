@@ -15,6 +15,7 @@ Future<Template?> showTemplatePicker(BuildContext context) {
   return showModalBottomSheet<Template>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (context) => const _TemplatePickerSheet(),
   );
 }

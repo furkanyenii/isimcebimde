@@ -6,18 +6,44 @@ import 'package:isimcebimde/app/router/app_router.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/features/splash/presentation/widgets/pulsing_logo.dart';
 
 /// Açılış ekranı. Veritabanı hazırlanırken marka gösterilir; hazır olunca
 /// dashboard'a geçilir. Hata olursa kullanıcı sonsuza kadar burada beklemez —
 /// hata ekranı ve tekrar dene aksiyonu gösterilir (CLAUDE.md: UI Rules).
-class SplashScreen extends ConsumerWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen> {
+  // Pulse animasyonunun bitip bitmediği, dışarı sızmayan geçici UI state'i —
+  // dashboard'a geçiş hem bu, hem DB init tamamlanınca tetiklenir.
+  bool _animationFinished = false;
+
+  void _onAnimationFinished() {
+    _animationFinished = true;
+    _maybeNavigate();
+  }
+
+  void _maybeNavigate() {
+    final initialization = ref.read(appInitializationProvider);
+    if (!_animationFinished ||
+        !initialization.hasValue ||
+        initialization.isLoading) {
+      return;
+    }
+    if (!mounted) return;
+    context.go(AppRoutes.dashboard);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.listen(appInitializationProvider, (previous, next) {
       if (next.hasValue && !next.isLoading) {
-        context.go(AppRoutes.dashboard);
+        _maybeNavigate();
       }
     });
 
@@ -27,8 +53,11 @@ class SplashScreen extends ConsumerWidget {
       backgroundColor: context.colors.surface,
       body: Center(
         child: initialization.when(
-          data: (_) => const _Branding(),
-          loading: () => const _Branding(showProgress: true),
+          data: (_) => _Branding(onAnimationFinished: _onAnimationFinished),
+          loading: () => _Branding(
+            showProgress: true,
+            onAnimationFinished: _onAnimationFinished,
+          ),
           error: (error, _) => AppErrorView(
             message: context.l10n.splashInitError,
             onRetry: () => ref.invalidate(appInitializationProvider),
@@ -40,8 +69,12 @@ class SplashScreen extends ConsumerWidget {
 }
 
 class _Branding extends StatelessWidget {
-  const _Branding({this.showProgress = false});
+  const _Branding({
+    required this.onAnimationFinished,
+    this.showProgress = false,
+  });
 
+  final VoidCallback onAnimationFinished;
   final bool showProgress;
 
   @override
@@ -49,11 +82,7 @@ class _Branding extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.request_quote_outlined,
-          size: AppSizes.iconLg,
-          color: context.colors.primary,
-        ),
+        PulsingLogo(onFinished: onAnimationFinished),
         const SizedBox(height: AppSizes.md),
         Text('Quotra', style: context.textStyles.headlineMedium),
         const SizedBox(height: AppSizes.xs),

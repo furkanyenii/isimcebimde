@@ -15,6 +15,7 @@ Future<Product?> showProductPicker(BuildContext context) {
   return showModalBottomSheet<Product>(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     builder: (context) => const _ProductPickerSheet(),
   );
 }
