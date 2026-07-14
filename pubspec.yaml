@@ -51,6 +51,7 @@ dev_dependencies:
   drift_dev: ^2.34.0
 
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
   # NOT: riverpod_lint/custom_lint şu an eklenemiyor — custom_lint `analyzer ^8`,
   # drift_dev ise daha yenisini istiyor. custom_lint yetişince geri eklenecek.
   # O zamana kadar Riverpod kuralları code review ile denetlenir.
@@ -58,6 +59,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+
+  assets:
+    - assets/images/
 
   # PDF çıktısında Türkçe karakterleri (ç, ğ, ı, ö, ş, ü) doğru basmak için.
   # package:pdf'in varsayılan Helvetica'sı bu glyph'leri içermiyor.
@@ -67,3 +71,19 @@ flutter:
         - asset: assets/fonts/NotoSans-Regular.ttf
         - asset: assets/fonts/NotoSans-Bold.ttf
           weight: 700
+
+# `dart run flutter_launcher_icons` ile tüm platform ikonlarını üretir.
+# Kaynak görsel zaten tam kare + opak (alfa yok) — iOS App Store kuralına uygun.
+flutter_launcher_icons:
+  image_path: "assets/images/quotra_logo.png"
+  android: true
+  ios: true
+  macos:
+    generate: true
+    image_path: "assets/images/quotra_logo.png"
+  windows:
+    generate: true
+    image_path: "assets/images/quotra_logo.png"
+  web:
+    generate: true
+    image_path: "assets/images/quotra_logo.png"

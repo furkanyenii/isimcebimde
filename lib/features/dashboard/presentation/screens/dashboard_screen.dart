@@ -17,7 +17,10 @@ class DashboardScreen extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Quotra')), // Marka adı çevrilmez.
+      appBar: AppBar(
+        title: const Text('Quotra'), // Marka adı çevrilmez.
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSizes.md),

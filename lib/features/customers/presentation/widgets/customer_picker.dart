@@ -53,6 +53,7 @@ class CustomerPicker extends StatelessWidget {
     final customer = await showModalBottomSheet<Customer>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       builder: (context) => const _CustomerPickerSheet(),
     );
     if (customer != null) onChanged(customer);
