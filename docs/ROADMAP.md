@@ -321,15 +321,39 @@ Teklif şablonlarını geliştirmek.
 
 ## Yapılacaklar
 
-- Teklifi şablon olarak kaydet
-- Şablon listeleme
-- Şablondan teklif oluştur
-- Şablon düzenleme
-- Şablon silme
+- [x] Teklifi şablon olarak kaydet
+- [x] Şablon listeleme
+- [x] Şablondan teklif oluştur
+- [x] Şablon düzenleme
+- [x] Şablon silme
+
+## Bu phase'de alınan kararlar
+
+- **`Template.items` için ayrı bir `TemplateItem` tipi yok.** `OfferItem`
+  aynen kullanılıyor — aynı şekil (ürün adı/fiyat snapshot'ı, miktar, KDV,
+  iskonto), ayrım yalnızca hangi tabloda saklandıkları (`TemplateItems` vs
+  `OfferItems`). Bu bir persistence detayı, domain modelini ikiye bölmeyi
+  gerektirmiyor.
+- **Şablon müşteriden tamamen bağımsızdır.** `Template.toDraftOffer()`
+  müşteriyi boş bırakır; kullanıcı normal akışta seçer. "Şablondan oluştur"
+  butonu bu yüzden yalnızca yeni teklifte görünür, düzenlemede değil.
+- **Şablon adı benzersizdir** (`Categories.name` ile aynı gerekçe — aynı
+  isimde birden çok şablon kullanıcıyı karıştırır) ve **en az bir satır
+  zorunludur** (`Offer` ile aynı kural) — ikisi de repository sınırında
+  zorunlu kılınır, UI'ın doğrulaması tek güvence değildir.
+- **"Şablon olarak kaydet" ayrı bir form akışı/controller üzerinden gitmez.**
+  `CategoryPicker._createCategory` ile aynı desen: küçük, tek seferlik bir
+  eylem için repository doğrudan çağrılır.
+- **Şablonlar Dashboard'da ayrı bir kart değildir.** Teklifler modülünün bir
+  alt özelliği olarak `/quotes/templates` altında yaşar (Ayarlar → Firma
+  Bilgileri ile aynı gerekçe) — Dashboard'ın 4 kartlık düzeni bilinçli olarak
+  bozulmadı.
 
 ## Çıktı
 
-Yeni teklifler şablonlardan oluşturulabiliyor olmalı.
+Yeni teklifler şablonlardan oluşturulabiliyor. ✅
+
+Şema v7.
 
 ---
 

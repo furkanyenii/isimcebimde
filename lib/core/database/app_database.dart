@@ -129,6 +129,56 @@ class OfferItems extends Table {
   List<String> get customConstraints => const ['CHECK (quantity > 0)'];
 }
 
+/// Yeniden kullanılabilir bir teklif taslağı. Satırları [TemplateItems]'tadır.
+///
+/// [Offers]/[OfferItems] ile aynı desen — aggregate root, tek transaction'da
+/// yazılır — ancak müşteri hiç yoktur: şablon müşteriden bağımsızdır.
+/// [name] benzersizdir (`Categories.name` ile aynı gerekçe).
+@DataClassName('TemplateRow')
+class Templates extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 200).unique()();
+
+  /// ISO 4217 kodu; [Offers.currencyCode] ile aynı kısıt.
+  TextColumn get currencyCode =>
+      text().withLength(min: 3, max: 3).withDefault(const Constant('TRY'))();
+
+  IntColumn get generalDiscountBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  TextColumn get notes => text().withLength(max: 1000).nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  List<String> get customConstraints => const [
+    "CHECK (currency_code IN ('TRY', 'USD', 'EUR', 'GBP'))",
+  ];
+}
+
+/// Bir şablonun satırları. [OfferItems] ile birebir aynı şekil — ayrı bir
+/// domain tipi yoktur (`Template.items` zaten `OfferItem` kullanır), yalnızca
+/// hangi tabloya ait olduğu farklıdır.
+@DataClassName('TemplateItemRow')
+class TemplateItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get templateId =>
+      integer().references(Templates, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer().nullable().references(
+    Products,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get productName => text().withLength(min: 1, max: 200)();
+  IntColumn get unitPriceMinor => integer()();
+  IntColumn get quantity => integer()();
+  IntColumn get vatRateBasisPoints => integer()();
+  IntColumn get discountBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  List<String> get customConstraints => const ['CHECK (quantity > 0)'];
+}
+
 /// Ayarların tutulduğu **tek satır**. [id] her zaman 1'dir ve bu, CHECK kısıtıyla
 /// veritabanı seviyesinde garanti altındadır — ikinci bir ayar satırı, hangi
 /// satırın geçerli olduğu sorusunu doğurur ve o soru sessiz bir hataya döner.
@@ -179,7 +229,16 @@ const int kSettingsRowId = 1;
 /// Uygulamanın tek veri kaynağı. Backend yok — bu dosyadaki her şema
 /// değişikliği geri alınamaz kullanıcı verisine dokunur (CLAUDE.md: Database Rules).
 @DriftDatabase(
-  tables: [Products, Categories, Customers, Settings, Offers, OfferItems],
+  tables: [
+    Products,
+    Categories,
+    Customers,
+    Settings,
+    Offers,
+    OfferItems,
+    Templates,
+    TemplateItems,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'isimcebimde'));
@@ -188,7 +247,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -236,6 +295,11 @@ class AppDatabase extends _$AppDatabase {
         // v5 → v6: teklif modülü. Yalnızca yeni tablolar — mevcut veriye dokunulmaz.
         await m.createTable(offers);
         await m.createTable(offerItems);
+      }
+      if (from < 7) {
+        // v6 → v7: şablon modülü. Yalnızca yeni tablolar — mevcut veriye dokunulmaz.
+        await m.createTable(templates);
+        await m.createTable(templateItems);
       }
     },
     beforeOpen: (details) async {

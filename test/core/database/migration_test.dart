@@ -10,6 +10,7 @@ import '../../drift_schemas/schema_v2.dart' as v2;
 import '../../drift_schemas/schema_v3.dart' as v3;
 import '../../drift_schemas/schema_v4.dart' as v4;
 import '../../drift_schemas/schema_v5.dart' as v5;
+import '../../drift_schemas/schema_v6.dart' as v6;
 
 /// Kullanıcının cihazındaki veri geri getirilemez: backend yok, sunucuda yedek yok.
 /// Bu yüzden migration'lar **testsiz merge edilmez** (CLAUDE.md: Database Rules).
@@ -277,6 +278,178 @@ void main() {
     // Yeni tablolar boş ama kullanılabilir olmalı.
     expect(await db.select(db.offers).get(), isEmpty);
   });
+
+  test('v6 → v7 sonrası şema beklenen hale gelir', () async {
+    final connection = await verifier.startAt(6);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 7);
+  });
+
+  test('v1 → v7 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
+    final connection = await verifier.startAt(1);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 7);
+  });
+
+  test('v6\'daki teklifler v7\'ye kayıpsız taşınır', () async {
+    // v6 → v7 yalnızca şablon tablolarını ekler; mevcut veriye dokunmamalı.
+    final schema = await verifier.schemaAt(6);
+    final oldDb = v6.DatabaseAtV6(schema.newConnection());
+
+    await oldDb.customStatement(
+      'INSERT INTO categories (id, name) VALUES (1, ?)',
+      ['Genel'],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO products (name, price_minor, category_id) VALUES (?, ?, 1)',
+      ['Vida M8', 1250],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO customers (type, name) VALUES (?, ?)',
+      ['company', 'Yılmaz İnşaat'],
+    );
+    final offerId = await oldDb.customInsert(
+      'INSERT INTO offers (customer_name) VALUES (?)',
+      variables: [const Variable('Yılmaz İnşaat')],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO offer_items (offer_id, product_name, unit_price_minor, quantity, vat_rate_basis_points) '
+      'VALUES (?, ?, ?, ?, ?)',
+      [offerId, 'Vida M8', 1250, 100, 2000],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 7);
+
+    expect(await db.select(db.products).get(), hasLength(1));
+    expect(await db.select(db.customers).get(), hasLength(1));
+    expect(await db.select(db.offers).get(), hasLength(1));
+    expect(await db.select(db.offerItems).get(), hasLength(1));
+    // Yeni tablolar boş ama kullanılabilir olmalı.
+    expect(await db.select(db.templates).get(), isEmpty);
+  });
+
+  test(
+    'şablon ve satırları tek transaction ile kaydedilir, sorgulanabilir',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final categoryId = await db
+          .into(db.categories)
+          .insert(CategoriesCompanion.insert(name: 'Hırdavat'));
+      final productId = await db
+          .into(db.products)
+          .insert(
+            ProductsCompanion.insert(
+              name: 'Vida M8',
+              priceMinor: 1250,
+              categoryId: categoryId,
+            ),
+          );
+
+      final templateId = await db
+          .into(db.templates)
+          .insert(TemplatesCompanion.insert(name: 'Standart Hırdavat'));
+      await db
+          .into(db.templateItems)
+          .insert(
+            TemplateItemsCompanion.insert(
+              templateId: templateId,
+              productId: Value(productId),
+              productName: 'Vida M8',
+              unitPriceMinor: 1250,
+              quantity: 100,
+              vatRateBasisPoints: 2000,
+            ),
+          );
+
+      final items = await db.select(db.templateItems).get();
+      expect(items, hasLength(1));
+      expect(items.single.quantity, 100);
+    },
+  );
+
+  test('şablon silinince satırları da kaskad olarak silinir', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final templateId = await db
+        .into(db.templates)
+        .insert(TemplatesCompanion.insert(name: 'Standart Hırdavat'));
+    await db
+        .into(db.templateItems)
+        .insert(
+          TemplateItemsCompanion.insert(
+            templateId: templateId,
+            productName: 'Vida M8',
+            unitPriceMinor: 1250,
+            quantity: 1,
+            vatRateBasisPoints: 2000,
+          ),
+        );
+
+    await (db.delete(db.templates)..where((t) => t.id.equals(templateId))).go();
+
+    expect(await db.select(db.templateItems).get(), isEmpty);
+  });
+
+  test('aynı isimde ikinci şablon veritabanına giremez (UNIQUE)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await db
+        .into(db.templates)
+        .insert(TemplatesCompanion.insert(name: 'Standart Hırdavat'));
+
+    await expectLater(
+      db
+          .into(db.templates)
+          .insert(TemplatesCompanion.insert(name: 'Standart Hırdavat')),
+      throwsA(isA<Exception>()),
+    );
+  });
+
+  test(
+    'şablonda geçersiz para birimi ve sıfır miktar veritabanına giremez (CHECK)',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final templateId = await db
+          .into(db.templates)
+          .insert(TemplatesCompanion.insert(name: 'Standart Hırdavat'));
+
+      await expectLater(
+        db.customStatement(
+          'UPDATE templates SET currency_code = ? WHERE id = ?',
+          ['XYZ', templateId],
+        ),
+        throwsA(isA<Exception>()),
+      );
+
+      await expectLater(
+        db
+            .into(db.templateItems)
+            .insert(
+              TemplateItemsCompanion.insert(
+                templateId: templateId,
+                productName: 'Vida M8',
+                unitPriceMinor: 1250,
+                quantity: 0,
+                vatRateBasisPoints: 2000,
+              ),
+            ),
+        throwsA(isA<Exception>()),
+      );
+    },
+  );
 
   test(
     'teklif ve satırları tek transaction ile kaydedilir, sorgulanabilir',

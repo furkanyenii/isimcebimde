@@ -4,6 +4,49 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini izle
 
 ## [Unreleased]
 
+### Phase 6 — Offer Templates
+
+#### Eklendi
+
+- **Teklif şablonları:** bir teklifi şablon olarak kaydetme, şablon listesi,
+  şablondan yeni teklif oluşturma, şablon düzenleme, şablon silme.
+- `OfferFormScreen`'e iki yeni AppBar aksiyonu: "Şablondan oluştur" (yalnızca
+  yeni teklifte) ve "Şablon olarak kaydet" (satır varken).
+- `OfferListScreen`'den "Şablonlar" ekranına giriş (`/quotes/templates`).
+
+#### Şema
+
+- **schemaVersion 6 → 7.** `Templates` + `TemplateItems` tabloları. Mevcut
+  tablolara dokunmayan yeni-tablo-only migration (v5→v6 deseninin aynısı).
+  Şablon adı `UNIQUE`; para birimi ve miktar kısıtları `Offers`/`OfferItems`
+  ile birebir aynı (`CHECK`).
+
+#### Kararlar
+
+- **`Template.items` için ayrı bir `TemplateItem` tipi yok** — `OfferItem`
+  aynen kullanılır. Ayrım yalnızca hangi tabloda saklandıkları; bu bir
+  persistence detayı, domain modelini ikiye bölmeyi gerektirmez.
+- **Şablon müşteriden tamamen bağımsızdır.** `Template.toDraftOffer()`
+  müşteriyi boş bırakır. Satırlar `copyWith` değil doğrudan `OfferItem(...)`
+  ile kurulur: `OfferItem.copyWith` `id`'yi temizleyemez (`id ?? this.id`
+  deseni), taslak satırların gerçekten kaydedilmemiş (`id: null`) olması
+  gerekiyordu.
+- **Şablon adı benzersizdir, en az bir satır zorunludur** — sırasıyla
+  `Categories.name` ve `Offer`'ın kendi kuralıyla aynı gerekçe; repository
+  sınırında da zorunlu kılınır (`DuplicateTemplateNameFailure`,
+  `EmptyTemplateFailure`).
+- **"Şablon olarak kaydet" ayrı bir controller üzerinden gitmez** —
+  `CategoryPicker._createCategory` ile aynı desen: küçük, tek seferlik bir
+  eylem için repository doğrudan çağrılır.
+- **Şablonlar Dashboard'da ayrı bir kart değildir**, Teklifler'in bir alt
+  özelliği olarak yaşar (Ayarlar → Firma Bilgileri ile aynı gerekçe).
+
+#### Bilinen eksikler
+
+- Şablon içeriğinin ürün/müşteri gibi ayrı bir arama kutusu paylaşan global
+  bir provider'ı yok (picker kendi yerel arama metnini tutar) — bu bilinçli,
+  ölçek sorun olmadıkça değişmeyecek.
+
 ### Phase 5 — Offer Module (Temel)
 
 #### Eklendi

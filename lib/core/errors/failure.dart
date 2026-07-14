@@ -28,7 +28,7 @@ sealed class Failure implements Exception {
 }
 
 /// Hatanın hangi kayıt türüyle ilgili olduğu.
-enum EntityKind { product, category, customer, settings, offer }
+enum EntityKind { product, category, customer, settings, offer, template }
 
 /// Hangi veritabanı işleminin başarısız olduğu.
 enum DataOperation { read, create, update, delete }
@@ -123,6 +123,18 @@ final class EmptyOfferFailure extends ValidationFailure {
   String get debugLabel => 'offer has no items';
 }
 
+/// Şablon en az bir ürün satırı içermelidir; boş şablon kaydedilemez.
+///
+/// `EmptyOfferFailure` genel/entity-parametreli bir tip değildir (sabit bir
+/// `debugLabel` taşır), bu yüzden şablon için ayrı bir sınıf gerekir —
+/// aynı desenin bir teklif değil bir şablon için tekrarı.
+final class EmptyTemplateFailure extends ValidationFailure {
+  const EmptyTemplateFailure();
+
+  @override
+  String get debugLabel => 'template has no items';
+}
+
 /// Aynı isimde kategori zaten var (kategori adı benzersizdir).
 final class DuplicateCategoryFailure extends Failure {
   const DuplicateCategoryFailure(this.name, {super.cause});
@@ -132,6 +144,17 @@ final class DuplicateCategoryFailure extends Failure {
 
   @override
   String get debugLabel => 'category "$name" already exists';
+}
+
+/// Aynı isimde şablon zaten var (şablon adı benzersizdir; `DuplicateCategoryFailure`
+/// ile aynı gerekçe).
+final class DuplicateTemplateNameFailure extends Failure {
+  const DuplicateTemplateNameFailure(this.name, {super.cause});
+
+  final String name;
+
+  @override
+  String get debugLabel => 'template "$name" already exists';
 }
 
 /// Kategoriye bağlı ürün olduğu için silinemez. Kategori zorunlu olduğundan

@@ -164,6 +164,42 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quotesLoadError => 'Teklifler yüklenemedi.';
 
   @override
+  String get templateNew => 'Yeni Şablon';
+
+  @override
+  String get templateEdit => 'Şablonu Düzenle';
+
+  @override
+  String get templateDelete => 'Şablonu sil';
+
+  @override
+  String get templateAdd => 'Şablon ekle';
+
+  @override
+  String get templatesTitle => 'Şablonlar';
+
+  @override
+  String get templatesLoadError => 'Şablonlar yüklenemedi.';
+
+  @override
+  String get templatesEmptyTitle => 'Henüz şablon yok';
+
+  @override
+  String get templatesEmptyDescription => 'İlk şablonunu oluştur.';
+
+  @override
+  String get templateNameLabel => 'Şablon adı';
+
+  @override
+  String get templateSearchHint => 'Şablon ara';
+
+  @override
+  String get templateUseTooltip => 'Şablondan oluştur';
+
+  @override
+  String get templateSaveAsTooltip => 'Şablon olarak kaydet';
+
+  @override
   String get errorOffersLoad => 'Teklifler okunamadı.';
 
   @override
@@ -184,6 +220,32 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get errorOfferEmpty => 'Teklif en az bir ürün içermelidir.';
+
+  @override
+  String get errorTemplatesLoad => 'Şablonlar okunamadı.';
+
+  @override
+  String get errorTemplateSave => 'Şablon kaydedilemedi.';
+
+  @override
+  String get errorTemplateUpdate => 'Şablon güncellenemedi.';
+
+  @override
+  String get errorTemplateDelete => 'Şablon silinemedi.';
+
+  @override
+  String get errorTemplateNotSaved => 'Kaydedilmemiş şablon güncellenemez.';
+
+  @override
+  String get errorTemplateNameEmpty => 'Şablon adı boş olamaz.';
+
+  @override
+  String errorTemplateDuplicate(String name) {
+    return '\"$name\" adında bir şablon zaten var.';
+  }
+
+  @override
+  String get errorTemplateEmpty => 'Şablon en az bir ürün içermelidir.';
 
   @override
   String get productNew => 'Yeni Ürün';

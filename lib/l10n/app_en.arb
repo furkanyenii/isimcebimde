@@ -81,6 +81,19 @@
   "quotesEmptyDescription": "Create your first quote.",
   "quotesLoadError": "Quotes could not be loaded.",
 
+  "templateNew": "New Template",
+  "templateEdit": "Edit Template",
+  "templateDelete": "Delete template",
+  "templateAdd": "Add template",
+  "templatesTitle": "Templates",
+  "templatesLoadError": "Templates could not be loaded.",
+  "templatesEmptyTitle": "No templates yet",
+  "templatesEmptyDescription": "Create your first template.",
+  "templateNameLabel": "Template name",
+  "templateSearchHint": "Search templates",
+  "templateUseTooltip": "Start from a template",
+  "templateSaveAsTooltip": "Save as template",
+
   "errorOffersLoad": "Quotes could not be loaded.",
   "errorOfferSave": "The quote could not be saved.",
   "errorOfferUpdate": "The quote could not be updated.",
@@ -88,6 +101,24 @@
   "errorOfferNotSaved": "An unsaved quote cannot be updated.",
   "errorOfferCustomerRequired": "Pick a customer to create a quote.",
   "errorOfferEmpty": "A quote must contain at least one product.",
+
+  "errorTemplatesLoad": "Templates could not be loaded.",
+  "errorTemplateSave": "The template could not be saved.",
+  "errorTemplateUpdate": "The template could not be updated.",
+  "errorTemplateDelete": "The template could not be deleted.",
+  "errorTemplateNotSaved": "An unsaved template cannot be updated.",
+  "errorTemplateNameEmpty": "Template name cannot be empty.",
+  "errorTemplateDuplicate": "A template named \"{name}\" already exists.",
+  "@errorTemplateDuplicate": {
+    "description": "Template names are unique.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Standard Hardware Quote"
+      }
+    }
+  },
+  "errorTemplateEmpty": "A template must contain at least one product.",
 
   "productNew": "New Product",
   "productEdit": "Edit Product",

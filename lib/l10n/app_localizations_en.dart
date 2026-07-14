@@ -164,6 +164,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quotesLoadError => 'Quotes could not be loaded.';
 
   @override
+  String get templateNew => 'New Template';
+
+  @override
+  String get templateEdit => 'Edit Template';
+
+  @override
+  String get templateDelete => 'Delete template';
+
+  @override
+  String get templateAdd => 'Add template';
+
+  @override
+  String get templatesTitle => 'Templates';
+
+  @override
+  String get templatesLoadError => 'Templates could not be loaded.';
+
+  @override
+  String get templatesEmptyTitle => 'No templates yet';
+
+  @override
+  String get templatesEmptyDescription => 'Create your first template.';
+
+  @override
+  String get templateNameLabel => 'Template name';
+
+  @override
+  String get templateSearchHint => 'Search templates';
+
+  @override
+  String get templateUseTooltip => 'Start from a template';
+
+  @override
+  String get templateSaveAsTooltip => 'Save as template';
+
+  @override
   String get errorOffersLoad => 'Quotes could not be loaded.';
 
   @override
@@ -183,6 +219,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorOfferEmpty => 'A quote must contain at least one product.';
+
+  @override
+  String get errorTemplatesLoad => 'Templates could not be loaded.';
+
+  @override
+  String get errorTemplateSave => 'The template could not be saved.';
+
+  @override
+  String get errorTemplateUpdate => 'The template could not be updated.';
+
+  @override
+  String get errorTemplateDelete => 'The template could not be deleted.';
+
+  @override
+  String get errorTemplateNotSaved => 'An unsaved template cannot be updated.';
+
+  @override
+  String get errorTemplateNameEmpty => 'Template name cannot be empty.';
+
+  @override
+  String errorTemplateDuplicate(String name) {
+    return 'A template named \"$name\" already exists.';
+  }
+
+  @override
+  String get errorTemplateEmpty =>
+      'A template must contain at least one product.';
 
   @override
   String get productNew => 'New Product';
