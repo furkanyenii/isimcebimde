@@ -68,6 +68,15 @@
   "errorOfferCustomerRequired": "Teklif oluşturmak için müşteri seçmelisin.",
   "errorOfferEmpty": "Teklif en az bir ürün içermelidir.",
 
+  "errorTemplatesLoad": "Şablonlar okunamadı.",
+  "errorTemplateSave": "Şablon kaydedilemedi.",
+  "errorTemplateUpdate": "Şablon güncellenemedi.",
+  "errorTemplateDelete": "Şablon silinemedi.",
+  "errorTemplateNotSaved": "Kaydedilmemiş şablon güncellenemez.",
+  "errorTemplateNameEmpty": "Şablon adı boş olamaz.",
+  "errorTemplateDuplicate": "\"{name}\" adında bir şablon zaten var.",
+  "errorTemplateEmpty": "Şablon en az bir ürün içermelidir.",
+
   "productNew": "Yeni Ürün",
   "productEdit": "Ürünü Düzenle",
   "productDelete": "Ürünü sil",

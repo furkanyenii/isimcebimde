@@ -186,6 +186,32 @@ class AppLocalizationsTr extends AppLocalizations {
   String get errorOfferEmpty => 'Teklif en az bir ürün içermelidir.';
 
   @override
+  String get errorTemplatesLoad => 'Şablonlar okunamadı.';
+
+  @override
+  String get errorTemplateSave => 'Şablon kaydedilemedi.';
+
+  @override
+  String get errorTemplateUpdate => 'Şablon güncellenemedi.';
+
+  @override
+  String get errorTemplateDelete => 'Şablon silinemedi.';
+
+  @override
+  String get errorTemplateNotSaved => 'Kaydedilmemiş şablon güncellenemez.';
+
+  @override
+  String get errorTemplateNameEmpty => 'Şablon adı boş olamaz.';
+
+  @override
+  String errorTemplateDuplicate(String name) {
+    return '\"$name\" adında bir şablon zaten var.';
+  }
+
+  @override
+  String get errorTemplateEmpty => 'Şablon en az bir ürün içermelidir.';
+
+  @override
   String get productNew => 'Yeni Ürün';
 
   @override

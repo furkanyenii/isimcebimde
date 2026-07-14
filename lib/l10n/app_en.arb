@@ -89,6 +89,24 @@
   "errorOfferCustomerRequired": "Pick a customer to create a quote.",
   "errorOfferEmpty": "A quote must contain at least one product.",
 
+  "errorTemplatesLoad": "Templates could not be loaded.",
+  "errorTemplateSave": "The template could not be saved.",
+  "errorTemplateUpdate": "The template could not be updated.",
+  "errorTemplateDelete": "The template could not be deleted.",
+  "errorTemplateNotSaved": "An unsaved template cannot be updated.",
+  "errorTemplateNameEmpty": "Template name cannot be empty.",
+  "errorTemplateDuplicate": "A template named \"{name}\" already exists.",
+  "@errorTemplateDuplicate": {
+    "description": "Template names are unique.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Standard Hardware Quote"
+      }
+    }
+  },
+  "errorTemplateEmpty": "A template must contain at least one product.",
+
   "productNew": "New Product",
   "productEdit": "Edit Product",
   "productDelete": "Delete product",

@@ -185,6 +185,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorOfferEmpty => 'A quote must contain at least one product.';
 
   @override
+  String get errorTemplatesLoad => 'Templates could not be loaded.';
+
+  @override
+  String get errorTemplateSave => 'The template could not be saved.';
+
+  @override
+  String get errorTemplateUpdate => 'The template could not be updated.';
+
+  @override
+  String get errorTemplateDelete => 'The template could not be deleted.';
+
+  @override
+  String get errorTemplateNotSaved => 'An unsaved template cannot be updated.';
+
+  @override
+  String get errorTemplateNameEmpty => 'Template name cannot be empty.';
+
+  @override
+  String errorTemplateDuplicate(String name) {
+    return 'A template named \"$name\" already exists.';
+  }
+
+  @override
+  String get errorTemplateEmpty =>
+      'A template must contain at least one product.';
+
+  @override
   String get productNew => 'New Product';
 
   @override
