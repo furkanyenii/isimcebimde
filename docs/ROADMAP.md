@@ -411,15 +411,42 @@ Teklif paylaşımı.
 
 ## Yapılacaklar
 
-- PDF paylaş
-- Excel paylaş
-- WhatsApp
-- Mail
-- Sistem paylaşım ekranı
+- [x] PDF paylaş
+- [x] WhatsApp
+- [x] Mail
+- [x] Sistem paylaşım ekranı
+
+## Bu phase'de alınan kararlar
+
+- **Ayrı bir "WhatsApp" veya "Mail" butonu yok.** `printing` paketinin
+  `PdfPreview` widget'ı (Faz 7'de zaten kuruldu) hazır bir paylaşım ikonu
+  içeriyor ve bu, işletim sisteminin genel paylaşım ekranını açıyor —
+  WhatsApp ve Mail dahil kurulu her uygulama zaten burada bir seçenek
+  olarak çıkıyor, WhatsApp'ta PDF eki native olarak destekleniyor. Roadmap'in
+  dört maddesi de (PDF paylaş / WhatsApp / Mail / Sistem paylaşım ekranı)
+  Faz 7'de tek bir mekanizmayla zaten karşılanmış durumdaydı.
+- **WhatsApp'a özel bir deep link (`wa.me`) PDF dosyası taşıyamaz** —
+  yalnızca metin. Bu WhatsApp'ın kamuya açık deep link API'sinin sınırı,
+  paket seçimiyle ilgisi yok. Bu yüzden ayrı bir "WhatsApp'a Gönder"
+  butonu (PDF'siz, yalnızca metinli, iki adımlı bir akış) bilinçli olarak
+  eklenmedi.
+- **Gerçek iş, mevcut paylaşım ikonunu zenginleştirmekti.** `PdfPreview`'in
+  `shareActionExtraSubject`/`shareActionExtraBody`/`shareActionExtraEmails`
+  parametreleri dolduruldu: konu teklif numarası, metin yerelleştirilmiş bir
+  şablon, alıcı ise `offer.customerId` üzerinden müşterinin e-postası
+  (varsa). Bu üçü de doğrudan `Printing.sharePdf`'e geçiyor.
+- **Müşteri e-postası zorunlu değil, bir zenginleştirme.** `customerId`
+  `null`sa (teklif müşterisiz veya müşteri silinmiş) ya da müşteride
+  e-posta yoksa, paylaşım ekranı **çökmez**, yalnızca alıcısız açılır —
+  kullanıcı elle girer. Yeni `customerByIdProvider` (family, `Stream<Customer?>`)
+  bu yüzden `.value` (nullable) ile okunur, ekranın ana `.when()` akışını
+  bloklamaz.
 
 ## Çıktı
 
-Teklif paylaşılabiliyor olmalı.
+Teklif paylaşılabiliyor. ✅
+
+`flutter analyze` temiz, 272/272 test geçiyor. Şema v7 (değişmedi).
 
 ---
 

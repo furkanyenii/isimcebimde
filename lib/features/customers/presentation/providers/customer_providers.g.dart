@@ -163,3 +163,92 @@ final class CustomerListProvider
 }
 
 String _$customerListHash() => r'92177337dff91ac704b50ce70c34ba3b2696d2e5';
+
+/// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
+/// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
+/// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).
+
+@ProviderFor(customerById)
+final customerByIdProvider = CustomerByIdFamily._();
+
+/// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
+/// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
+/// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).
+
+final class CustomerByIdProvider
+    extends
+        $FunctionalProvider<AsyncValue<Customer?>, Customer?, Stream<Customer?>>
+    with $FutureModifier<Customer?>, $StreamProvider<Customer?> {
+  /// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
+  /// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
+  /// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).
+  CustomerByIdProvider._({
+    required CustomerByIdFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'customerByIdProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$customerByIdHash();
+
+  @override
+  String toString() {
+    return r'customerByIdProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $StreamProviderElement<Customer?> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<Customer?> create(Ref ref) {
+    final argument = this.argument as int;
+    return customerById(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is CustomerByIdProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$customerByIdHash() => r'd138ebbf29da42af44b06a7025be5083d51eca53';
+
+/// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
+/// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
+/// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).
+
+final class CustomerByIdFamily extends $Family
+    with $FunctionalFamilyOverride<Stream<Customer?>, int> {
+  CustomerByIdFamily._()
+    : super(
+        retry: null,
+        name: r'customerByIdProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
+  /// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
+  /// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).
+
+  CustomerByIdProvider call(int id) =>
+      CustomerByIdProvider._(argument: id, from: this);
+
+  @override
+  String toString() => r'customerByIdProvider';
+}
