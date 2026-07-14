@@ -9,14 +9,19 @@ import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:isimcebimde/features/splash/presentation/screens/splash_screen.dart';
 
+import '../../support/localized_app.dart';
+
 /// Splash gerçek veritabanına dokunmaz; başlatma sonucu override edilir.
 /// (DB'ye dokunan testler `testWidgets` içinde çalışmaz — CLAUDE.md: Test Rules.)
 void main() {
+  // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
+  final tr = l10nFor(const Locale('tr'));
+
   Widget buildApp(Future<void> Function(Ref ref) initialization) =>
       ProviderScope(
         retry: (retryCount, error) => null,
         overrides: [appInitializationProvider.overrideWith(initialization)],
-        child: const MaterialApp(home: SplashScreen()),
+        child: localizedApp(const SplashScreen()),
       );
 
   testWidgets('başlatma sürerken marka ve ilerleme gösterir', (tester) async {
@@ -39,7 +44,7 @@ void main() {
 
     // Sonsuz spinner değil, görünür hata ve tekrar deneme yolu.
     expect(find.byType(AppErrorView), findsOneWidget);
-    expect(find.text('Tekrar dene'), findsOneWidget);
+    expect(find.text(tr.actionRetry), findsOneWidget);
     expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.byType(DashboardScreen), findsNothing);
   });
@@ -50,7 +55,7 @@ void main() {
       ProviderScope(
         retry: (retryCount, error) => null,
         overrides: [appInitializationProvider.overrideWith((ref) async {})],
-        child: MaterialApp.router(routerConfig: appRouter),
+        child: localizedRouterApp(appRouter),
       ),
     );
     await tester.pumpAndSettle();

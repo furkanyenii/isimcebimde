@@ -68,9 +68,56 @@ class Customers extends Table {
   ];
 }
 
+/// Ayarların tutulduğu **tek satır**. [id] her zaman 1'dir ve bu, CHECK kısıtıyla
+/// veritabanı seviyesinde garanti altındadır — ikinci bir ayar satırı, hangi
+/// satırın geçerli olduğu sorusunu doğurur ve o soru sessiz bir hataya döner.
+///
+/// [languageCode] `NULL` ise "sistem dili" demektir; "seçim yapılmadı" ile
+/// "Türkçe seçildi" farklı durumlardır (bkz. `AppLanguage.system`).
+///
+/// Firma bilgileri de burada yaşar: hepsi **opsiyoneldir** (nullable) — sahada
+/// vergi dairesini doldurmadan da teklif çıkarılabilmelidir. Boş alan `''` değil
+/// `NULL` tutulur; repository sınırında normalize edilir.
+///
+/// [companyLogoPath] görselin **kendisini değil, yolunu** tutar: blob olarak
+/// saklamak veritabanını şişirir ve her okumada belleğe alınır. Yol, uygulamanın
+/// belge klasörüne kopyalanmış dosyayı gösterir (bkz. `LogoStorage`) — galerinin
+/// geçici yolu OS tarafından silinebilir.
+@DataClassName('SettingsRow')
+class Settings extends Table {
+  IntColumn get id => integer()();
+  TextColumn get languageCode => text().withLength(max: 8).nullable()();
+  TextColumn get themeMode => text()
+      .withLength(min: 1, max: 16)
+      .withDefault(const Constant('system'))();
+
+  TextColumn get companyName => text().withLength(max: 200).nullable()();
+  TextColumn get companyLogoPath => text().withLength(max: 500).nullable()();
+  TextColumn get companyPhone => text().withLength(max: 32).nullable()();
+  TextColumn get companyEmail => text().withLength(max: 200).nullable()();
+  TextColumn get companyWebsite => text().withLength(max: 200).nullable()();
+  TextColumn get companyAddress => text().withLength(max: 500).nullable()();
+  TextColumn get companyTaxOffice => text().withLength(max: 100).nullable()();
+  TextColumn get companyTaxNumber => text().withLength(max: 11).nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+
+  @override
+  List<String> get customConstraints => const [
+    'CHECK (id = 1)',
+    // Değerler AppLanguage.languageCode / AppThemeMode.wireName ile eşleşir.
+    "CHECK (language_code IN ('tr', 'en'))",
+    "CHECK (theme_mode IN ('system', 'light', 'dark'))",
+  ];
+}
+
+/// Ayarlar satırının sabit birincil anahtarı.
+const int kSettingsRowId = 1;
+
 /// Uygulamanın tek veri kaynağı. Backend yok — bu dosyadaki her şema
 /// değişikliği geri alınamaz kullanıcı verisine dokunur (CLAUDE.md: Database Rules).
-@DriftDatabase(tables: [Products, Categories, Customers])
+@DriftDatabase(tables: [Products, Categories, Customers, Settings])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'isimcebimde'));
 
@@ -78,7 +125,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -88,6 +135,7 @@ class AppDatabase extends _$AppDatabase {
       await into(
         categories,
       ).insert(CategoriesCompanion.insert(name: kDefaultCategoryName));
+      await _insertDefaultSettings();
     },
     onUpgrade: (m, from, to) async {
       // Adımlar sırayla çalışır; sürüm atlanamaz (CLAUDE.md: Migration stratejisi).
@@ -99,12 +147,40 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(customers);
         await m.createIndex(idxCustomersName);
       }
+      if (from < 4) {
+        // v3 → v4: ayarlar (dil + tema). Yeni tablo; mevcut veriye dokunulmaz.
+        // Satır burada yaratılır ki okuma yolu "satır yoksa" durumunu bilmesin.
+        await m.createTable(settings);
+        await _insertDefaultSettings();
+      }
+      if (from >= 4 && from < 5) {
+        // v4 → v5: firma bilgileri. Yalnızca nullable sütun ekleme — mevcut
+        // ayar satırı ve verisi olduğu gibi kalır (CLAUDE.md: alan ekleme serbest).
+        //
+        // `from < 4` koşulu bilinçli olarak dışarıda: yukarıdaki `createTable`
+        // tabloyu **güncel** tanımıyla (firma sütunları dahil) yaratır; aynı
+        // sütunları bir de burada eklemek "duplicate column" hatası verir.
+        await m.addColumn(settings, settings.companyName);
+        await m.addColumn(settings, settings.companyLogoPath);
+        await m.addColumn(settings, settings.companyPhone);
+        await m.addColumn(settings, settings.companyEmail);
+        await m.addColumn(settings, settings.companyWebsite);
+        await m.addColumn(settings, settings.companyAddress);
+        await m.addColumn(settings, settings.companyTaxOffice);
+        await m.addColumn(settings, settings.companyTaxNumber);
+      }
     },
     beforeOpen: (details) async {
       // Teklif → teklif satırı ilişkisi buna dayanacak.
       // SQLite'ta varsayılan KAPALI olduğu için her açılışta açılmalı.
       await customStatement('PRAGMA foreign_keys = ON');
     },
+  );
+
+  /// Varsayılan ayar satırı: sistem dili, sistem teması. Zaten varsa dokunmaz.
+  Future<void> _insertDefaultSettings() => into(settings).insert(
+    const SettingsCompanion(id: Value(kSettingsRowId)),
+    mode: InsertMode.insertOrIgnore,
   );
 
   /// v1 → v2: kategori sistemi ve ürün KDV oranı.

@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
+import 'package:isimcebimde/core/errors/failure_localizer.dart';
+import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/features/categories/domain/entities/category.dart';
 import 'package:isimcebimde/features/categories/presentation/providers/category_providers.dart';
+import 'package:isimcebimde/l10n/app_localizations.dart';
 
 /// Kategori seçimi + yeni kategori oluşturma.
 ///
@@ -22,34 +25,35 @@ class CategoryPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categories = ref.watch(categoryListProvider);
+    final l10n = context.l10n;
 
     return categories.when(
       loading: () => const LinearProgressIndicator(),
       error: (error, _) => Text(
-        'Kategoriler yüklenemedi.',
-        style: TextStyle(color: Theme.of(context).colorScheme.error),
+        l10n.categoriesLoadError,
+        style: TextStyle(color: context.colors.error),
       ),
       data: (items) => Row(
         children: [
-          Expanded(child: _dropdown(items)),
+          Expanded(child: _dropdown(items, l10n)),
           const SizedBox(width: AppSizes.sm),
           IconButton.filledTonal(
             onPressed: () => _createCategory(context, ref),
             icon: const Icon(Icons.add),
-            tooltip: 'Yeni kategori',
+            tooltip: l10n.categoryNew,
           ),
         ],
       ),
     );
   }
 
-  Widget _dropdown(List<Category> items) {
+  Widget _dropdown(List<Category> items, AppLocalizations l10n) {
     // Seçili kategori silinmiş olabilir; geçersiz değer dropdown'ı çökertir.
     final value = items.any((c) => c.id == selectedId) ? selectedId : null;
 
     return DropdownButtonFormField<int>(
       initialValue: value,
-      decoration: const InputDecoration(labelText: 'Kategori'),
+      decoration: InputDecoration(labelText: l10n.categoryLabel),
       items: [
         for (final category in items)
           DropdownMenuItem(value: category.id, child: Text(category.name)),
@@ -57,13 +61,14 @@ class CategoryPicker extends ConsumerWidget {
       onChanged: (id) {
         if (id != null) onChanged(id);
       },
-      validator: (id) => id == null ? 'Kategori seçmelisin' : null,
+      validator: (id) => id == null ? l10n.categoryRequired : null,
     );
   }
 
   Future<void> _createCategory(BuildContext context, WidgetRef ref) async {
     // Await'ten önce alınır: sonrasında context kullanmak güvenli değil.
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
 
     final name = await showDialog<String>(
       context: context,
@@ -75,7 +80,7 @@ class CategoryPicker extends ConsumerWidget {
       final id = await ref.read(categoryRepositoryProvider).create(name);
       onChanged(id); // Yeni kategori doğrudan seçili gelsin.
     } on Failure catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+      messenger.showSnackBar(SnackBar(content: Text(e.localized(l10n))));
     }
   }
 }
@@ -104,21 +109,23 @@ class _NewCategoryDialogState extends State<_NewCategoryDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return AlertDialog(
-      title: const Text('Yeni kategori'),
+      title: Text(l10n.categoryNew),
       content: TextField(
         controller: _controller,
         autofocus: true,
         textCapitalization: TextCapitalization.sentences,
-        decoration: const InputDecoration(labelText: 'Kategori adı'),
+        decoration: InputDecoration(labelText: l10n.categoryNameLabel),
         onSubmitted: (_) => _submit(),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Vazgeç'),
+          child: Text(l10n.actionCancel),
         ),
-        FilledButton(onPressed: _submit, child: const Text('Ekle')),
+        FilledButton(onPressed: _submit, child: Text(l10n.actionAdd)),
       ],
     );
   }

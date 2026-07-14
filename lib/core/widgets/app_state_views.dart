@@ -43,7 +43,7 @@ class AppErrorView extends StatelessWidget {
               const SizedBox(height: AppSizes.lg),
               FilledButton.tonal(
                 onPressed: onRetry,
-                child: const Text('Tekrar dene'),
+                child: Text(context.l10n.actionRetry),
               ),
             ],
           ],

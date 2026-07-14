@@ -13,6 +13,8 @@ import 'package:isimcebimde/features/products/domain/repositories/product_reposi
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
 import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
 
+import '../../support/localized_app.dart';
+
 class _FakeProductRepository implements ProductRepository {
   final List<Product> created = [];
   final List<Product> updated = [];
@@ -63,6 +65,11 @@ class _FakeCategoryRepository implements CategoryRepository {
 void main() {
   late _FakeProductRepository products;
 
+  // Beklenen metinler ARB'den okunur, elle yazılmaz: test "doğru mesaj
+  // gösterildi mi?"yi doğrular, "metin şu harflerden mi oluşuyor?"u değil.
+  final tr = l10nFor(const Locale('tr'));
+  final en = l10nFor(const Locale('en'));
+
   setUp(() => products = _FakeProductRepository());
 
   Widget buildSubject({Product? product}) => ProviderScope(
@@ -71,7 +78,7 @@ void main() {
       productRepositoryProvider.overrideWithValue(products),
       categoryRepositoryProvider.overrideWithValue(_FakeCategoryRepository()),
     ],
-    child: MaterialApp(home: ProductFormScreen(product: product)),
+    child: localizedApp(ProductFormScreen(product: product)),
   );
 
   group('yeni ürün', () {
@@ -79,10 +86,10 @@ void main() {
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('Ürün adı boş olamaz'), findsOneWidget);
+      expect(find.text(tr.errorProductNameEmpty), findsOneWidget);
       expect(products.created, isEmpty);
     });
 
@@ -91,10 +98,10 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextFormField).first, 'Vida');
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('Fiyat sıfırdan büyük olmalı'), findsOneWidget);
+      expect(find.text(tr.priceMustBePositive), findsOneWidget);
       expect(products.created, isEmpty);
     });
 
@@ -113,7 +120,7 @@ void main() {
       await tester.tap(find.text('Hırdavat').last);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
       expect(products.created, hasLength(1));
@@ -141,7 +148,7 @@ void main() {
 
       expect(find.text('Somun'), findsOneWidget);
       expect(find.text('3,25'), findsOneWidget);
-      expect(find.text('Ürünü Düzenle'), findsOneWidget);
+      expect(find.text(tr.productEdit), findsOneWidget);
     });
 
     testWidgets('kaydetmek update çağırır, create değil', (tester) async {
@@ -149,7 +156,7 @@ void main() {
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextFormField).first, 'Somun M8');
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
       expect(products.created, isEmpty);
@@ -167,7 +174,7 @@ void main() {
 
       expect(find.textContaining('geri alınamaz'), findsOneWidget);
 
-      await tester.tap(find.text('Vazgeç'));
+      await tester.tap(find.text(tr.actionCancel));
       await tester.pumpAndSettle();
 
       expect(products.deleted, isEmpty);
@@ -179,7 +186,7 @@ void main() {
 
       await tester.tap(find.byIcon(Icons.delete_outline));
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(FilledButton, 'Sil'));
+      await tester.tap(find.widgetWithText(FilledButton, tr.actionDelete));
       await tester.pumpAndSettle();
 
       expect(products.deleted, [7]);
@@ -188,7 +195,10 @@ void main() {
 
   group('hata', () {
     testWidgets('kayıt hatası kullanıcıya gösterilir', (tester) async {
-      products.failure = const DatabaseFailure('Ürün kaydedilemedi.');
+      products.failure = const DatabaseFailure(
+        DataOperation.create,
+        EntityKind.product,
+      );
 
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();
@@ -203,10 +213,50 @@ void main() {
       await tester.tap(find.text('Genel').last);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Kaydet'));
+      await tester.tap(find.text(tr.actionSave));
       await tester.pumpAndSettle();
 
-      expect(find.text('Ürün kaydedilemedi.'), findsOneWidget);
+      expect(find.text(tr.errorProductSave), findsOneWidget);
+    });
+
+    testWidgets('hata İngilizce arayüzde İngilizce gösterilir', (tester) async {
+      products.failure = const DatabaseFailure(
+        DataOperation.create,
+        EntityKind.product,
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          retry: (retryCount, error) => null,
+          overrides: [
+            productRepositoryProvider.overrideWithValue(products),
+            categoryRepositoryProvider.overrideWithValue(
+              _FakeCategoryRepository(),
+            ),
+          ],
+          child: localizedApp(
+            const ProductFormScreen(),
+            locale: const Locale('en'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final fields = find.byType(TextFormField);
+      await tester.enterText(fields.at(0), 'Screw');
+      await tester.enterText(fields.at(1), '100');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<int>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Genel').last);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(en.actionSave));
+      await tester.pumpAndSettle();
+
+      // Repository katmanı dili bilmez; çeviriyi UI yapar.
+      expect(find.text(en.errorProductSave), findsOneWidget);
     });
   });
 }

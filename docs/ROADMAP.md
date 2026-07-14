@@ -202,35 +202,53 @@ Uygulama ayarlarını tamamlamak ve çok dilliliği (TR + EN) devreye almak.
 
 Lokalizasyon (i18n)
 
-- `flutter_localizations` + `intl` ARB altyapısı (`lib/l10n/app_tr.arb`, `app_en.arb`)
-- `BuildContextX.l10n` extension'ı
-- Dil seçimi: Sistem / Türkçe / İngilizce (kalıcı, `settings` tablosunda)
-- **Phase 1–3 ekranlarındaki hardcoded Türkçe metinlerin ARB'ye taşınması**
-- `Money.format()` ve `MoneyField` ondalık ayracını locale'den alsın
-  (TR `12,50` / EN `12.50`) — para birimi sabit kalır
-- Her iki dilde ekran testi: metin taşması ve kırık layout kontrolü
+- [x] `flutter_localizations` + `intl` ARB altyapısı (`lib/l10n/app_tr.arb`, `app_en.arb`)
+- [x] `BuildContextX.l10n` extension'ı
+- [x] `Failure` metin değil **tip** taşır; çeviri `failure_localizer.dart` içinde
+      tek noktada yapılır (sealed → eksik çeviri derlenmez)
+- [x] Dil seçimi: Sistem / Türkçe / İngilizce (kalıcı, `settings` tablosunda)
+- [x] **Phase 1–3 ekranlarındaki hardcoded Türkçe metinlerin ARB'ye taşınması**
+- [x] `Money.format()` ve `MoneyField` ondalık ayracını locale'den alır
+      (TR `12,50` / EN `12.50`) — para birimi (`₺`) sabit kalır
+- [x] İngilizce ekran testleri (hata mesajı, fiyat biçimi, para girişi)
+- [ ] Metin taşması / kırık layout kontrolü (uzun İngilizce etiketler, textScale 1.3)
 
 Tema
 
-- Light
-- Dark
-- System
+- [x] Light
+- [x] Dark
+- [x] System
 
 Firma Bilgileri
 
-- Firma Adı
-- Logo
-- Telefon
-- Email
-- Web Sitesi
-- Adres
-- Vergi Dairesi
-- Vergi No
+- [x] Firma Adı
+- [x] Logo (dosya yolu; görsel belge klasörüne kopyalanır)
+- [x] Telefon
+- [x] Email
+- [x] Web Sitesi
+- [x] Adres
+- [x] Vergi Dairesi
+- [x] Vergi No
+
+## Bu phase'de alınan kararlar
+
+- **Ayarlar tek satırlık bir tablodur** (`CHECK (id = 1)`). İkinci bir satır
+  "hangisi geçerli?" sorusunu doğurur; o soru sessiz bir hataya döner.
+- **Dil için `NULL` = sistem dili.** "Seçim yapılmadı" ile "Türkçe seçildi"
+  farklı durumlardır: birincisi cihaz dili değişince onu takip eder.
+- **Logo veritabanında blob olarak tutulmaz, yolu tutulur.** Galeriden gelen yol
+  da doğrudan yazılmaz — OS geçici klasörü temizlenince logo kaybolurdu; dosya
+  önce uygulamanın belge klasörüne kopyalanır (`LogoStorage`).
+- **Dil ve tema seçiminde "kaydet" butonu yok.** Seçim anında yazılır.
+- `image_picker` + `path_provider` eklendi; ikisi de arayüz arkasında
+  (`LogoPicker` / `LogoStorage`) → ekran testleri platform kanalına dokunmaz.
 
 ## Çıktı
 
-Firma bilgileri local database'de saklanıyor olmalı.
-Uygulama Türkçe ve İngilizce olarak eksiksiz kullanılabiliyor olmalı.
+Firma bilgileri local database'de saklanıyor. ✅
+Uygulama Türkçe ve İngilizce olarak eksiksiz kullanılabiliyor. ✅
+
+`flutter analyze` temiz, 187/187 test geçiyor. Şema v5.
 
 ---
 

@@ -4,6 +4,58 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini izle
 
 ## [Unreleased]
 
+### Phase 4 — Settings & Localization
+
+#### Eklendi
+
+- **Türkçe + İngilizce arayüz.** Kullanıcıya görünen tüm metinler ARB'den gelir
+  (`lib/l10n/app_tr.arb`, `app_en.arb`); Phase 1–3 ekranlarındaki hardcoded
+  Türkçe metinler taşındı. `context.l10n` tek erişim noktasıdır.
+- **Ayarlar ekranı:** dil (Sistem / Türkçe / İngilizce) ve tema
+  (Sistem / Açık / Koyu). Seçim anında kaydedilir ve arayüze uygulanır.
+- **Firma bilgileri:** ad, logo, telefon, e-posta, web sitesi, adres, vergi
+  dairesi, vergi no. Hepsi opsiyoneldir — eksik bilgi teklif çıkarmayı engellemez.
+- Para biçimi locale'e göre üretilir (TR `12,50 ₺` / EN `₺12.50`); **para birimi
+  dilden bağımsızdır.** `MoneyField`'ın ondalık ayracı da locale'den gelir.
+- Bağımlılıklar: `image_picker` (galeri) + `path_provider` (belge klasörü).
+
+#### Şema
+
+- **schemaVersion 3 → 4.** `settings` tablosu: tek satır (`CHECK (id = 1)`),
+  dil ve tema. Geçerli değerler `CHECK` kısıtıyla veritabanı seviyesinde sınırlı.
+- **schemaVersion 4 → 5.** `settings` tablosuna firma bilgisi sütunları
+  (hepsi nullable). Alan ekleme yıkıcı değildir; mevcut tercihler korunur.
+
+#### Kararlar
+
+- **`Failure` metin değil tip taşır.** Repository `BuildContext` göremez,
+  kullanıcının dilini bilemez. Çeviri presentation sınırında, tek bir
+  exhaustive `switch`'te yapılır (`core/errors/failure_localizer.dart`) —
+  `Failure` sealed olduğu için çevirisi yazılmayan yeni bir hata tipi **derlenmez.**
+- **Dil için `NULL` = sistem dili.** "Seçim yapılmadı" ile "Türkçe seçildi"
+  farklı durumlardır; ilki cihaz dilini takip eder, ikincisi etmez.
+- **Logo görselin kendisi değil, yolu saklanır.** Galeriden gelen geçici yol
+  doğrudan yazılmaz: OS önbelleği temizlenince logo sessizce kaybolurdu. Dosya
+  uygulamanın belge klasörüne kopyalanır; logo değişince eskisi silinir.
+
+#### Düzeltildi
+
+- **Migration'da "duplicate column" tuzağı.** v3 → v4 adımındaki
+  `createTable(settings)` tabloyu *güncel* tanımıyla (v5 sütunları dahil)
+  yaratıyor, ardından v5 adımı aynı sütunları tekrar eklemeye çalışıyordu.
+  Sütun ekleme artık yalnızca tablo zaten varsa çalışır (`from >= 4 && from < 5`).
+  Migration testi bunu yakaladı.
+
+#### Bilinen eksikler
+
+- Ara sürüm (v4) şema doğrulama testleri kaldırıldı: `createTable` her zaman
+  güncel şemayı yarattığı için "v4 şeması" ara durumu üretilemiyor. Yükseltme
+  yolları (v1/v3/v4 → v5) testli.
+- İngilizce arayüzde uzun etiketlerle taşma / `textScale 1.3` layout kontrolü
+  yapılmadı.
+- Para birimi hâlâ sabit `₺` (üç noktada). Çoklu para birimi Phase 5'te
+  Ayarlar'a bağlanmalı.
+
 ### Phase 3 — Customer Module
 
 #### Eklendi

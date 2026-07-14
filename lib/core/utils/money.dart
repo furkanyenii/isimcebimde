@@ -95,7 +95,11 @@ final class Money implements Comparable<Money> {
   }
 
   /// Sadece görüntüleme için. Hesapta asla kullanılmaz.
-  String format({String locale = 'tr_TR', String symbol = '₺'}) {
+  ///
+  /// [locale] biçimi belirler (TR `12,50`, EN `12.50`), [symbol] para birimini —
+  /// ikisi bağımsızdır: İngilizce arayüz kullanan biri de ₺ ile teklif verebilir.
+  /// Locale çağıranın sorumluluğudur; `Money` hangi dilde olduğumuzu bilemez.
+  String format({required String locale, String symbol = '₺'}) {
     final formatter = NumberFormat.currency(
       locale: locale,
       symbol: symbol,

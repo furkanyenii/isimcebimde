@@ -1,0 +1,14 @@
+# Lokalizasyon kodu üretimi. `flutter gen-l10n` (veya `flutter run`) çalıştırır.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n
+
+# `AppLocalizations.of(context)` null dönmesin: desteklenen her locale için
+# delegate kayıtlı olduğundan null olamaz. `context.l10n!` gürültüsünü önler.
+nullable-getter: false
+
+# Bir anahtar Türkçe'de eksikse derleme uyarısı ver — sessizce İngilizce'ye
+# düşmek, kullanıcıya yarı çevrilmiş bir ekran göstermekten daha iyi değildir.
+untranslated-messages-file: l10n_missing.txt

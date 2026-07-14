@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/widgets/money_field.dart';
 
+import '../../support/localized_app.dart';
+
 void main() {
   group('MoneyInputFormatter — metin ↔ kuruş', () {
     test('rakamlar doğrudan kuruş olarak okunur', () {
@@ -25,6 +27,14 @@ void main() {
       expect(MoneyInputFormatter.formatMinor(125000), '1250,00');
     });
 
+    test('ondalık ayracı dile göre değişir, değer değişmez', () {
+      expect(
+        MoneyInputFormatter.formatMinor(1250, decimalSeparator: '.'),
+        '12.50',
+      );
+      expect(MoneyInputFormatter.parseMinor('12.50'), 1250);
+    });
+
     test('gidiş-dönüş kayıpsızdır (kuruş → metin → kuruş)', () {
       for (final minor in [0, 1, 9, 99, 100, 1250, 999999]) {
         final text = MoneyInputFormatter.formatMinor(minor);
@@ -33,7 +43,7 @@ void main() {
     });
 
     test('formatEditUpdate sağdan sola doldurur', () {
-      final formatter = MoneyInputFormatter();
+      const formatter = MoneyInputFormatter();
       TextEditingValue apply(String text) => formatter.formatEditUpdate(
         TextEditingValue.empty,
         TextEditingValue(text: text),
@@ -46,7 +56,7 @@ void main() {
     });
 
     test('imleç her zaman metnin sonundadır', () {
-      final result = MoneyInputFormatter().formatEditUpdate(
+      final result = const MoneyInputFormatter().formatEditUpdate(
         TextEditingValue.empty,
         const TextEditingValue(text: '1250'),
       );
@@ -60,15 +70,37 @@ void main() {
       WidgetTester tester, {
       required Money initialValue,
       required ValueChanged<Money> onChanged,
+      Locale locale = const Locale('tr'),
     }) async {
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
+        localizedApp(
+          Scaffold(
             body: MoneyField(initialValue: initialValue, onChanged: onChanged),
           ),
+          locale: locale,
         ),
       );
     }
+
+    testWidgets('İngilizce arayüzde ayraç nokta olur, tutar aynı kalır', (
+      tester,
+    ) async {
+      Money? captured;
+      await pumpField(
+        tester,
+        initialValue: Money.fromLira(12, 50),
+        onChanged: (value) => captured = value,
+        locale: const Locale('en'),
+      );
+
+      expect(find.text('12.50'), findsOneWidget);
+
+      await tester.enterText(find.byType(TextFormField), '325');
+      await tester.pump();
+
+      expect(find.text('3.25'), findsOneWidget);
+      expect(captured!.minor, 325); // Biçim değişti, kuruş değişmedi.
+    });
 
     testWidgets('başlangıç değeri biçimlenmiş gösterilir', (tester) async {
       await pumpField(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 
 /// Para girişini **kuruş** olarak yöneten alan.
@@ -15,14 +16,17 @@ class MoneyField extends StatefulWidget {
   const MoneyField({
     required this.initialValue,
     required this.onChanged,
-    this.label = 'Fiyat',
+    this.label,
     this.autofocus = false,
     super.key,
   });
 
   final Money initialValue;
   final ValueChanged<Money> onChanged;
-  final String label;
+
+  /// null ise "Fiyat" kullanılır. Teklif satırında "Birim fiyat" gibi başka bir
+  /// etiket gerekebilir.
+  final String? label;
   final bool autofocus;
 
   @override
@@ -30,13 +34,25 @@ class MoneyField extends StatefulWidget {
 }
 
 class _MoneyFieldState extends State<MoneyField> {
-  late final TextEditingController _controller;
+  final _controller = TextEditingController();
+  String? _separator;
 
   @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(
-      text: MoneyInputFormatter.formatMinor(widget.initialValue.minor),
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Ayraç locale'e bağlı; locale ancak burada okunabilir (initState'te değil).
+    // Dil değişirse alandaki metin yeni ayraçla yeniden yazılır.
+    final separator = context.decimalSeparator;
+    if (separator == _separator) return;
+
+    final minor = _separator == null
+        ? widget.initialValue.minor
+        : MoneyInputFormatter.parseMinor(_controller.text);
+    _separator = separator;
+    _controller.text = MoneyInputFormatter.formatMinor(
+      minor,
+      decimalSeparator: separator,
     );
   }
 
@@ -53,36 +69,47 @@ class _MoneyFieldState extends State<MoneyField> {
       controller: _controller,
       autofocus: widget.autofocus,
       keyboardType: const TextInputType.numberWithOptions(decimal: false),
-      inputFormatters: [MoneyInputFormatter()],
+      inputFormatters: [
+        MoneyInputFormatter(decimalSeparator: context.decimalSeparator),
+      ],
       textAlign: TextAlign.end,
-      decoration: InputDecoration(labelText: widget.label, suffixText: '₺'),
+      decoration: InputDecoration(
+        labelText: widget.label ?? context.l10n.priceLabel,
+        suffixText: '₺',
+      ),
       onChanged: (text) =>
           widget.onChanged(Money(MoneyInputFormatter.parseMinor(text))),
       validator: (text) {
         final minor = MoneyInputFormatter.parseMinor(text ?? '');
-        if (minor <= 0) return 'Fiyat sıfırdan büyük olmalı';
+        if (minor <= 0) return context.l10n.priceMustBePositive;
         return null;
       },
     );
   }
 }
 
-/// Girilen rakamları kuruş olarak yorumlar ve `12,50` biçiminde gösterir.
+/// Girilen rakamları kuruş olarak yorumlar ve TR'de `12,50`, EN'de `12.50`
+/// biçiminde gösterir. Ayraç yalnızca görüntüdür; değer her zaman kuruştur.
 class MoneyInputFormatter extends TextInputFormatter {
+  const MoneyInputFormatter({this.decimalSeparator = ','});
+
+  final String decimalSeparator;
+
   static const int _minorPerMajor = 100;
 
   /// Metindeki rakamları kuruş değerine çevirir. Rakam yoksa 0.
+  /// Ayraç ne olursa olsun rakam dışındaki her şey atılır.
   static int parseMinor(String text) {
     final digits = text.replaceAll(RegExp(r'\D'), '');
     if (digits.isEmpty) return 0;
     return int.parse(digits);
   }
 
-  /// Kuruşu `12,50` biçiminde metne çevirir.
-  static String formatMinor(int minor) {
-    final lira = minor ~/ _minorPerMajor;
-    final kurus = (minor % _minorPerMajor).toString().padLeft(2, '0');
-    return '$lira,$kurus';
+  /// Kuruşu `12,50` (veya `12.50`) biçiminde metne çevirir.
+  static String formatMinor(int minor, {String decimalSeparator = ','}) {
+    final major = minor ~/ _minorPerMajor;
+    final fraction = (minor % _minorPerMajor).toString().padLeft(2, '0');
+    return '$major$decimalSeparator$fraction';
   }
 
   @override
@@ -91,7 +118,7 @@ class MoneyInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final minor = parseMinor(newValue.text);
-    final text = formatMinor(minor);
+    final text = formatMinor(minor, decimalSeparator: decimalSeparator);
 
     // İmleç her zaman sonda: alan sağdan sola dolduğu için tek anlamlı konum bu.
     return TextEditingValue(

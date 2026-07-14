@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/features/dashboard/presentation/screens/dashboard_screen.dart';
 
+import '../../support/localized_app.dart';
+
 void main() {
-  Widget buildSubject() => const MaterialApp(home: DashboardScreen());
+  // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
+  final tr = l10nFor(const Locale('tr'));
+
+  Widget buildSubject() => localizedApp(const DashboardScreen());
 
   testWidgets('dört modül kartı da gösterilir', (tester) async {
     await tester.pumpWidget(buildSubject());
 
-    expect(find.text('Teklifler'), findsOneWidget);
-    expect(find.text('Ürünler'), findsOneWidget);
-    expect(find.text('Müşteriler'), findsOneWidget);
-    expect(find.text('Ayarlar'), findsOneWidget);
+    expect(find.text(tr.moduleQuotes), findsOneWidget);
+    expect(find.text(tr.moduleProducts), findsOneWidget);
+    expect(find.text(tr.moduleCustomers), findsOneWidget);
+    expect(find.text(tr.moduleSettings), findsOneWidget);
   });
 
   testWidgets('hazır olmayan modüller "Yakında" olarak işaretlenir', (
@@ -19,9 +24,9 @@ void main() {
   ) async {
     await tester.pumpWidget(buildSubject());
 
-    // Teklifler (Phase 5) ve Ayarlar (Phase 4) henüz yazılmadı;
-    // Ürünler ve Müşteriler hazır.
-    expect(find.text('Yakında'), findsNWidgets(2));
+    // Yalnızca Teklifler (Phase 5) henüz yazılmadı;
+    // Ürünler, Müşteriler ve Ayarlar hazır.
+    expect(find.text(tr.comingSoon), findsOneWidget);
   });
 
   testWidgets('teklif modülü hazır olmadığı için Yeni Teklif butonu pasiftir', (

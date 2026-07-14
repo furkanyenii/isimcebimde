@@ -14,9 +14,10 @@ class ProductListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final products = ref.watch(productListProvider);
     final query = ref.watch(productSearchQueryProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ürünler')),
+      appBar: AppBar(title: Text(l10n.moduleProducts)),
       body: Column(
         children: [
           const Padding(
@@ -27,7 +28,7 @@ class ProductListScreen extends ConsumerWidget {
             child: products.when(
               loading: () => const AppLoadingView(),
               error: (error, _) => AppErrorView(
-                message: 'Ürünler yüklenemedi.',
+                message: l10n.productsLoadError,
                 onRetry: () => ref.invalidate(productListProvider),
               ),
               data: (items) {
@@ -36,16 +37,15 @@ class ProductListScreen extends ConsumerWidget {
                   return query.trim().isEmpty
                       ? AppEmptyView(
                           icon: Icons.inventory_2_outlined,
-                          title: 'Henüz ürün yok',
-                          description:
-                              'Teklif hazırlayabilmek için önce ürünlerini ekle.',
-                          actionLabel: 'Ürün ekle',
+                          title: l10n.productsEmptyTitle,
+                          description: l10n.productsEmptyDescription,
+                          actionLabel: l10n.productAdd,
                           onAction: () => _openForm(context),
                         )
-                      : const AppEmptyView(
+                      : AppEmptyView(
                           icon: Icons.search_off,
-                          title: 'Sonuç yok',
-                          description: 'Farklı bir arama dene.',
+                          title: l10n.emptySearchTitle,
+                          description: l10n.emptySearchDescription,
                         );
                 }
                 return ListView.builder(
@@ -63,7 +63,7 @@ class ProductListScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openForm(context),
         icon: const Icon(Icons.add),
-        label: const Text('Yeni Ürün'),
+        label: Text(l10n.productNew),
       ),
     );
   }
@@ -98,7 +98,7 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
     return TextField(
       controller: _controller,
       decoration: InputDecoration(
-        hintText: 'Ürün ara',
+        hintText: context.l10n.productSearchHint,
         prefixIcon: const Icon(Icons.search),
         suffixIcon: _controller.text.isEmpty
             ? null
@@ -131,9 +131,11 @@ class _ProductTile extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
       leading: const Icon(Icons.inventory_2_outlined),
       title: Text(product.name),
-      subtitle: Text('KDV %${product.vatRate.asPercent.toStringAsFixed(0)}'),
+      subtitle: Text(
+        context.l10n.vatRateShort(product.vatRate.asPercent.toStringAsFixed(0)),
+      ),
       trailing: Text(
-        product.price.format(),
+        context.formatMoney(product.price),
         style: context.textStyles.titleMedium,
       ),
       onTap: onTap,

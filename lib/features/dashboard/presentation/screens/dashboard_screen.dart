@@ -13,8 +13,10 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Quotra')),
+      appBar: AppBar(title: const Text('Quotra')), // Marka adı çevrilmez.
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSizes.md),
@@ -24,7 +26,7 @@ class DashboardScreen extends StatelessWidget {
               FilledButton.icon(
                 onPressed: null, // Phase 5 — Teklif modülü
                 icon: const Icon(Icons.add),
-                label: const Text('Yeni Teklif'),
+                label: Text(l10n.quoteNew),
               ),
               const SizedBox(height: AppSizes.lg),
               Expanded(
@@ -34,23 +36,24 @@ class DashboardScreen extends StatelessWidget {
                   crossAxisSpacing: AppSizes.md,
                   mainAxisSpacing: AppSizes.md,
                   children: [
-                    const _ModuleCard(
+                    _ModuleCard(
                       icon: Icons.description_outlined,
-                      label: 'Teklifler', // Phase 5
+                      label: l10n.moduleQuotes, // Phase 5
                     ),
                     _ModuleCard(
                       icon: Icons.inventory_2_outlined,
-                      label: 'Ürünler',
+                      label: l10n.moduleProducts,
                       onTap: () => context.go(AppRoutes.products),
                     ),
                     _ModuleCard(
                       icon: Icons.people_outline,
-                      label: 'Müşteriler',
+                      label: l10n.moduleCustomers,
                       onTap: () => context.go(AppRoutes.customers),
                     ),
-                    const _ModuleCard(
+                    _ModuleCard(
                       icon: Icons.settings_outlined,
-                      label: 'Ayarlar', // Phase 4
+                      label: l10n.moduleSettings,
+                      onTap: () => context.go(AppRoutes.settings),
                     ),
                   ],
                 ),
@@ -87,7 +90,7 @@ class _ModuleCard extends StatelessWidget {
         child: Semantics(
           button: true,
           enabled: isEnabled,
-          label: isEnabled ? label : '$label, yakında',
+          label: isEnabled ? label : context.l10n.comingSoonSemantics(label),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -102,7 +105,7 @@ class _ModuleCard extends StatelessWidget {
               if (!isEnabled) ...[
                 const SizedBox(height: AppSizes.xs),
                 Text(
-                  'Yakında',
+                  context.l10n.comingSoon,
                   style: context.textStyles.labelSmall?.copyWith(
                     color: foreground,
                   ),

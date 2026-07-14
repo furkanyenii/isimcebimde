@@ -30,7 +30,7 @@ class SplashScreen extends ConsumerWidget {
           data: (_) => const _Branding(),
           loading: () => const _Branding(showProgress: true),
           error: (error, _) => AppErrorView(
-            message: 'Uygulama başlatılamadı. Veritabanı açılamıyor.',
+            message: context.l10n.splashInitError,
             onRetry: () => ref.invalidate(appInitializationProvider),
           ),
         ),
@@ -58,7 +58,7 @@ class _Branding extends StatelessWidget {
         Text('Quotra', style: context.textStyles.headlineMedium),
         const SizedBox(height: AppSizes.xs),
         Text(
-          'Dakikalar içinde teklif',
+          context.l10n.appTagline,
           style: context.textStyles.bodyMedium?.copyWith(
             color: context.colors.onSurfaceVariant,
           ),
