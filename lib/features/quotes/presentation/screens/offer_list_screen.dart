@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:isimcebimde/app/router/app_router.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
@@ -16,7 +18,16 @@ class OfferListScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.moduleQuotes)),
+      appBar: AppBar(
+        title: Text(l10n.moduleQuotes),
+        actions: [
+          IconButton(
+            onPressed: () => context.push(AppRoutes.templates),
+            icon: const Icon(Icons.bookmarks_outlined),
+            tooltip: l10n.templatesTitle,
+          ),
+        ],
+      ),
       body: offers.when(
         loading: () => const AppLoadingView(),
         error: (error, _) => AppErrorView(

@@ -164,6 +164,42 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quotesLoadError => 'Teklifler yüklenemedi.';
 
   @override
+  String get templateNew => 'Yeni Şablon';
+
+  @override
+  String get templateEdit => 'Şablonu Düzenle';
+
+  @override
+  String get templateDelete => 'Şablonu sil';
+
+  @override
+  String get templateAdd => 'Şablon ekle';
+
+  @override
+  String get templatesTitle => 'Şablonlar';
+
+  @override
+  String get templatesLoadError => 'Şablonlar yüklenemedi.';
+
+  @override
+  String get templatesEmptyTitle => 'Henüz şablon yok';
+
+  @override
+  String get templatesEmptyDescription => 'İlk şablonunu oluştur.';
+
+  @override
+  String get templateNameLabel => 'Şablon adı';
+
+  @override
+  String get templateSearchHint => 'Şablon ara';
+
+  @override
+  String get templateUseTooltip => 'Şablondan oluştur';
+
+  @override
+  String get templateSaveAsTooltip => 'Şablon olarak kaydet';
+
+  @override
   String get errorOffersLoad => 'Teklifler okunamadı.';
 
   @override

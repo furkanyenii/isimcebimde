@@ -398,6 +398,78 @@ abstract class AppLocalizations {
   /// **'Quotes could not be loaded.'**
   String get quotesLoadError;
 
+  /// No description provided for @templateNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New Template'**
+  String get templateNew;
+
+  /// No description provided for @templateEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Template'**
+  String get templateEdit;
+
+  /// No description provided for @templateDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete template'**
+  String get templateDelete;
+
+  /// No description provided for @templateAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add template'**
+  String get templateAdd;
+
+  /// No description provided for @templatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates'**
+  String get templatesTitle;
+
+  /// No description provided for @templatesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates could not be loaded.'**
+  String get templatesLoadError;
+
+  /// No description provided for @templatesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates yet'**
+  String get templatesEmptyTitle;
+
+  /// No description provided for @templatesEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first template.'**
+  String get templatesEmptyDescription;
+
+  /// No description provided for @templateNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Template name'**
+  String get templateNameLabel;
+
+  /// No description provided for @templateSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search templates'**
+  String get templateSearchHint;
+
+  /// No description provided for @templateUseTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a template'**
+  String get templateUseTooltip;
+
+  /// No description provided for @templateSaveAsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as template'**
+  String get templateSaveAsTooltip;
+
   /// No description provided for @errorOffersLoad.
   ///
   /// In en, this message translates to:

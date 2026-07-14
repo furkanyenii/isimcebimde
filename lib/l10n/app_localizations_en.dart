@@ -164,6 +164,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quotesLoadError => 'Quotes could not be loaded.';
 
   @override
+  String get templateNew => 'New Template';
+
+  @override
+  String get templateEdit => 'Edit Template';
+
+  @override
+  String get templateDelete => 'Delete template';
+
+  @override
+  String get templateAdd => 'Add template';
+
+  @override
+  String get templatesTitle => 'Templates';
+
+  @override
+  String get templatesLoadError => 'Templates could not be loaded.';
+
+  @override
+  String get templatesEmptyTitle => 'No templates yet';
+
+  @override
+  String get templatesEmptyDescription => 'Create your first template.';
+
+  @override
+  String get templateNameLabel => 'Template name';
+
+  @override
+  String get templateSearchHint => 'Search templates';
+
+  @override
+  String get templateUseTooltip => 'Start from a template';
+
+  @override
+  String get templateSaveAsTooltip => 'Save as template';
+
+  @override
   String get errorOffersLoad => 'Quotes could not be loaded.';
 
   @override

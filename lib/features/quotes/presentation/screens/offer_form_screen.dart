@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
+import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/features/customers/presentation/widgets/customer_picker.dart';
 import 'package:isimcebimde/features/products/presentation/widgets/product_picker.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
+import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_form_controller.dart';
+import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/currency_selector.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/offer_items_section.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/offer_summary.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/percent_field.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/save_as_template_dialog.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/template_picker.dart';
 
 /// Teklif oluşturma ve düzenleme formu. [offer] null ise yeni teklif.
 ///
@@ -65,7 +70,23 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? l10n.offerEdit : l10n.quoteNew)),
+      appBar: AppBar(
+        title: Text(_isEditing ? l10n.offerEdit : l10n.quoteNew),
+        actions: [
+          if (!_isEditing)
+            IconButton(
+              onPressed: _useTemplate,
+              icon: const Icon(Icons.dashboard_customize_outlined),
+              tooltip: l10n.templateUseTooltip,
+            ),
+          if (_offer.items.isNotEmpty)
+            IconButton(
+              onPressed: _saveAsTemplate,
+              icon: const Icon(Icons.bookmark_add_outlined),
+              tooltip: l10n.templateSaveAsTooltip,
+            ),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppSizes.md),
@@ -148,6 +169,49 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
         .save(_offer);
 
     if (saved && mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _useTemplate() async {
+    final template = await showTemplatePicker(context);
+    if (template == null || !mounted) return;
+
+    // Müşteriye dokunulmaz: şablon müşteriden bağımsızdır.
+    final draft = template.toDraftOffer();
+    setState(() {
+      _offer = _offer.copyWith(
+        currency: draft.currency,
+        generalDiscount: draft.generalDiscount,
+        notes: draft.notes,
+        items: draft.items,
+      );
+      _notesController.text = _offer.notes ?? '';
+    });
+  }
+
+  Future<void> _saveAsTemplate() async {
+    final name = await showSaveAsTemplateDialog(context);
+    if (name == null || !mounted) return;
+
+    // Küçük, tek seferlik bir eylem: CategoryPicker._createCategory ile aynı
+    // desen — ayrı bir controller üzerinden değil, repository doğrudan çağrılır.
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+
+    try {
+      await ref
+          .read(templateRepositoryProvider)
+          .create(
+            Template(
+              name: name,
+              currency: _offer.currency,
+              generalDiscount: _offer.generalDiscount,
+              notes: _offer.notes,
+              items: _offer.items,
+            ),
+          );
+    } on Failure catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.localized(l10n))));
+    }
   }
 
   Future<void> _addProduct() async {
