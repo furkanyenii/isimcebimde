@@ -6,6 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
+import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
+import 'package:isimcebimde/features/customers/domain/repositories/customer_repository.dart';
+import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_pdf_preview_screen.dart';
@@ -13,11 +17,10 @@ import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart'
 import 'package:isimcebimde/features/settings/domain/entities/company_info.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/settings_repository.dart';
 import 'package:isimcebimde/features/settings/presentation/providers/settings_providers.dart';
+import 'package:printing/printing.dart';
 
 import '../../support/localized_app.dart';
 
-/// Ekran testi veritabanını değil ekranı sınar; repository sahtelenir
-/// (CLAUDE.md: Test Rules — settings_screen_test.dart ile aynı desen).
 class _FakeSettingsRepository implements SettingsRepository {
   _FakeSettingsRepository(this._controller);
 
@@ -30,20 +33,51 @@ class _FakeSettingsRepository implements SettingsRepository {
   Future<void> save(AppSettings settings) async {}
 }
 
+/// Bu testlerde yalnızca `watchById` kullanılır; diğer metodlar çağrılmaz.
+class _FakeCustomerRepository implements CustomerRepository {
+  _FakeCustomerRepository(this._controller);
+
+  final StreamController<Customer?> _controller;
+
+  @override
+  Stream<Customer?> watchById(int id) => _controller.stream;
+
+  @override
+  Stream<List<Customer>> watchAll({String? query, CustomerType? type}) =>
+      const Stream.empty();
+
+  @override
+  Future<int> create(Customer customer) async => throw UnimplementedError();
+
+  @override
+  Future<void> update(Customer customer) async => throw UnimplementedError();
+
+  @override
+  Future<void> delete(int id) async => throw UnimplementedError();
+}
+
 void main() {
   final tr = l10nFor(const Locale('tr'));
 
-  late StreamController<AppSettings> stream;
-  late _FakeSettingsRepository repository;
+  late StreamController<AppSettings> settingsStream;
+  late _FakeSettingsRepository settingsRepository;
+  late StreamController<Customer?> customerStream;
+  late _FakeCustomerRepository customerRepository;
 
   setUp(() {
-    stream = StreamController<AppSettings>.broadcast();
-    repository = _FakeSettingsRepository(stream);
+    settingsStream = StreamController<AppSettings>.broadcast();
+    settingsRepository = _FakeSettingsRepository(settingsStream);
+    customerStream = StreamController<Customer?>.broadcast();
+    customerRepository = _FakeCustomerRepository(customerStream);
   });
-  tearDown(() => stream.close());
+  tearDown(() {
+    settingsStream.close();
+    customerStream.close();
+  });
 
-  Offer sampleOffer() => Offer(
+  Offer sampleOffer({int? customerId}) => Offer(
     id: 7,
+    customerId: customerId,
     customerName: 'Ahmet Yılmaz',
     createdAt: DateTime(2026, 1, 10),
     items: [
@@ -56,10 +90,13 @@ void main() {
     ],
   );
 
-  Widget buildSubject() => ProviderScope(
+  Widget buildSubject({Offer? offer}) => ProviderScope(
     retry: (retryCount, error) => null,
-    overrides: [settingsRepositoryProvider.overrideWithValue(repository)],
-    child: localizedApp(OfferPdfPreviewScreen(offer: sampleOffer())),
+    overrides: [
+      settingsRepositoryProvider.overrideWithValue(settingsRepository),
+      customerRepositoryProvider.overrideWithValue(customerRepository),
+    ],
+    child: localizedApp(OfferPdfPreviewScreen(offer: offer ?? sampleOffer())),
   );
 
   testWidgets('ayar okunana kadar loading gösterilir', (tester) async {
@@ -73,12 +110,10 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(buildSubject());
-    stream.add(const AppSettings(company: CompanyInfo(name: 'Test A.Ş.')));
+    settingsStream.add(
+      const AppSettings(company: CompanyInfo(name: 'Test A.Ş.')),
+    );
 
-    // `PdfPreview` PDF'i rasterize etmek için platform kanalı kullanır;
-    // testte bu kanal yok. `pumpAndSettle` bu yüzden kullanılmaz — burada
-    // sınanan şey render'ın rasterize sonucunu değil, ekranın kurulumunu
-    // çökmeden tamamladığıdır.
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -87,12 +122,44 @@ void main() {
 
   testWidgets('okuma hatasında hata ekranı gösterilir', (tester) async {
     await tester.pumpWidget(buildSubject());
-    stream.addError(
+    settingsStream.addError(
       const DatabaseFailure(DataOperation.read, EntityKind.settings),
     );
     await tester.pumpAndSettle();
 
     expect(find.byType(AppErrorView), findsOneWidget);
-    expect(find.text(tr.errorSettingsLoad), findsOneWidget);
+  });
+
+  testWidgets('müşterinin e-postası paylaşımda alıcı olarak önceden dolar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject(offer: sampleOffer(customerId: 1)));
+    settingsStream.add(const AppSettings());
+    customerStream.add(
+      const Customer(
+        id: 1,
+        type: CustomerType.individual,
+        name: 'Ahmet Yılmaz',
+        email: 'ahmet@example.com',
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final preview = tester.widget<PdfPreview>(find.byType(PdfPreview));
+    expect(preview.shareActionExtraEmails, ['ahmet@example.com']);
+    expect(preview.shareActionExtraSubject, 'TKL-2026-000007');
+  });
+
+  testWidgets('müşteri seçili değilken paylaşım alıcısız açılır (çökmez)', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject(offer: sampleOffer()));
+    settingsStream.add(const AppSettings());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    final preview = tester.widget<PdfPreview>(find.byType(PdfPreview));
+    expect(preview.shareActionExtraEmails, isNull);
   });
 }

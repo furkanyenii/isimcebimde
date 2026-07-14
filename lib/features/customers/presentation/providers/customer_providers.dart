@@ -26,3 +26,10 @@ Stream<List<Customer>> customerList(Ref ref) {
   final query = ref.watch(customerSearchQueryProvider);
   return ref.watch(customerRepositoryProvider).watchAll(query: query);
 }
+
+/// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
+/// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
+/// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).
+@riverpod
+Stream<Customer?> customerById(Ref ref, int id) =>
+    ref.watch(customerRepositoryProvider).watchById(id);

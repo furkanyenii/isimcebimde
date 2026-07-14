@@ -65,6 +65,7 @@
   "quoteNumberLabel": "Teklif No",
   "quoteDateLabel": "Tarih",
   "lineTotalLabel": "Tutar",
+  "shareEmailBody": "Sayın {customerName}, teklifiniz ekte yer almaktadır.",
 
   "templateNew": "Yeni Şablon",
   "templateEdit": "Şablonu Düzenle",

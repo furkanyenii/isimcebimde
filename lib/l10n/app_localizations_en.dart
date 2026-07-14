@@ -179,6 +179,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lineTotalLabel => 'Amount';
 
   @override
+  String shareEmailBody(Object customerName) {
+    return 'Dear $customerName, please find your quote attached.';
+  }
+
+  @override
   String get templateNew => 'New Template';
 
   @override

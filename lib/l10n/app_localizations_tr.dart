@@ -179,6 +179,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get lineTotalLabel => 'Tutar';
 
   @override
+  String shareEmailBody(Object customerName) {
+    return 'Sayın $customerName, teklifiniz ekte yer almaktadır.';
+  }
+
+  @override
   String get templateNew => 'Yeni Şablon';
 
   @override

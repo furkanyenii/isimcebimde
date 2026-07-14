@@ -428,6 +428,12 @@ abstract class AppLocalizations {
   /// **'Amount'**
   String get lineTotalLabel;
 
+  /// No description provided for @shareEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Dear {customerName}, please find your quote attached.'**
+  String shareEmailBody(Object customerName);
+
   /// No description provided for @templateNew.
   ///
   /// In en, this message translates to:

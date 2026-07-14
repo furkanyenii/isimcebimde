@@ -86,6 +86,7 @@
   "quoteNumberLabel": "Quote No",
   "quoteDateLabel": "Date",
   "lineTotalLabel": "Amount",
+  "shareEmailBody": "Dear {customerName}, please find your quote attached.",
 
   "templateNew": "New Template",
   "templateEdit": "Edit Template",
