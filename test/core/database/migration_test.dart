@@ -6,6 +6,8 @@ import 'package:isimcebimde/core/database/app_database.dart';
 import '../../drift_schemas/schema.dart';
 import '../../drift_schemas/schema_v1.dart' as v1;
 import '../../drift_schemas/schema_v2.dart' as v2;
+import '../../drift_schemas/schema_v3.dart' as v3;
+import '../../drift_schemas/schema_v4.dart' as v4;
 
 /// Kullanıcının cihazındaki veri geri getirilemez: backend yok, sunucuda yedek yok.
 /// Bu yüzden migration'lar **testsiz merge edilmez** (CLAUDE.md: Database Rules).
@@ -125,6 +127,108 @@ void main() {
 
     // Yeni tablo boş ama kullanılabilir olmalı.
     expect(await db.select(db.customers).get(), isEmpty);
+  });
+
+  test('v3\'teki müşteri ve ürünler v5\'e kayıpsız taşınır', () async {
+    // v3'te ayarlar tablosu hiç yoktu; tablo güncel tanımıyla yaratılır ve
+    // mevcut veriye dokunulmaz.
+    final schema = await verifier.schemaAt(3);
+    final oldDb = v3.DatabaseAtV3(schema.newConnection());
+
+    await oldDb.customStatement(
+      'INSERT INTO categories (id, name) VALUES (1, ?)',
+      ['Genel'],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO products (name, price_minor, category_id) VALUES (?, ?, 1)',
+      ['Vida M8', 1250],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO customers (type, name) VALUES (?, ?)',
+      ['company', 'Yılmaz İnşaat'],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 5);
+
+    expect(await db.select(db.products).get(), hasLength(1));
+    expect(await db.select(db.customers).get(), hasLength(1));
+
+    // Ayar satırı migration'da yaratılır: okuma yolu "satır yok" durumunu
+    // hiç görmemeli. Varsayılan = sistem dili, sistem teması.
+    final settings = await db.select(db.settings).getSingle();
+    expect(settings.id, kSettingsRowId);
+    expect(settings.languageCode, isNull);
+    expect(settings.themeMode, 'system');
+  });
+
+  test('v4 → v5 sonrası şema beklenen hale gelir', () async {
+    final connection = await verifier.startAt(4);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 5);
+  });
+
+  test('v1 → v5 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
+    final connection = await verifier.startAt(1);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 5);
+  });
+
+  test('v4\'teki dil ve tema tercihi v5\'e kayıpsız taşınır', () async {
+    // v4 → v5 yalnızca nullable sütun ekler; kullanıcının tercihi korunmalı.
+    final schema = await verifier.schemaAt(4);
+    final oldDb = v4.DatabaseAtV4(schema.newConnection());
+
+    await oldDb.customStatement(
+      'INSERT INTO settings (id, language_code, theme_mode) VALUES (1, ?, ?)',
+      ['en', 'dark'],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 5);
+
+    final row = await db.select(db.settings).getSingle();
+    expect(row.languageCode, 'en');
+    expect(row.themeMode, 'dark');
+    // Yeni alanlar boş gelir; firma bilgisi girilmemiş demektir.
+    expect(row.companyName, isNull);
+    expect(row.companyLogoPath, isNull);
+  });
+
+  test('ayarlar tek satırdır (CHECK id = 1)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    // İkinci bir ayar satırı, "hangisi geçerli?" sorusunu doğurur; veritabanı
+    // seviyesinde engellenir.
+    await expectLater(
+      db.customStatement('INSERT INTO settings (id) VALUES (2)'),
+      throwsA(isA<Exception>()),
+    );
+
+    expect(await db.select(db.settings).get(), hasLength(1));
+  });
+
+  test('geçersiz dil ve tema değeri veritabanına giremez (CHECK)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await expectLater(
+      db.customStatement('UPDATE settings SET language_code = ?', ['de']),
+      throwsA(isA<Exception>()),
+    );
+    await expectLater(
+      db.customStatement('UPDATE settings SET theme_mode = ?', ['sepia']),
+      throwsA(isA<Exception>()),
+    );
   });
 
   test('müşteri tipi veritabanı seviyesinde kısıtlanır (CHECK)', () async {

@@ -30,6 +30,12 @@ dependencies:
   printing: ^5.15.0
   share_plus: ^13.2.0
 
+  # Firma logosu. image_picker galeriden görsel seçer; seçilen dosya OS'un
+  # geçici klasöründedir ve silinebilir — path_provider ile uygulamanın belge
+  # klasörüne kopyalanıp o yol saklanır (bkz. LogoStorage).
+  image_picker: ^1.2.0
+  path_provider: ^2.1.5
+
   intl: ^0.20.2 # flutter_localizations 0.20.2'ye sabitliyor, yükseltilemez
   meta: ^1.18.0 # domain/core katmanı saf Dart kalsın diye (foundation yerine)
   cupertino_icons: ^1.0.8
