@@ -48,6 +48,15 @@ class SettingsScreen extends ConsumerWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => context.push(AppRoutes.company),
             ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: Text(l10n.settingsPreparer),
+              subtitle: Text(
+                current.preparer.fullName ?? l10n.settingsPreparerSubtitle,
+              ),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => context.push(AppRoutes.preparer),
+            ),
             const Divider(),
             _SectionHeader(title: l10n.settingsLanguage),
             for (final language in AppLanguage.values)

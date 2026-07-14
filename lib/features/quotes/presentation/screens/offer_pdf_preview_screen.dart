@@ -44,6 +44,7 @@ class OfferPdfPreviewScreen extends ConsumerWidget {
           build: (format) => buildOfferPdfBytes(
             offer: offer,
             company: appSettings.company,
+            preparer: appSettings.preparer,
             l10n: l10n,
             localeName: context.localeTag,
           ),

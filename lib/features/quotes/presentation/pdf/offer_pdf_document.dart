@@ -5,7 +5,9 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
+import 'package:isimcebimde/features/quotes/presentation/unit_label.dart';
 import 'package:isimcebimde/features/settings/domain/entities/company_info.dart';
+import 'package:isimcebimde/features/settings/domain/entities/preparer_info.dart';
 import 'package:isimcebimde/l10n/app_localizations.dart';
 import 'package:pdf/widgets.dart' as pw;
 
@@ -22,6 +24,7 @@ Future<Uint8List> buildOfferPdfBytes({
   required CompanyInfo company,
   required AppLocalizations l10n,
   required String localeName,
+  PreparerInfo preparer = const PreparerInfo(),
 }) async {
   final regularFont = pw.Font.ttf(
     await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
@@ -48,6 +51,11 @@ Future<Uint8List> buildOfferPdfBytes({
         l10n: l10n,
         localeName: localeName,
       ),
+      // Teklifi hazırlayan kişi sayfanın altında, başlıksız. Hiçbir alanı
+      // doldurulmadıysa alt bilgi hiç çizilmez — boş bir çizgi bırakmayız.
+      footer: preparer.isEmpty
+          ? null
+          : (context) => _PreparerFooter(preparer: preparer),
       build: (context) => [
         pw.SizedBox(height: 16),
         _CustomerSection(offer: offer, l10n: l10n),
@@ -83,26 +91,27 @@ class _Header extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
+    // Logo şirket adının üstünde, solda; sağ üstte yalnızca tarih. Teklif
+    // numarası basılmaz — kullanıcı için bir anlam taşımıyordu, dosya adında
+    // ve paylaşım konusunda hâlâ var.
     return pw.Column(
       children: [
         pw.Row(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Expanded(child: _CompanyInfoBlock(company: company)),
-            if (logoImage != null) ...[
-              pw.SizedBox(width: 16),
-              pw.Image(logoImage!, height: 56),
-            ],
-          ],
-        ),
-        pw.SizedBox(height: 12),
-        pw.Row(
-          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-          children: [
-            pw.Text(
-              '${l10n.quoteNumberLabel}: ${offer.quoteNumber}',
-              style: const pw.TextStyle(fontSize: 10),
+            pw.Expanded(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  if (logoImage != null) ...[
+                    pw.Image(logoImage!, height: 56),
+                    pw.SizedBox(height: 8),
+                  ],
+                  _CompanyInfoBlock(company: company),
+                ],
+              ),
             ),
+            pw.SizedBox(width: 16),
             pw.Text(
               '${l10n.quoteDateLabel}: '
               '${_formatDate(offer.createdAt, localeName)}',
@@ -122,6 +131,31 @@ class _Header extends pw.StatelessWidget {
     return localeName.startsWith('en')
         ? '$month/$day/${date.year}'
         : '$day.$month.${date.year}';
+  }
+}
+
+/// Teklifi hazırlayan kişi. Başlık yok: bilgiler kendini anlatır.
+class _PreparerFooter extends pw.StatelessWidget {
+  _PreparerFooter({required this.preparer});
+
+  final PreparerInfo preparer;
+
+  @override
+  pw.Widget build(pw.Context context) {
+    final parts = [
+      ?preparer.fullName,
+      ?preparer.title,
+      ?preparer.phone,
+      ?preparer.email,
+    ];
+
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Divider(thickness: 0.5),
+        pw.Text(parts.join(' · '), style: const pw.TextStyle(fontSize: 9)),
+      ],
+    );
   }
 }
 
@@ -235,7 +269,9 @@ class _ItemsTable extends pw.StatelessWidget {
 
   List<String> _row(OfferItem item) => [
     item.productName,
-    item.quantity.toString(),
+    // Birim miktarın yanında yazılır: "12,5 m²". Ayrı bir sütun tabloyu
+    // dar sayfada sıkıştırırdı.
+    '${item.quantity.format(locale: localeName)} ${unitLabel(l10n, item.unit)}',
     item.unitPrice.format(locale: localeName, symbol: offer.currency.symbol),
     '%${item.discount.asPercent.toStringAsFixed(0)}',
     '%${item.vatRate.asPercent.toStringAsFixed(0)}',

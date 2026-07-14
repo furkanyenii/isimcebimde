@@ -4,6 +4,7 @@ import 'package:isimcebimde/features/settings/data/services/file_logo_storage.da
 import 'package:isimcebimde/features/settings/data/services/image_picker_logo_picker.dart';
 import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart';
 import 'package:isimcebimde/features/settings/domain/entities/company_info.dart';
+import 'package:isimcebimde/features/settings/domain/entities/preparer_info.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/logo_picker.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/logo_storage.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/settings_repository.dart';
@@ -46,6 +47,9 @@ class SettingsController extends _$SettingsController {
 
   Future<void> saveCompany(CompanyInfo company) =>
       _update((current) => current.copyWith(company: company));
+
+  Future<void> savePreparer(PreparerInfo preparer) =>
+      _update((current) => current.copyWith(preparer: preparer));
 
   /// Seçilen görseli kalıcı konuma kopyalar ve yolunu kaydeder. Eski logo
   /// dosyası silinir — cihazda çöp dosya bırakmayız.

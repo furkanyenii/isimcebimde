@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
@@ -84,7 +85,7 @@ void main() {
       OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(12, 50),
-        quantity: 10,
+        quantity: Quantity.of(10),
         vatRate: Percent.of(20),
       ),
     ],

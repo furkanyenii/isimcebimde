@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart';
+import 'package:isimcebimde/features/settings/domain/entities/preparer_info.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/settings_repository.dart';
 import 'package:isimcebimde/features/settings/presentation/providers/settings_providers.dart';
 import 'package:isimcebimde/features/settings/presentation/screens/settings_screen.dart';
@@ -30,6 +31,14 @@ class _FakeSettingsRepository implements SettingsRepository {
     saved.add(settings);
     _controller.add(settings);
   }
+}
+
+/// Ayarlar listesi (firma + kişisel bilgiler + dil + tema) varsayılan 800x600
+/// test yüzeyine sığmıyor; tema seçenekleri ekran dışında kalıp tıklanamıyor.
+Future<void> showWholeList(WidgetTester tester) async {
+  await tester.binding.setSurfaceSize(const Size(800, 1200));
+  addTearDown(() => tester.binding.setSurfaceSize(null));
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -83,6 +92,21 @@ void main() {
     );
   });
 
+  testWidgets('kişisel bilgiler satırı dolu ise adı gösterir', (tester) async {
+    await tester.pumpWidget(buildSubject());
+    stream.add(
+      const AppSettings(
+        preparer: PreparerInfo(firstName: 'Furkan', lastName: 'Yeni'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text(tr.settingsPreparer), findsOneWidget);
+    expect(find.text('Furkan Yeni'), findsOneWidget);
+    // Bilgi girilmediyse ne işe yaradığını anlatan açıklama görünür.
+    expect(find.text(tr.settingsPreparerSubtitle), findsNothing);
+  });
+
   testWidgets('dil seçimi anında kaydedilir', (tester) async {
     await tester.pumpWidget(buildSubject());
     stream.add(const AppSettings());
@@ -99,6 +123,7 @@ void main() {
     stream.add(const AppSettings(language: AppLanguage.english));
     await tester.pumpAndSettle();
 
+    await showWholeList(tester);
     await tester.tap(find.text(tr.settingsThemeDark));
     await tester.pumpAndSettle();
 
@@ -117,6 +142,7 @@ void main() {
     stream.add(const AppSettings());
     await tester.pumpAndSettle();
 
+    await showWholeList(tester);
     await tester.tap(find.text(tr.settingsThemeDark));
     await tester.pumpAndSettle();
 
