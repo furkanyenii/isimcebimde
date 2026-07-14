@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/theme/app_colors.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/customers/presentation/screens/customer_form_screen.dart';
@@ -48,8 +50,17 @@ class CustomerListScreen extends ConsumerWidget {
                           description: l10n.emptySearchDescription,
                         );
                 }
-                return ListView.builder(
+                return ListView.separated(
+                  // FAB son kartı örtmesin.
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.md,
+                    0,
+                    AppSizes.md,
+                    AppSizes.xxl + AppSizes.lg,
+                  ),
                   itemCount: items.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSizes.sm),
                   itemBuilder: (context, index) => _CustomerTile(
                     customer: items[index],
                     onTap: () => _openForm(context, customer: items[index]),
@@ -131,15 +142,13 @@ class _CustomerTile extends StatelessWidget {
     // Kurumsalda yetkili kişi, bireyselde telefon en ayırt edici ikinci bilgidir.
     final subtitle = customer.contactPerson ?? customer.phone;
 
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
-      leading: Icon(
-        customer.type.isCompany
-            ? Icons.business_outlined
-            : Icons.person_outline,
-      ),
-      title: Text(customer.name),
-      subtitle: subtitle == null ? null : Text(subtitle),
+    return AppListCard(
+      icon: customer.type.isCompany
+          ? Icons.business_outlined
+          : Icons.person_outline,
+      iconColor: AppColors.warning,
+      title: customer.name,
+      subtitle: subtitle,
       onTap: onTap,
     );
   }

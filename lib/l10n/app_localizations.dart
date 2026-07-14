@@ -206,6 +206,66 @@ abstract class AppLocalizations {
   /// **'New Quote'**
   String get quoteNew;
 
+  /// No description provided for @dashboardGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get dashboardGreeting;
+
+  /// No description provided for @dashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A quote in 60 seconds, right in front of the customer.'**
+  String get dashboardSubtitle;
+
+  /// No description provided for @dashboardStatQuotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotes'**
+  String get dashboardStatQuotes;
+
+  /// No description provided for @dashboardStatTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total value'**
+  String get dashboardStatTotal;
+
+  /// No description provided for @dashboardSectionModules.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get dashboardSectionModules;
+
+  /// No description provided for @moduleQuotesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create, edit, share'**
+  String get moduleQuotesSubtitle;
+
+  /// No description provided for @moduleProductsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price list and categories'**
+  String get moduleProductsSubtitle;
+
+  /// No description provided for @moduleCustomersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved customers'**
+  String get moduleCustomersSubtitle;
+
+  /// No description provided for @moduleSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Company, theme, language'**
+  String get moduleSettingsSubtitle;
+
+  /// No description provided for @quoteItemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} items'**
+  String quoteItemCount(int count);
+
   /// No description provided for @settingsCompany.
   ///
   /// In en, this message translates to:

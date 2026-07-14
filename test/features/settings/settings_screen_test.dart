@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart';
 import 'package:isimcebimde/features/settings/domain/entities/preparer_info.dart';
 import 'package:isimcebimde/features/settings/domain/repositories/settings_repository.dart';
@@ -67,6 +68,12 @@ void main() {
   });
 
   testWidgets('seçili dil ve tema işaretli gelir', (tester) async {
+    // Dil ve tema seçenekleri bir arada tek ekrana sığmalı, aksi halde alttaki
+    // seçim işareti hiç build edilmez (ListView tembeldir).
+    tester.view.physicalSize = const Size(400, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
     await tester.pumpWidget(buildSubject());
     stream.add(
       const AppSettings(
@@ -77,17 +84,21 @@ void main() {
     await tester.pumpAndSettle();
 
     // Dil ve tema için birer seçim işareti.
-    expect(find.byIcon(Icons.check), findsNWidgets(2));
+    expect(find.byIcon(Icons.check_circle_rounded), findsNWidgets(2));
     expect(
       tester
-          .widget<ListTile>(find.widgetWithText(ListTile, tr.languageTurkish))
-          .selected,
+          .widget<AppSurfaceCard>(
+            find.widgetWithText(AppSurfaceCard, tr.languageTurkish),
+          )
+          .isHighlighted,
       isTrue,
     );
     expect(
       tester
-          .widget<ListTile>(find.widgetWithText(ListTile, tr.settingsThemeDark))
-          .selected,
+          .widget<AppSurfaceCard>(
+            find.widgetWithText(AppSurfaceCard, tr.settingsThemeDark),
+          )
+          .isHighlighted,
       isTrue,
     );
   });

@@ -1,73 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:isimcebimde/app/router/app_router.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/theme/app_colors.dart';
+import 'package:isimcebimde/core/theme/app_typography.dart';
+import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
+import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
+import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
 
-/// Ana ekran. Modüllere kartlar üzerinden girilir.
+/// Ana ekran: marka paneli + özet rakamlar + modül listesi.
 ///
 /// Bottom navigation bilinçli olarak tercih edilmedi: modül sayısı az ve
 /// kullanıcının asıl işi "yeni teklif" — o eylem birincil buton olarak öne çıkar.
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final offers = ref.watch(offerListProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quotra'), // Marka adı çevrilmez.
-        centerTitle: true,
-      ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSizes.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FilledButton.icon(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => const OfferFormScreen(),
+        // Tablet/yatayda kartlar ekrana yayılıp seyrelmesin: içerik ortalanır.
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSizes.maxContentWidth,
+            ),
+            child: ListView(
+              padding: const EdgeInsets.all(AppSizes.md),
+              children: [
+                _BrandHeader(offers: offers),
+                const SizedBox(height: AppSizes.lg),
+                FilledButton.icon(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const OfferFormScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.bolt_rounded),
+                  label: Text(l10n.quoteNew),
+                ),
+                const SizedBox(height: AppSizes.lg),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: AppSizes.xs,
+                    bottom: AppSizes.sm,
+                  ),
+                  child: Text(
+                    l10n.dashboardSectionModules.toUpperCase(),
+                    style: context.textStyles.labelSmall,
                   ),
                 ),
-                icon: const Icon(Icons.add),
-                label: Text(l10n.quoteNew),
-              ),
-              const SizedBox(height: AppSizes.lg),
-              Expanded(
-                child: GridView.count(
-                  // Tablet/yatayda iki yerine dört sütun.
-                  crossAxisCount: context.isWide ? 4 : 2,
-                  crossAxisSpacing: AppSizes.md,
-                  mainAxisSpacing: AppSizes.md,
-                  children: [
-                    _ModuleCard(
-                      icon: Icons.description_outlined,
-                      label: l10n.moduleQuotes,
-                      onTap: () => context.go(AppRoutes.quotes),
-                    ),
-                    _ModuleCard(
-                      icon: Icons.inventory_2_outlined,
-                      label: l10n.moduleProducts,
-                      onTap: () => context.go(AppRoutes.products),
-                    ),
-                    _ModuleCard(
-                      icon: Icons.people_outline,
-                      label: l10n.moduleCustomers,
-                      onTap: () => context.go(AppRoutes.customers),
-                    ),
-                    _ModuleCard(
-                      icon: Icons.settings_outlined,
-                      label: l10n.moduleSettings,
-                      onTap: () => context.go(AppRoutes.settings),
-                    ),
-                  ],
+                _ModuleRow(
+                  icon: Icons.description_outlined,
+                  color: AppColors.accent,
+                  label: l10n.moduleQuotes,
+                  description: l10n.moduleQuotesSubtitle,
+                  onTap: () => context.go(AppRoutes.quotes),
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSizes.sm),
+                _ModuleRow(
+                  icon: Icons.inventory_2_outlined,
+                  color: AppColors.success,
+                  label: l10n.moduleProducts,
+                  description: l10n.moduleProductsSubtitle,
+                  onTap: () => context.go(AppRoutes.products),
+                ),
+                const SizedBox(height: AppSizes.sm),
+                _ModuleRow(
+                  icon: Icons.people_outline,
+                  color: AppColors.warning,
+                  label: l10n.moduleCustomers,
+                  description: l10n.moduleCustomersSubtitle,
+                  onTap: () => context.go(AppRoutes.customers),
+                ),
+                const SizedBox(height: AppSizes.sm),
+                _ModuleRow(
+                  icon: Icons.settings_outlined,
+                  color: AppColors.accentBright,
+                  label: l10n.moduleSettings,
+                  description: l10n.moduleSettingsSubtitle,
+                  onTap: () => context.go(AppRoutes.settings),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -75,54 +97,133 @@ class DashboardScreen extends StatelessWidget {
   }
 }
 
-/// [onTap] null ise modül henüz hazır değildir: kart soluk gösterilir ve
-/// "Yakında" etiketi alır. Kullanıcıya çalışmayan bir şey vaat edilmez.
-class _ModuleCard extends StatelessWidget {
-  const _ModuleCard({required this.icon, required this.label, this.onTap});
+/// Gradyanlı marka paneli ve iki özet rakamı.
+///
+/// Özetler ekranın birincil içeriği değil, süsüdür: teklifler henüz yüklenmemiş
+/// veya okunamamışsa modüllere giriş yine de çalışmalı. Bu yüzden burada
+/// spinner/hata ekranı gösterilmez, rakam yerine "—" basılır. Hatanın kendisi
+/// Teklifler ekranında tekrar-dene aksiyonuyla birlikte gösterilir.
+class _BrandHeader extends StatelessWidget {
+  const _BrandHeader({required this.offers});
 
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
+  final AsyncValue<List<Offer>> offers;
 
   @override
   Widget build(BuildContext context) {
-    final isEnabled = onTap != null;
-    final foreground = isEnabled
-        ? context.colors.onSurface
-        : context.colors.onSurfaceVariant.withValues(alpha: 0.5);
+    final l10n = context.l10n;
+    final data = offers.value;
 
-    return Card(
-      color: context.colors.surfaceContainerHighest,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSizes.radiusMd),
-        child: Semantics(
-          button: true,
-          enabled: isEnabled,
-          label: isEnabled ? label : context.l10n.comingSoonSemantics(label),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+    final total = data?.fold<Money>(
+      Money.zero,
+      (sum, offer) => sum + offer.grandTotal,
+    );
+
+    return AppGradientPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, size: AppSizes.iconLg, color: foreground),
-              const SizedBox(height: AppSizes.sm),
               Text(
-                label,
-                style: context.textStyles.titleMedium?.copyWith(
-                  color: foreground,
-                ),
-              ),
-              if (!isEnabled) ...[
-                const SizedBox(height: AppSizes.xs),
-                Text(
-                  context.l10n.comingSoon,
-                  style: context.textStyles.labelSmall?.copyWith(
-                    color: foreground,
-                  ),
-                ),
-              ],
+                'Quotra',
+                style: context.textStyles.titleLarge,
+              ), // Marka adı çevrilmez.
+              const Icon(Icons.bolt_rounded, size: AppSizes.iconSm),
             ],
           ),
+          const SizedBox(height: AppSizes.lg),
+          Text(l10n.dashboardGreeting, style: context.textStyles.labelMedium),
+          const SizedBox(height: AppSizes.xs),
+          Text(l10n.dashboardSubtitle, style: context.textStyles.headlineSmall),
+          const SizedBox(height: AppSizes.lg),
+          Row(
+            children: [
+              Expanded(
+                child: _HeaderStat(
+                  label: l10n.dashboardStatQuotes,
+                  value: data == null ? '—' : '${data.length}',
+                ),
+              ),
+              Expanded(
+                child: _HeaderStat(
+                  label: l10n.dashboardStatTotal,
+                  // Teklifler farklı para birimlerinde olabilir; toplam,
+                  // kullanıcının varsayılan sembolüyle değil, yalın biçimlenir.
+                  value: total == null
+                      ? '—'
+                      : total.format(locale: context.localeTag, symbol: ''),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HeaderStat extends StatelessWidget {
+  const _HeaderStat({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textStyles.headlineMedium?.tabular,
         ),
+        Text(label, style: context.textStyles.labelSmall),
+      ],
+    );
+  }
+}
+
+class _ModuleRow extends StatelessWidget {
+  const _ModuleRow({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.description,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String label;
+  final String description;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppSurfaceCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(AppSizes.md),
+      child: Row(
+        children: [
+          AppIconTile(icon: icon, color: color),
+          const SizedBox(width: AppSizes.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: context.textStyles.titleMedium),
+                Text(description, style: context.textStyles.bodySmall),
+              ],
+            ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            color: context.colors.onSurfaceVariant,
+          ),
+        ],
       ),
     );
   }

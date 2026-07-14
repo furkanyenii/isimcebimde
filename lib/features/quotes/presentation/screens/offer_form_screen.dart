@@ -105,61 +105,69 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
       ),
       body: KeyboardDismissOnTap(
         child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(AppSizes.md),
-            children: [
-              CustomerPicker(
-                selectedName: _offer.customerName.isEmpty
-                    ? null
-                    : _offer.customerName,
-                onChanged: (customer) => setState(() {
-                  _offer = _offer.copyWith(
-                    customerId: customer.id,
-                    customerName: customer.name,
-                    customerContactPerson: customer.contactPerson ?? '',
-                  );
-                }),
+          // Tablet/yatayda form ekrana yayılıp okunmaz hale gelmesin.
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppSizes.maxContentWidth,
               ),
-              const SizedBox(height: AppSizes.md),
-              CurrencySelector(
-                value: _offer.currency,
-                onChanged: (currency) => setState(
-                  () => _offer = _offer.copyWith(currency: currency),
-                ),
+              child: ListView(
+                padding: const EdgeInsets.all(AppSizes.md),
+                children: [
+                  CustomerPicker(
+                    selectedName: _offer.customerName.isEmpty
+                        ? null
+                        : _offer.customerName,
+                    onChanged: (customer) => setState(() {
+                      _offer = _offer.copyWith(
+                        customerId: customer.id,
+                        customerName: customer.name,
+                        customerContactPerson: customer.contactPerson ?? '',
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: AppSizes.md),
+                  CurrencySelector(
+                    value: _offer.currency,
+                    onChanged: (currency) => setState(
+                      () => _offer = _offer.copyWith(currency: currency),
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  OfferItemsSection(
+                    items: _offer.items,
+                    currency: _offer.currency,
+                    customUnits: customUnits,
+                    onChanged: (items) =>
+                        setState(() => _offer = _offer.copyWith(items: items)),
+                    onUnitCreated: _createUnit,
+                    onAddPressed: _addProduct,
+                    addLabel: l10n.productAdd,
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  PercentField(
+                    initialValue: _offer.generalDiscount,
+                    label: l10n.generalDiscountLabel,
+                    onChanged: (discount) => setState(
+                      () => _offer = _offer.copyWith(generalDiscount: discount),
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _notesController,
+                    maxLines: 3,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      labelText: l10n.notesLabel,
+                      helperText: l10n.optionalField,
+                    ),
+                    onChanged: (text) => _offer = _offer.copyWith(notes: text),
+                  ),
+                  const SizedBox(height: AppSizes.lg),
+                  OfferSummary(offer: _offer),
+                ],
               ),
-              const SizedBox(height: AppSizes.lg),
-              OfferItemsSection(
-                items: _offer.items,
-                currency: _offer.currency,
-                customUnits: customUnits,
-                onChanged: (items) =>
-                    setState(() => _offer = _offer.copyWith(items: items)),
-                onUnitCreated: _createUnit,
-                onAddPressed: _addProduct,
-                addLabel: l10n.productAdd,
-              ),
-              const SizedBox(height: AppSizes.lg),
-              PercentField(
-                initialValue: _offer.generalDiscount,
-                label: l10n.generalDiscountLabel,
-                onChanged: (discount) => setState(
-                  () => _offer = _offer.copyWith(generalDiscount: discount),
-                ),
-              ),
-              const SizedBox(height: AppSizes.md),
-              TextFormField(
-                controller: _notesController,
-                maxLines: 3,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
-                  labelText: l10n.notesLabel,
-                  helperText: l10n.optionalField,
-                ),
-                onChanged: (text) => _offer = _offer.copyWith(notes: text),
-              ),
-              const SizedBox(height: AppSizes.lg),
-              OfferSummary(offer: _offer),
-            ],
+            ),
           ),
         ),
       ),

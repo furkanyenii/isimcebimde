@@ -6,6 +6,7 @@ import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart';
 import 'package:isimcebimde/features/settings/presentation/providers/settings_providers.dart';
 
@@ -37,47 +38,51 @@ class SettingsScreen extends ConsumerWidget {
           message: localizeError(error, l10n),
           onRetry: () => ref.invalidate(settingsProvider),
         ),
-        data: (current) => ListView(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.business_outlined),
-              title: Text(l10n.settingsCompany),
-              subtitle: Text(
-                current.company.name ?? l10n.settingsCompanySubtitle,
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(AppRoutes.company),
+        data: (current) => Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: AppSizes.maxContentWidth,
             ),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: Text(l10n.settingsPreparer),
-              subtitle: Text(
-                current.preparer.fullName ?? l10n.settingsPreparerSubtitle,
-              ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => context.push(AppRoutes.preparer),
+            child: ListView(
+              padding: const EdgeInsets.all(AppSizes.md),
+              children: [
+                AppListCard(
+                  icon: Icons.business_outlined,
+                  title: l10n.settingsCompany,
+                  subtitle:
+                      current.company.name ?? l10n.settingsCompanySubtitle,
+                  onTap: () => context.push(AppRoutes.company),
+                ),
+                const SizedBox(height: AppSizes.sm),
+                AppListCard(
+                  icon: Icons.person_outline,
+                  title: l10n.settingsPreparer,
+                  subtitle:
+                      current.preparer.fullName ??
+                      l10n.settingsPreparerSubtitle,
+                  onTap: () => context.push(AppRoutes.preparer),
+                ),
+                _SectionHeader(title: l10n.settingsLanguage),
+                for (final language in AppLanguage.values)
+                  _ChoiceTile(
+                    label: _languageLabel(context, language),
+                    isSelected: language == current.language,
+                    onTap: () => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setLanguage(language),
+                  ),
+                _SectionHeader(title: l10n.settingsTheme),
+                for (final mode in AppThemeMode.values)
+                  _ChoiceTile(
+                    label: _themeLabel(context, mode),
+                    isSelected: mode == current.themeMode,
+                    onTap: () => ref
+                        .read(settingsControllerProvider.notifier)
+                        .setThemeMode(mode),
+                  ),
+              ],
             ),
-            const Divider(),
-            _SectionHeader(title: l10n.settingsLanguage),
-            for (final language in AppLanguage.values)
-              _ChoiceTile(
-                label: _languageLabel(context, language),
-                isSelected: language == current.language,
-                onTap: () => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setLanguage(language),
-              ),
-            const Divider(),
-            _SectionHeader(title: l10n.settingsTheme),
-            for (final mode in AppThemeMode.values)
-              _ChoiceTile(
-                label: _themeLabel(context, mode),
-                isSelected: mode == current.themeMode,
-                onTap: () => ref
-                    .read(settingsControllerProvider.notifier)
-                    .setThemeMode(mode),
-              ),
-          ],
+          ),
         ),
       ),
     );
@@ -107,23 +112,19 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSizes.md,
-        AppSizes.md,
-        AppSizes.md,
         AppSizes.xs,
+        AppSizes.lg,
+        AppSizes.xs,
+        AppSizes.sm,
       ),
-      child: Text(
-        title,
-        style: context.textStyles.labelLarge?.copyWith(
-          color: context.colors.primary,
-        ),
-      ),
+      child: Text(title.toUpperCase(), style: context.textStyles.labelSmall),
     );
   }
 }
 
-/// Seçili olanı işaretli gösteren satır. `RadioListTile` yerine `ListTile`:
-/// dokunma hedefi tüm satırdır ve seçim işareti tek bir ikonla anlatılır.
+/// Seçili olanı işaretli gösteren satır. `RadioListTile` yerine kart:
+/// dokunma hedefi tüm satırdır ve seçim, aksan çerçevesi + tek onay ikonuyla
+/// anlatılır.
 class _ChoiceTile extends StatelessWidget {
   const _ChoiceTile({
     required this.label,
@@ -137,13 +138,23 @@ class _ChoiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(label),
-      trailing: isSelected
-          ? Icon(Icons.check, color: context.colors.primary)
-          : null,
-      selected: isSelected,
-      onTap: onTap,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSizes.sm),
+      child: AppSurfaceCard(
+        onTap: onTap,
+        isHighlighted: isSelected,
+        child: Row(
+          children: [
+            Expanded(child: Text(label, style: context.textStyles.titleMedium)),
+            if (isSelected)
+              Icon(
+                Icons.check_circle_rounded,
+                color: context.colors.primary,
+                size: AppSizes.iconSm,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

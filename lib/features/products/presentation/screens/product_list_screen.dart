@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/theme/app_colors.dart';
+import 'package:isimcebimde/core/theme/app_typography.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
 import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
@@ -48,8 +51,17 @@ class ProductListScreen extends ConsumerWidget {
                           description: l10n.emptySearchDescription,
                         );
                 }
-                return ListView.builder(
+                return ListView.separated(
+                  // FAB son kartı örtmesin.
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.md,
+                    0,
+                    AppSizes.md,
+                    AppSizes.xxl + AppSizes.lg,
+                  ),
                   itemCount: items.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSizes.sm),
                   itemBuilder: (context, index) => _ProductTile(
                     product: items[index],
                     onTap: () => _openForm(context, product: items[index]),
@@ -127,15 +139,15 @@ class _ProductTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
-      leading: const Icon(Icons.inventory_2_outlined),
-      title: Text(product.name),
+    return AppListCard(
+      icon: Icons.inventory_2_outlined,
+      iconColor: AppColors.success,
+      title: product.name,
+      onTap: onTap,
       trailing: Text(
         context.formatMoney(product.price),
-        style: context.textStyles.titleMedium,
+        style: context.textStyles.titleMedium?.tabular,
       ),
-      onTap: onTap,
     );
   }
 }

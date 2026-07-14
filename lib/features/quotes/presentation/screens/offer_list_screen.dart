@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:isimcebimde/app/router/app_router.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/theme/app_typography.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
@@ -44,9 +46,17 @@ class OfferListScreen extends ConsumerWidget {
               onAction: () => _openOfferForm(context),
             );
           }
-          return ListView.builder(
+          return ListView.separated(
+            // FAB son kartı örtmesin.
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.md,
+              AppSizes.sm,
+              AppSizes.md,
+              AppSizes.xxl + AppSizes.lg,
+            ),
             itemCount: items.length,
-            itemBuilder: (context, index) => _OfferTile(offer: items[index]),
+            separatorBuilder: (_, _) => const SizedBox(height: AppSizes.sm),
+            itemBuilder: (context, index) => _OfferCard(offer: items[index]),
           );
         },
       ),
@@ -67,26 +77,25 @@ void _openOfferForm(BuildContext context, {Offer? offer}) {
   );
 }
 
-class _OfferTile extends StatelessWidget {
-  const _OfferTile({required this.offer});
+class _OfferCard extends StatelessWidget {
+  const _OfferCard({required this.offer});
 
   final Offer offer;
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
-      leading: const Icon(Icons.description_outlined),
-      title: Text(offer.customerName),
-      subtitle: Text('${offer.items.length} ürün'),
+    return AppListCard(
+      icon: Icons.description_outlined,
+      title: offer.customerName,
+      subtitle: context.l10n.quoteItemCount(offer.items.length),
+      onTap: () => _openOfferForm(context, offer: offer),
       trailing: Text(
         offer.grandTotal.format(
           locale: context.localeTag,
           symbol: offer.currency.symbol,
         ),
-        style: context.textStyles.titleMedium,
+        style: context.textStyles.titleMedium?.tabular,
       ),
-      onTap: () => _openOfferForm(context, offer: offer),
     );
   }
 }

@@ -28,11 +28,7 @@ class AppErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: AppSizes.iconLg,
-              color: context.colors.error,
-            ),
+            _StateIcon(icon: Icons.error_outline, color: context.colors.error),
             const SizedBox(height: AppSizes.md),
             Text(
               message,
@@ -77,13 +73,9 @@ class AppEmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: AppSizes.iconLg,
-              color: context.colors.onSurfaceVariant,
-            ),
+            _StateIcon(icon: icon, color: context.colors.primary),
             const SizedBox(height: AppSizes.md),
-            Text(title, style: context.textStyles.titleMedium),
+            Text(title, style: context.textStyles.titleLarge),
             if (description != null) ...[
               const SizedBox(height: AppSizes.sm),
               Text(
@@ -101,6 +93,26 @@ class AppEmptyView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Boş ve hata durumlarının ikonu: renkli halka içinde, yumuşak bir vurgu.
+class _StateIcon extends StatelessWidget {
+  const _StateIcon({required this.icon, required this.color});
+
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSizes.lg),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: AppSizes.iconLg, color: color),
     );
   }
 }
