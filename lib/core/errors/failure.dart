@@ -28,7 +28,7 @@ sealed class Failure implements Exception {
 }
 
 /// Hatanın hangi kayıt türüyle ilgili olduğu.
-enum EntityKind { product, category, customer, settings }
+enum EntityKind { product, category, customer, settings, offer }
 
 /// Hangi veritabanı işleminin başarısız olduğu.
 enum DataOperation { read, create, update, delete }
@@ -102,6 +102,25 @@ final class InvalidTaxNumberFailure extends ValidationFailure {
 
   @override
   String get debugLabel => 'tax number must be 10 digits';
+}
+
+/// Teklif bir müşteriye bağlı olmadan kaydedilemez.
+///
+/// Repository sınırında UI'dan bağımsız olarak zorunlu kılınır (CLAUDE.md:
+/// "iş kuralları domain sınırında zorunlu kılınır").
+final class CustomerRequiredFailure extends ValidationFailure {
+  const CustomerRequiredFailure();
+
+  @override
+  String get debugLabel => 'offer requires a customer';
+}
+
+/// Teklif en az bir ürün satırı içermelidir; boş teklif kaydedilemez.
+final class EmptyOfferFailure extends ValidationFailure {
+  const EmptyOfferFailure();
+
+  @override
+  String get debugLabel => 'offer has no items';
 }
 
 /// Aynı isimde kategori zaten var (kategori adı benzersizdir).

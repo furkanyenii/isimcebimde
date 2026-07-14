@@ -39,6 +39,35 @@
   "languageTurkish": "Türkçe",
   "languageEnglish": "İngilizce",
 
+  "customerFieldLabel": "Müşteri",
+  "customerRequired": "Müşteri seçmelisin",
+
+  "currencyLabel": "Para birimi",
+  "currencyTurkishLira": "Türk Lirası (₺)",
+  "currencyUsDollar": "Amerikan Doları ($)",
+  "currencyEuro": "Euro (€)",
+  "currencyBritishPound": "İngiliz Sterlini (£)",
+
+  "quantityLabel": "Miktar",
+  "discountLabel": "İskonto",
+  "generalDiscountLabel": "Genel indirim",
+  "subtotalLabel": "Ara toplam",
+  "vatTotalLabel": "KDV",
+  "grandTotalLabel": "Genel toplam",
+
+  "offerEdit": "Teklifi Düzenle",
+  "quotesEmptyTitle": "Henüz teklif yok",
+  "quotesEmptyDescription": "İlk teklifini oluştur.",
+  "quotesLoadError": "Teklifler yüklenemedi.",
+
+  "errorOffersLoad": "Teklifler okunamadı.",
+  "errorOfferSave": "Teklif kaydedilemedi.",
+  "errorOfferUpdate": "Teklif güncellenemedi.",
+  "errorOfferDelete": "Teklif silinemedi.",
+  "errorOfferNotSaved": "Kaydedilmemiş teklif güncellenemez.",
+  "errorOfferCustomerRequired": "Teklif oluşturmak için müşteri seçmelisin.",
+  "errorOfferEmpty": "Teklif en az bir ürün içermelidir.",
+
   "productNew": "Yeni Ürün",
   "productEdit": "Ürünü Düzenle",
   "productDelete": "Ürünü sil",

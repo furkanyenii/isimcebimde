@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/features/dashboard/presentation/screens/dashboard_screen.dart';
 
@@ -8,7 +9,11 @@ void main() {
   // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
   final tr = l10nFor(const Locale('tr'));
 
-  Widget buildSubject() => localizedApp(const DashboardScreen());
+  // "Yeni Teklif" artık gerçek OfferFormScreen'i açar (Riverpod kullanır).
+  Widget buildSubject() => ProviderScope(
+    retry: (retryCount, error) => null,
+    child: localizedApp(const DashboardScreen()),
+  );
 
   testWidgets('dört modül kartı da gösterilir', (tester) async {
     await tester.pumpWidget(buildSubject());
@@ -19,23 +24,25 @@ void main() {
     expect(find.text(tr.moduleSettings), findsOneWidget);
   });
 
-  testWidgets('hazır olmayan modüller "Yakında" olarak işaretlenir', (
+  testWidgets('dört modül de hazır, "Yakında" etiketi gösterilmez', (
     tester,
   ) async {
     await tester.pumpWidget(buildSubject());
 
-    // Yalnızca Teklifler (Phase 5) henüz yazılmadı;
-    // Ürünler, Müşteriler ve Ayarlar hazır.
-    expect(find.text(tr.comingSoon), findsOneWidget);
+    // Teklifler (Phase 5) artık UI'sı hazır; hiçbir modül soluk değil.
+    expect(find.text(tr.comingSoon), findsNothing);
   });
 
-  testWidgets('teklif modülü hazır olmadığı için Yeni Teklif butonu pasiftir', (
-    tester,
-  ) async {
+  testWidgets('Yeni Teklif butonu teklif formunu açar', (tester) async {
     await tester.pumpWidget(buildSubject());
 
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
-    expect(button.onPressed, isNull);
+    expect(button.onPressed, isNotNull);
+
+    await tester.tap(find.byType(FilledButton));
+    await tester.pumpAndSettle();
+
+    expect(find.text(tr.quoteNew), findsOneWidget); // AppBar başlığı
   });
 
   testWidgets('dar ekranda 2, geniş ekranda 4 sütun gösterir', (tester) async {

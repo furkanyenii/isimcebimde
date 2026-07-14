@@ -20,13 +20,14 @@ extension FailureLocalizer on Failure {
       EntityKind.product => l10n.errorProductNameEmpty,
       EntityKind.category => l10n.errorCategoryNameEmpty,
       EntityKind.customer => l10n.errorCustomerNameEmpty,
-      // Ayarların "adı" yoktur; bu kombinasyon üretilemez.
-      EntityKind.settings => l10n.errorGeneric,
+      // Ayarların ve tekliflerin "adı" yoktur; bu kombinasyonlar üretilemez.
+      EntityKind.settings || EntityKind.offer => l10n.errorGeneric,
     },
     UnsavedEntityFailure(:final entity) => switch (entity) {
       EntityKind.product => l10n.errorProductNotSaved,
       EntityKind.category => l10n.errorCategoryNotSaved,
       EntityKind.customer => l10n.errorCustomerNotSaved,
+      EntityKind.offer => l10n.errorOfferNotSaved,
       // Ayar satırı her zaman vardır; kaydedilmemiş ayar diye bir şey yok.
       EntityKind.settings => l10n.errorGeneric,
     },
@@ -36,6 +37,8 @@ extension FailureLocalizer on Failure {
     InvalidTaxNumberFailure() => l10n.errorTaxNumberLength,
     DuplicateCategoryFailure(:final name) => l10n.errorCategoryDuplicate(name),
     CategoryInUseFailure() => l10n.errorCategoryInUse,
+    CustomerRequiredFailure() => l10n.errorOfferCustomerRequired,
+    EmptyOfferFailure() => l10n.errorOfferEmpty,
     ExportFailure() => l10n.errorExport,
   };
 
@@ -60,6 +63,10 @@ extension FailureLocalizer on Failure {
     // delete ayrımı kullanıcı için anlamsız, hepsi aynı mesaja düşer.
     (EntityKind.settings, DataOperation.read) => l10n.errorSettingsLoad,
     (EntityKind.settings, _) => l10n.errorSettingsSave,
+    (EntityKind.offer, DataOperation.read) => l10n.errorOffersLoad,
+    (EntityKind.offer, DataOperation.create) => l10n.errorOfferSave,
+    (EntityKind.offer, DataOperation.update) => l10n.errorOfferUpdate,
+    (EntityKind.offer, DataOperation.delete) => l10n.errorOfferDelete,
   };
 }
 

@@ -113,6 +113,79 @@ class AppLocalizationsTr extends AppLocalizations {
   String get languageEnglish => 'İngilizce';
 
   @override
+  String get customerFieldLabel => 'Müşteri';
+
+  @override
+  String get customerRequired => 'Müşteri seçmelisin';
+
+  @override
+  String get currencyLabel => 'Para birimi';
+
+  @override
+  String get currencyTurkishLira => 'Türk Lirası (₺)';
+
+  @override
+  String get currencyUsDollar => 'Amerikan Doları (\$)';
+
+  @override
+  String get currencyEuro => 'Euro (€)';
+
+  @override
+  String get currencyBritishPound => 'İngiliz Sterlini (£)';
+
+  @override
+  String get quantityLabel => 'Miktar';
+
+  @override
+  String get discountLabel => 'İskonto';
+
+  @override
+  String get generalDiscountLabel => 'Genel indirim';
+
+  @override
+  String get subtotalLabel => 'Ara toplam';
+
+  @override
+  String get vatTotalLabel => 'KDV';
+
+  @override
+  String get grandTotalLabel => 'Genel toplam';
+
+  @override
+  String get offerEdit => 'Teklifi Düzenle';
+
+  @override
+  String get quotesEmptyTitle => 'Henüz teklif yok';
+
+  @override
+  String get quotesEmptyDescription => 'İlk teklifini oluştur.';
+
+  @override
+  String get quotesLoadError => 'Teklifler yüklenemedi.';
+
+  @override
+  String get errorOffersLoad => 'Teklifler okunamadı.';
+
+  @override
+  String get errorOfferSave => 'Teklif kaydedilemedi.';
+
+  @override
+  String get errorOfferUpdate => 'Teklif güncellenemedi.';
+
+  @override
+  String get errorOfferDelete => 'Teklif silinemedi.';
+
+  @override
+  String get errorOfferNotSaved => 'Kaydedilmemiş teklif güncellenemez.';
+
+  @override
+  String get errorOfferCustomerRequired =>
+      'Teklif oluşturmak için müşteri seçmelisin.';
+
+  @override
+  String get errorOfferEmpty => 'Teklif en az bir ürün içermelidir.';
+
+  @override
   String get productNew => 'Yeni Ürün';
 
   @override

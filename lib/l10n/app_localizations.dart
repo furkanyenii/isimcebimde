@@ -296,6 +296,150 @@ abstract class AppLocalizations {
   /// **'English'**
   String get languageEnglish;
 
+  /// No description provided for @customerFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customerFieldLabel;
+
+  /// No description provided for @customerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a customer'**
+  String get customerRequired;
+
+  /// No description provided for @currencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyLabel;
+
+  /// No description provided for @currencyTurkishLira.
+  ///
+  /// In en, this message translates to:
+  /// **'Turkish Lira (₺)'**
+  String get currencyTurkishLira;
+
+  /// No description provided for @currencyUsDollar.
+  ///
+  /// In en, this message translates to:
+  /// **'US Dollar (\$)'**
+  String get currencyUsDollar;
+
+  /// No description provided for @currencyEuro.
+  ///
+  /// In en, this message translates to:
+  /// **'Euro (€)'**
+  String get currencyEuro;
+
+  /// No description provided for @currencyBritishPound.
+  ///
+  /// In en, this message translates to:
+  /// **'British Pound (£)'**
+  String get currencyBritishPound;
+
+  /// No description provided for @quantityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantityLabel;
+
+  /// No description provided for @discountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discountLabel;
+
+  /// No description provided for @generalDiscountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall discount'**
+  String get generalDiscountLabel;
+
+  /// No description provided for @subtotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotalLabel;
+
+  /// No description provided for @vatTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT'**
+  String get vatTotalLabel;
+
+  /// No description provided for @grandTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Grand total'**
+  String get grandTotalLabel;
+
+  /// No description provided for @offerEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Quote'**
+  String get offerEdit;
+
+  /// No description provided for @quotesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No quotes yet'**
+  String get quotesEmptyTitle;
+
+  /// No description provided for @quotesEmptyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first quote.'**
+  String get quotesEmptyDescription;
+
+  /// No description provided for @quotesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotes could not be loaded.'**
+  String get quotesLoadError;
+
+  /// No description provided for @errorOffersLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Quotes could not be loaded.'**
+  String get errorOffersLoad;
+
+  /// No description provided for @errorOfferSave.
+  ///
+  /// In en, this message translates to:
+  /// **'The quote could not be saved.'**
+  String get errorOfferSave;
+
+  /// No description provided for @errorOfferUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'The quote could not be updated.'**
+  String get errorOfferUpdate;
+
+  /// No description provided for @errorOfferDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'The quote could not be deleted.'**
+  String get errorOfferDelete;
+
+  /// No description provided for @errorOfferNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'An unsaved quote cannot be updated.'**
+  String get errorOfferNotSaved;
+
+  /// No description provided for @errorOfferCustomerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a customer to create a quote.'**
+  String get errorOfferCustomerRequired;
+
+  /// No description provided for @errorOfferEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'A quote must contain at least one product.'**
+  String get errorOfferEmpty;
+
   /// No description provided for @productNew.
   ///
   /// In en, this message translates to:
