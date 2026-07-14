@@ -101,23 +101,24 @@ void main() {
       expect(row.notes, isNull);
     });
 
-    test('bireysel müşteride kurumsal alanlar saklanmaz', () async {
+    test('bireysel müşteride yetkili kişi saklanmaz', () async {
       // Kullanıcı kurumsalken yetkili kişi girip sonra bireysele çevirirse,
-      // gizlenen alan veritabanında hayalet gibi kalmamalı.
+      // gizlenen alan veritabanında hayalet gibi kalmamalı. Vergi dairesi
+      // bunun istisnasıdır: bireysel müşteride de sorulur, bu yüzden korunur.
       final id = await repository.create(
         const Customer(
           id: null,
           type: CustomerType.individual,
           name: 'Ayşe Demir',
           contactPerson: 'Hayalet Kişi',
-          taxOffice: 'Hayalet Daire',
+          taxOffice: 'Kadıköy',
         ),
       );
 
       final saved = await repository.watchById(id).first;
 
       expect(saved!.contactPerson, isNull);
-      expect(saved.taxOffice, isNull);
+      expect(saved.taxOffice, 'Kadıköy');
     });
   });
 
@@ -145,11 +146,29 @@ void main() {
       );
     });
 
-    test('bireysel TCKN 11 hane olmalı', () async {
+    test('bireysel müşteride de 10 haneli vergi no kabul edilir', () async {
+      // Vergi dairesi/no artık her iki tipte de sorulur: şahıs firması da
+      // vergiye tabidir.
+      final id = await repository.create(
+        individual.copyWith(taxNumber: '1234567890', taxOffice: 'Kadıköy'),
+      );
+      final saved = await repository.watchById(id).first;
+
+      expect(saved!.taxNumber, '1234567890');
+      expect(saved.taxOffice, 'Kadıköy');
+    });
+
+    test('vergi no 10 veya 11 hane değilse reddedilir', () async {
+      // 11 hane hâlâ geçerli: eskiden TCKN yazılmış kayıtlar bozulmamalı.
       await expectLater(
-        repository.create(individual.copyWith(taxNumber: '1234567890')),
+        repository.create(individual.copyWith(taxNumber: '12345')),
         throwsA(isA<ValidationFailure>()),
       );
+
+      final id = await repository.create(
+        individual.copyWith(taxNumber: '12345678901'),
+      );
+      expect((await repository.watchById(id).first)!.taxNumber, '12345678901');
     });
 
     test(

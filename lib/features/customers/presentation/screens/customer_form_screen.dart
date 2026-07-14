@@ -174,26 +174,25 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                       helperText: l10n.optionalField,
                     ),
                   ),
-                  if (_isCompany) ...[
-                    const SizedBox(height: AppSizes.md),
-                    TextFormField(
-                      controller: _taxOffice,
-                      textCapitalization: TextCapitalization.words,
-                      decoration: InputDecoration(
-                        labelText: l10n.taxOfficeLabel,
-                        helperText: l10n.optionalField,
-                      ),
+                  // Vergi dairesi/no her iki müşteri tipinde de sorulur:
+                  // şahıs firmaları da vergiye tabidir ve teklifte bu bilgi
+                  // istenir.
+                  const SizedBox(height: AppSizes.md),
+                  TextFormField(
+                    controller: _taxOffice,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      labelText: l10n.taxOfficeLabel,
+                      helperText: l10n.optionalField,
                     ),
-                  ],
+                  ),
                   const SizedBox(height: AppSizes.md),
                   TextFormField(
                     controller: _taxNumber,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     decoration: InputDecoration(
-                      labelText: _isCompany
-                          ? l10n.taxNumberLabel
-                          : l10n.nationalIdLabel,
+                      labelText: l10n.taxNumberLabel,
                       helperText: l10n.optionalField,
                     ),
                     validator: _validateTaxNumber,
@@ -244,15 +243,15 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         : context.l10n.errorEmailInvalid;
   }
 
+  /// Vergi no 10 hanelidir. 11 hane de kabul edilir: bu alan eskiden bireysel
+  /// müşteride TC Kimlik No idi ve o kayıtlar hâlâ veritabanında duruyor —
+  /// düzenlemeye açan kullanıcıyı kendi verisiyle uğraştırmayız.
   String? _validateTaxNumber(String? value) {
     final digits = value?.trim() ?? '';
     if (digits.isEmpty) return null; // isteğe bağlı
 
-    final expected = _isCompany ? 10 : 11;
-    if (digits.length != expected) {
-      return _isCompany
-          ? context.l10n.errorTaxNumberLength
-          : context.l10n.errorNationalIdLength;
+    if (digits.length != 10 && digits.length != 11) {
+      return context.l10n.errorTaxNumberLength;
     }
     return null;
   }

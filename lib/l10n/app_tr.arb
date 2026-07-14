@@ -31,6 +31,12 @@
   "websiteLabel": "Web sitesi",
   "taxNumberFieldLabel": "Vergi no",
 
+  "settingsPreparer": "Kişisel Bilgiler",
+  "settingsPreparerSubtitle": "Teklifin altında görünür",
+  "firstNameLabel": "Ad",
+  "lastNameLabel": "Soyad",
+  "jobTitleLabel": "Ünvan",
+
   "settingsLanguage": "Dil",
   "settingsTheme": "Tema",
   "settingsSystemDefault": "Sistem",
@@ -49,6 +55,16 @@
   "currencyBritishPound": "İngiliz Sterlini (£)",
 
   "quantityLabel": "Miktar",
+  "unitLabel": "Birim",
+  "unitPiece": "adet",
+  "unitSquareMeter": "m²",
+  "unitCubicMeter": "m³",
+  "unitPackage": "paket",
+  "unitSet": "set",
+  "unitBox": "kutu",
+  "unitCustomAdd": "Diğer…",
+  "unitCustomTitle": "Yeni birim",
+  "unitCustomHint": "örn. ton, saat, top",
   "discountLabel": "İskonto",
   "generalDiscountLabel": "Genel indirim",
   "subtotalLabel": "Ara toplam",
@@ -106,9 +122,9 @@
   "productsLoadError": "Ürünler yüklenemedi.",
   "productsEmptyTitle": "Henüz ürün yok",
   "productsEmptyDescription": "Teklif hazırlayabilmek için önce ürünlerini ekle.",
+  "productCreateFromSearch": "\"{query}\" adıyla yeni ürün ekle",
 
   "vatRateLabel": "KDV oranı",
-  "vatRateShort": "KDV %{rate}",
   "percentValue": "%{rate}",
 
   "priceLabel": "Fiyat",
@@ -176,6 +192,9 @@
 
   "errorNationalIdLength": "TC Kimlik No 11 haneli olmalı.",
   "errorTaxNumberLength": "Vergi No 10 haneli olmalı.",
+
+  "errorUnitNameEmpty": "Birim adı boş olamaz.",
+  "errorUnitSave": "Birim kaydedilemedi.",
 
   "errorExport": "Dosya oluşturulamadı."
 }

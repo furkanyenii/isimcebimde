@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/currency.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
@@ -43,7 +44,7 @@ void main() {
           OfferItem(
             productName: 'Vida M8',
             unitPrice: Money.fromLira(12, 50),
-            quantity: 100,
+            quantity: Quantity.of(100),
             vatRate: Percent.of(20),
           ),
         ],
@@ -67,7 +68,7 @@ void main() {
             id: 42, // şablon tablosundaki satır kimliği
             productName: 'Vida M8',
             unitPrice: Money.fromLira(12, 50),
-            quantity: 1,
+            quantity: Quantity.of(1),
             vatRate: Percent.of(20),
           ),
         ],
@@ -79,7 +80,7 @@ void main() {
       // bu satır henüz kaydedilmemiştir — id sızmamalı.
       expect(draftItem.id, isNull);
       expect(draftItem.productName, 'Vida M8');
-      expect(draftItem.quantity, 1);
+      expect(draftItem.quantity, Quantity.of(1));
     });
 
     test('taslak tekliften hesaplanan toplam satırlarla tutarlıdır', () {
@@ -89,7 +90,7 @@ void main() {
           OfferItem(
             productName: 'Vida M8',
             unitPrice: Money.fromLira(100),
-            quantity: 1,
+            quantity: Quantity.of(1),
             vatRate: Percent.of(20),
           ),
         ],

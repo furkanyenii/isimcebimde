@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/currency.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
@@ -13,7 +14,7 @@ void main() {
       final item = OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(12, 50),
-        quantity: 100,
+        quantity: Quantity.of(100),
         vatRate: Percent.of(20),
       );
 
@@ -26,7 +27,7 @@ void main() {
       final item = OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(100),
-        quantity: 1,
+        quantity: Quantity.of(1),
         vatRate: Percent.of(20),
         discount: Percent.of(10),
       );
@@ -41,7 +42,7 @@ void main() {
       final item = OfferItem(
         productName: 'Kitap',
         unitPrice: Money.fromLira(50),
-        quantity: 2,
+        quantity: Quantity.of(2),
         vatRate: Percent.zero,
       );
 
@@ -54,7 +55,7 @@ void main() {
       final item = OfferItem(
         productName: 'Kablo (metre)',
         unitPrice: Money.fromLira(0, 33), // 0,33 ₺
-        quantity: 3,
+        quantity: Quantity.of(3),
         vatRate: Percent.of(20),
       );
 
@@ -78,7 +79,7 @@ void main() {
       final item = OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(12, 50),
-        quantity: 100,
+        quantity: Quantity.of(100),
         vatRate: Percent.of(20),
       );
       final offer = offerWith([item]);
@@ -93,13 +94,13 @@ void main() {
       final vida = OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(12, 50),
-        quantity: 100, // 1250 ₺ + %20 KDV = 1500 ₺
+        quantity: Quantity.of(100), // 1250 ₺ + %20 KDV = 1500 ₺
         vatRate: Percent.of(20),
       );
       final somun = OfferItem(
         productName: 'Somun',
         unitPrice: Money.fromLira(3),
-        quantity: 50, // 150 ₺ + %10 KDV = 165 ₺
+        quantity: Quantity.of(50), // 150 ₺ + %10 KDV = 165 ₺
         vatRate: Percent.of(10),
       );
       final offer = offerWith([vida, somun]);
@@ -113,7 +114,7 @@ void main() {
       final item = OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(100),
-        quantity: 1,
+        quantity: Quantity.of(1),
         vatRate: Percent.of(20), // 100 ₺ + 20 ₺ KDV = 120 ₺
       );
       final offer = offerWith([item], generalDiscount: Percent.of(10));
@@ -166,12 +167,15 @@ void main() {
       final item = OfferItem(
         productName: 'Vida M8',
         unitPrice: Money.fromLira(12, 50),
-        quantity: 1,
+        quantity: Quantity.of(1),
         vatRate: Percent.of(20),
       );
 
-      final updated = item.copyWith(quantity: 5, discount: Percent.of(10));
-      expect(updated.quantity, 5);
+      final updated = item.copyWith(
+        quantity: Quantity.of(5),
+        discount: Percent.of(10),
+      );
+      expect(updated.quantity, Quantity.of(5));
       expect(updated.discount, Percent.of(10));
       expect(updated.unitPrice, item.unitPrice); // dokunulmadı
     });

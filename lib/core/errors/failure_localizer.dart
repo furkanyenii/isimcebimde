@@ -21,6 +21,7 @@ extension FailureLocalizer on Failure {
       EntityKind.category => l10n.errorCategoryNameEmpty,
       EntityKind.customer => l10n.errorCustomerNameEmpty,
       EntityKind.template => l10n.errorTemplateNameEmpty,
+      EntityKind.customUnit => l10n.errorUnitNameEmpty,
       // Ayarların ve tekliflerin "adı" yoktur; bu kombinasyonlar üretilemez.
       EntityKind.settings || EntityKind.offer => l10n.errorGeneric,
     },
@@ -30,8 +31,9 @@ extension FailureLocalizer on Failure {
       EntityKind.customer => l10n.errorCustomerNotSaved,
       EntityKind.offer => l10n.errorOfferNotSaved,
       EntityKind.template => l10n.errorTemplateNotSaved,
-      // Ayar satırı her zaman vardır; kaydedilmemiş ayar diye bir şey yok.
-      EntityKind.settings => l10n.errorGeneric,
+      // Ayar satırı her zaman vardır; birimin de kimliği yalnızca adıdır —
+      // "kaydedilmemiş" hâli üretilemez.
+      EntityKind.settings || EntityKind.customUnit => l10n.errorGeneric,
     },
     NegativePriceFailure() => l10n.errorPriceNegative,
     InvalidEmailFailure() => l10n.errorEmailInvalid,
@@ -77,6 +79,9 @@ extension FailureLocalizer on Failure {
     (EntityKind.template, DataOperation.create) => l10n.errorTemplateSave,
     (EntityKind.template, DataOperation.update) => l10n.errorTemplateUpdate,
     (EntityKind.template, DataOperation.delete) => l10n.errorTemplateDelete,
+    // Birim listesi ikincil bir veridir; kullanıcı için okuma/yazma ayrımı
+    // anlamlı değil — hepsi tek mesaja düşer.
+    (EntityKind.customUnit, _) => l10n.errorUnitSave,
   };
 }
 

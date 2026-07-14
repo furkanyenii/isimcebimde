@@ -254,6 +254,36 @@ abstract class AppLocalizations {
   /// **'Tax number'**
   String get taxNumberFieldLabel;
 
+  /// No description provided for @settingsPreparer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Details'**
+  String get settingsPreparer;
+
+  /// No description provided for @settingsPreparerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown at the bottom of your quotes'**
+  String get settingsPreparerSubtitle;
+
+  /// No description provided for @firstNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstNameLabel;
+
+  /// No description provided for @lastNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastNameLabel;
+
+  /// No description provided for @jobTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Job title'**
+  String get jobTitleLabel;
+
   /// No description provided for @settingsLanguage.
   ///
   /// In en, this message translates to:
@@ -343,6 +373,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quantity'**
   String get quantityLabel;
+
+  /// No description provided for @unitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get unitLabel;
+
+  /// No description provided for @unitPiece.
+  ///
+  /// In en, this message translates to:
+  /// **'pcs'**
+  String get unitPiece;
+
+  /// No description provided for @unitSquareMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'m²'**
+  String get unitSquareMeter;
+
+  /// No description provided for @unitCubicMeter.
+  ///
+  /// In en, this message translates to:
+  /// **'m³'**
+  String get unitCubicMeter;
+
+  /// No description provided for @unitPackage.
+  ///
+  /// In en, this message translates to:
+  /// **'pack'**
+  String get unitPackage;
+
+  /// No description provided for @unitSet.
+  ///
+  /// In en, this message translates to:
+  /// **'set'**
+  String get unitSet;
+
+  /// No description provided for @unitBox.
+  ///
+  /// In en, this message translates to:
+  /// **'box'**
+  String get unitBox;
+
+  /// No description provided for @unitCustomAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Other…'**
+  String get unitCustomAdd;
+
+  /// No description provided for @unitCustomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New unit'**
+  String get unitCustomTitle;
+
+  /// No description provided for @unitCustomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ton, hour, roll'**
+  String get unitCustomHint;
 
   /// No description provided for @discountLabel.
   ///
@@ -650,17 +740,17 @@ abstract class AppLocalizations {
   /// **'Add your products first so you can prepare quotes.'**
   String get productsEmptyDescription;
 
+  /// Shown in the product picker when the search matches nothing; creates the product on the spot.
+  ///
+  /// In en, this message translates to:
+  /// **'Add \"{query}\" as a new product'**
+  String productCreateFromSearch(String query);
+
   /// No description provided for @vatRateLabel.
   ///
   /// In en, this message translates to:
   /// **'VAT rate'**
   String get vatRateLabel;
-
-  /// VAT rate shown on a product row. The percent sign leads in Turkish, trails in English.
-  ///
-  /// In en, this message translates to:
-  /// **'VAT {rate}%'**
-  String vatRateShort(String rate);
 
   /// No description provided for @percentValue.
   ///
@@ -1003,6 +1093,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tax number must be 10 digits.'**
   String get errorTaxNumberLength;
+
+  /// No description provided for @errorUnitNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit name cannot be empty.'**
+  String get errorUnitNameEmpty;
+
+  /// No description provided for @errorUnitSave.
+  ///
+  /// In en, this message translates to:
+  /// **'The unit could not be saved.'**
+  String get errorUnitSave;
 
   /// No description provided for @errorExport.
   ///

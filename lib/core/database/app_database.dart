@@ -18,8 +18,11 @@ class Categories extends Table {
 /// Ürün tablosu.
 ///
 /// Fiyat **kuruş cinsinden `int`** tutulur (CLAUDE.md: para asla `double` değildir).
-/// KDV oranı baz puan olarak tutulur (2000 = %20) ve ürünün *varsayılanıdır*;
-/// teklif satırına kopyalanır ve orada değiştirilebilir.
+///
+/// [vatRateBasisPoints] **kullanılmıyor**: KDV artık ürünün değil teklif
+/// satırının özelliğidir (bkz. [OfferItems.vatRateBasisPoints]). Sütun, şema
+/// değişikliği yıkıcı olamayacağı için duruyor (CLAUDE.md: Migration stratejisi);
+/// yeni kayıtlarda varsayılan değerini alır ve hiçbir yerde okunmaz.
 @DataClassName('ProductRow')
 class Products extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -107,6 +110,13 @@ class Offers extends Table {
 /// [sortOrder]: teklif düzenlenirken satırlar silinip yeniden yazılır
 /// (`OfferRepositoryImpl.update`); kullanıcının girdiği sıranın korunması
 /// otomatik id sırasına bırakılmaz, açıkça bu sütunla garanti edilir.
+///
+/// [quantity] **binde bir** cinsindendir (12,5 → 12500): miktar m²/m³ gibi
+/// birimlerde kesirli olur ve `double` ile tutmak fiyatı bozar (bkz. `Quantity`).
+/// v8 migration'ı eski tam sayı adetleri 1000 ile çarparak taşır.
+///
+/// [unit] serbest metindir (`adet`, `m²` ya da kullanıcının kendi birimi);
+/// yalnızca etikettir, hesaba girmez.
 @DataClassName('OfferItemRow')
 class OfferItems extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -120,6 +130,8 @@ class OfferItems extends Table {
   TextColumn get productName => text().withLength(min: 1, max: 200)();
   IntColumn get unitPriceMinor => integer()();
   IntColumn get quantity => integer()();
+  TextColumn get unit =>
+      text().withLength(min: 1, max: 20).withDefault(const Constant('adet'))();
   IntColumn get vatRateBasisPoints => integer()();
   IntColumn get discountBasisPoints =>
       integer().withDefault(const Constant(0))();
@@ -170,6 +182,8 @@ class TemplateItems extends Table {
   TextColumn get productName => text().withLength(min: 1, max: 200)();
   IntColumn get unitPriceMinor => integer()();
   IntColumn get quantity => integer()();
+  TextColumn get unit =>
+      text().withLength(min: 1, max: 20).withDefault(const Constant('adet'))();
   IntColumn get vatRateBasisPoints => integer()();
   IntColumn get discountBasisPoints =>
       integer().withDefault(const Constant(0))();
@@ -177,6 +191,18 @@ class TemplateItems extends Table {
 
   @override
   List<String> get customConstraints => const ['CHECK (quantity > 0)'];
+}
+
+/// Kullanıcının kendi eklediği ölçü birimleri.
+///
+/// Hazır birimler koddadır (`OfferUnit`) ve burada **tutulmaz**: onlar dile göre
+/// etiketlenir, bu tablo ise kullanıcının yazdığı metni olduğu gibi saklar.
+/// Bir kez eklenen birim sonraki tekliflerin birim listesinde de çıkar.
+@DataClassName('CustomUnitRow')
+class CustomUnits extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text().withLength(min: 1, max: 20).unique()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// Ayarların tutulduğu **tek satır**. [id] her zaman 1'dir ve bu, CHECK kısıtıyla
@@ -211,6 +237,15 @@ class Settings extends Table {
   TextColumn get companyTaxOffice => text().withLength(max: 100).nullable()();
   TextColumn get companyTaxNumber => text().withLength(max: 11).nullable()();
 
+  /// Teklifi hazırlayan kişi (bkz. `PreparerInfo`). Firma bilgisinden ayrıdır:
+  /// aynı firmada birden çok satış temsilcisi teklif hazırlar. Hepsi opsiyonel;
+  /// PDF'in altına yalnızca doldurulanlar basılır.
+  TextColumn get preparerFirstName => text().withLength(max: 100).nullable()();
+  TextColumn get preparerLastName => text().withLength(max: 100).nullable()();
+  TextColumn get preparerTitle => text().withLength(max: 100).nullable()();
+  TextColumn get preparerEmail => text().withLength(max: 200).nullable()();
+  TextColumn get preparerPhone => text().withLength(max: 32).nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 
@@ -238,6 +273,7 @@ const int kSettingsRowId = 1;
     OfferItems,
     Templates,
     TemplateItems,
+    CustomUnits,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -247,7 +283,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -301,6 +337,21 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(templates);
         await m.createTable(templateItems);
       }
+      if (from < 8) {
+        await _migrateV7ToV8(m, from);
+      }
+      if (from >= 4 && from < 9) {
+        // v8 → v9: teklifi hazırlayan kişi. Yalnızca nullable sütun ekleme.
+        //
+        // `from >= 4` koşulu v4 → v5 adımıyla aynı gerekçeye dayanır: daha eski
+        // bir sürümden geliniyorsa `settings` tablosu yukarıda zaten **güncel**
+        // tanımıyla (bu sütunlar dahil) yaratılmıştır.
+        await m.addColumn(settings, settings.preparerFirstName);
+        await m.addColumn(settings, settings.preparerLastName);
+        await m.addColumn(settings, settings.preparerTitle);
+        await m.addColumn(settings, settings.preparerEmail);
+        await m.addColumn(settings, settings.preparerPhone);
+      }
     },
     beforeOpen: (details) async {
       // Teklif → teklif satırı ilişkisi buna dayanacak.
@@ -314,6 +365,34 @@ class AppDatabase extends _$AppDatabase {
     const SettingsCompanion(id: Value(kSettingsRowId)),
     mode: InsertMode.insertOrIgnore,
   );
+
+  /// v7 → v8: teklif satırında birim + kesirli miktar, kullanıcı birimleri.
+  ///
+  /// **Miktarın anlamı değişir**: adet → binde bir. Mevcut satırlar 1000 ile
+  /// çarpılarak taşınır; bu adım atlanırsa kullanıcının "3 adet"i "0,003"e
+  /// döner. Sütun tipi ve `CHECK (quantity > 0)` kısıtı aynı kalır, veri
+  /// silinmez (CLAUDE.md: şema değişikliği yıkıcı olamaz).
+  ///
+  /// [from] parametresi zorunlu: teklif (v6) ve şablon (v7) tabloları bu
+  /// sürümden önce yaratılıyorsa yukarıdaki `createTable` onları zaten **güncel**
+  /// tanımıyla (unit sütunu dahil, tablo boş) kurar — aynı sütunu bir de burada
+  /// eklemek "duplicate column" hatası verirdi.
+  Future<void> _migrateV7ToV8(Migrator m, int from) async {
+    await m.createTable(customUnits);
+
+    if (from >= 6) {
+      await m.addColumn(offerItems, offerItems.unit);
+      await customStatement(
+        'UPDATE offer_items SET quantity = quantity * 1000',
+      );
+    }
+    if (from >= 7) {
+      await m.addColumn(templateItems, templateItems.unit);
+      await customStatement(
+        'UPDATE template_items SET quantity = quantity * 1000',
+      );
+    }
+  }
 
   /// v1 → v2: kategori sistemi ve ürün KDV oranı.
   ///

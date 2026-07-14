@@ -46,7 +46,7 @@ final class ProductFormControllerProvider
 }
 
 String _$productFormControllerHash() =>
-    r'ce13d4945163a9b3ac260efa8dc3570c093bb265';
+    r'1f9088cb2ecd4dde6bfe0fb64a0d9b71995a9bea';
 
 /// Ürün kaydetme/silme işlemlerinin durumu.
 ///

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/domain/repositories/product_repository.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
@@ -23,7 +24,6 @@ class _FakeProductRepository implements ProductRepository {
           name: 'Vida M8',
           price: Money.fromLira(12, 50),
           categoryId: 1,
-          vatRate: Percent.of(20),
         ),
       ]);
 
@@ -150,7 +150,7 @@ void main() {
           productId: 1,
           productName: 'Vida M8',
           unitPrice: Money.fromLira(12, 50),
-          quantity: 10,
+          quantity: Quantity.of(10),
           vatRate: Percent.of(20),
         ),
       ],
@@ -175,7 +175,7 @@ void main() {
           productId: 1,
           productName: 'Vida M8',
           unitPrice: Money.fromLira(12, 50),
-          quantity: 10,
+          quantity: Quantity.of(10),
           vatRate: Percent.of(20),
         ),
       ],
@@ -200,7 +200,7 @@ void main() {
         OfferItem(
           productName: 'Vida M8',
           unitPrice: Money.fromLira(12, 50),
-          quantity: 1,
+          quantity: Quantity.of(1),
           vatRate: Percent.of(20),
         ),
       ],

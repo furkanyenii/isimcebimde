@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/database/app_database.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/features/quotes/data/repositories/template_repository_impl.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
@@ -28,7 +29,7 @@ void main() {
     productId: productId,
     productName: 'Vida M8',
     unitPrice: Money.fromLira(12, 50),
-    quantity: 100,
+    quantity: Quantity.of(100),
     vatRate: Percent.of(20),
   );
 
@@ -45,7 +46,7 @@ void main() {
     expect(template!.name, 'Standart Hırdavat');
     expect(template.items, hasLength(1));
     expect(template.items.single.productName, 'Vida M8');
-    expect(template.items.single.quantity, 100);
+    expect(template.items.single.quantity, Quantity.of(100));
     expect(template.items.single.unitPrice, Money.fromLira(12, 50));
   });
 
@@ -85,14 +86,16 @@ void main() {
     final saved = await repository.watchById(id).first;
 
     final updated = saved!.copyWith(
-      items: [sampleItem().copyWith(productName: 'Somun', quantity: 5)],
+      items: [
+        sampleItem().copyWith(productName: 'Somun', quantity: Quantity.of(5)),
+      ],
     );
     await repository.update(updated);
 
     final reloaded = await repository.watchById(id).first;
     expect(reloaded!.items, hasLength(1));
     expect(reloaded.items.single.productName, 'Somun');
-    expect(reloaded.items.single.quantity, 5);
+    expect(reloaded.items.single.quantity, Quantity.of(5));
   });
 
   test('satır sırası korunur', () async {

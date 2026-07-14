@@ -2,6 +2,10 @@ import 'package:isimcebimde/core/utils/money.dart';
 import 'package:meta/meta.dart';
 
 /// Domain katmanı: saf Dart. Flutter ve Drift import'u **yasak**.
+///
+/// Ürünün **KDV oranı yoktur**: aynı ürün farklı tekliflerde farklı oranla
+/// satılabildiği için KDV, ürünün değil teklif satırının özelliğidir
+/// (bkz. `OfferItem.vatRate`).
 @immutable
 final class Product {
   const Product({
@@ -9,12 +13,8 @@ final class Product {
     required this.name,
     required this.price,
     required this.categoryId,
-    this.vatRate = defaultVatRate,
     this.isArchived = false,
   });
-
-  /// Türkiye'de en yaygın oran. Ürün eklerken varsayılan olarak gelir.
-  static const Percent defaultVatRate = Percent.fromBasisPoints(2000);
 
   /// Henüz kaydedilmemiş ürün için `null`.
   final int? id;
@@ -24,10 +24,6 @@ final class Product {
   /// Kategori zorunludur; ürün kategorisiz olamaz.
   final int categoryId;
 
-  /// Ürünün *varsayılan* KDV oranı. Teklif satırına kopyalanır ve orada
-  /// değiştirilebilir — geçmiş teklifler ürün değişse de bozulmaz.
-  final Percent vatRate;
-
   final bool isArchived;
 
   Product copyWith({
@@ -35,7 +31,6 @@ final class Product {
     String? name,
     Money? price,
     int? categoryId,
-    Percent? vatRate,
     bool? isArchived,
   }) {
     return Product(
@@ -43,7 +38,6 @@ final class Product {
       name: name ?? this.name,
       price: price ?? this.price,
       categoryId: categoryId ?? this.categoryId,
-      vatRate: vatRate ?? this.vatRate,
       isArchived: isArchived ?? this.isArchived,
     );
   }
@@ -55,10 +49,8 @@ final class Product {
       other.name == name &&
       other.price == price &&
       other.categoryId == categoryId &&
-      other.vatRate == vatRate &&
       other.isArchived == isArchived;
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, price, categoryId, vatRate, isArchived);
+  int get hashCode => Object.hash(id, name, price, categoryId, isArchived);
 }

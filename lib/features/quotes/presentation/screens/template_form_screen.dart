@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
+import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/utils/quantity.dart';
 import 'package:isimcebimde/core/widgets/keyboard_dismiss_on_tap.dart';
 import 'package:isimcebimde/features/products/presentation/widgets/product_picker.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
+import 'package:isimcebimde/features/quotes/presentation/providers/custom_unit_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/template_form_controller.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/currency_selector.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/offer_items_section.dart';
@@ -56,6 +59,8 @@ class _TemplateFormScreenState extends ConsumerState<TemplateFormScreen> {
     final canSave =
         _nameController.text.trim().isNotEmpty && _template.items.isNotEmpty;
     final isSaving = ref.watch(templateFormControllerProvider).isLoading;
+    final customUnits =
+        ref.watch(customUnitListProvider).value ?? const <String>[];
 
     // Hata kullanıcıya yan etki olarak gösterilir (CLAUDE.md: ref.listen).
     ref.listen(templateFormControllerProvider, (previous, next) {
@@ -103,9 +108,11 @@ class _TemplateFormScreenState extends ConsumerState<TemplateFormScreen> {
               OfferItemsSection(
                 items: _template.items,
                 currency: _template.currency,
+                customUnits: customUnits,
                 onChanged: (items) => setState(
                   () => _template = _template.copyWith(items: items),
                 ),
+                onUnitCreated: _createUnit,
                 onAddPressed: _addProduct,
                 addLabel: l10n.productAdd,
               ),
@@ -163,6 +170,17 @@ class _TemplateFormScreenState extends ConsumerState<TemplateFormScreen> {
     if (saved && mounted) Navigator.of(context).pop();
   }
 
+  /// Bkz. `OfferFormScreen._createUnit`.
+  Future<void> _createUnit(String unit) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+    try {
+      await ref.read(customUnitRepositoryProvider).add(unit);
+    } on Failure catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.localized(l10n))));
+    }
+  }
+
   Future<void> _addProduct() async {
     final product = await showProductPicker(context);
     if (product == null || !mounted) return;
@@ -175,8 +193,7 @@ class _TemplateFormScreenState extends ConsumerState<TemplateFormScreen> {
             productId: product.id,
             productName: product.name,
             unitPrice: product.price,
-            quantity: 1,
-            vatRate: product.vatRate,
+            quantity: Quantity.one,
           ),
         ],
       );

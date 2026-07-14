@@ -92,6 +92,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get taxNumberFieldLabel => 'Tax number';
 
   @override
+  String get settingsPreparer => 'Your Details';
+
+  @override
+  String get settingsPreparerSubtitle => 'Shown at the bottom of your quotes';
+
+  @override
+  String get firstNameLabel => 'First name';
+
+  @override
+  String get lastNameLabel => 'Last name';
+
+  @override
+  String get jobTitleLabel => 'Job title';
+
+  @override
   String get settingsLanguage => 'Language';
 
   @override
@@ -135,6 +150,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quantityLabel => 'Quantity';
+
+  @override
+  String get unitLabel => 'Unit';
+
+  @override
+  String get unitPiece => 'pcs';
+
+  @override
+  String get unitSquareMeter => 'm²';
+
+  @override
+  String get unitCubicMeter => 'm³';
+
+  @override
+  String get unitPackage => 'pack';
+
+  @override
+  String get unitSet => 'set';
+
+  @override
+  String get unitBox => 'box';
+
+  @override
+  String get unitCustomAdd => 'Other…';
+
+  @override
+  String get unitCustomTitle => 'New unit';
+
+  @override
+  String get unitCustomHint => 'e.g. ton, hour, roll';
 
   @override
   String get discountLabel => 'Discount';
@@ -296,12 +341,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Add your products first so you can prepare quotes.';
 
   @override
-  String get vatRateLabel => 'VAT rate';
+  String productCreateFromSearch(String query) {
+    return 'Add \"$query\" as a new product';
+  }
 
   @override
-  String vatRateShort(String rate) {
-    return 'VAT $rate%';
-  }
+  String get vatRateLabel => 'VAT rate';
 
   @override
   String percentValue(String rate) {
@@ -479,6 +524,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorTaxNumberLength => 'Tax number must be 10 digits.';
+
+  @override
+  String get errorUnitNameEmpty => 'Unit name cannot be empty.';
+
+  @override
+  String get errorUnitSave => 'The unit could not be saved.';
 
   @override
   String get errorExport => 'The file could not be created.';

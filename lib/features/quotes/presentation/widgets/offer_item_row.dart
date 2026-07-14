@@ -1,49 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/money_field.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/currency.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/percent_field.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/quantity_field.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/unit_field.dart';
 
-/// Tek bir teklif satırı: ürün adı, miktar, birim fiyat, satır iskontosu ve
-/// hesaplanan satır toplamı. Toplam bu widget'ta **tekrar hesaplanmaz** —
+/// Tek bir teklif satırı: ürün adı, miktar + birim, birim fiyat, iskonto, KDV
+/// ve hesaplanan satır toplamı. Toplam bu widget'ta **tekrar hesaplanmaz** —
 /// [OfferItem.lineTotal] tek doğruluk kaynağıdır.
-class OfferItemRow extends StatefulWidget {
+///
+/// KDV satırda girilir: aynı ürün farklı teklifte farklı oranla satılabilir.
+class OfferItemRow extends StatelessWidget {
   const OfferItemRow({
     required this.item,
     required this.currency,
+    required this.customUnits,
     required this.onChanged,
+    required this.onUnitCreated,
     required this.onRemove,
     super.key,
   });
 
   final OfferItem item;
   final Currency currency;
+  final List<String> customUnits;
   final ValueChanged<OfferItem> onChanged;
+  final ValueChanged<String> onUnitCreated;
   final VoidCallback onRemove;
-
-  @override
-  State<OfferItemRow> createState() => _OfferItemRowState();
-}
-
-class _OfferItemRowState extends State<OfferItemRow> {
-  late final TextEditingController _quantityController;
-
-  @override
-  void initState() {
-    super.initState();
-    _quantityController = TextEditingController(
-      text: widget.item.quantity.toString(),
-    );
-  }
-
-  @override
-  void dispose() {
-    _quantityController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,12 +46,12 @@ class _OfferItemRowState extends State<OfferItemRow> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.item.productName,
+                    item.productName,
                     style: context.textStyles.titleMedium,
                   ),
                 ),
                 IconButton(
-                  onPressed: widget.onRemove,
+                  onPressed: onRemove,
                   icon: const Icon(Icons.delete_outline),
                   tooltip: l10n.actionDelete,
                 ),
@@ -75,59 +61,60 @@ class _OfferItemRowState extends State<OfferItemRow> {
             Row(
               children: [
                 Expanded(
-                  child: TextFormField(
-                    controller: _quantityController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.quantityLabel),
-                    onChanged: (text) {
-                      final quantity = int.tryParse(text) ?? 0;
-                      if (quantity > 0) {
-                        widget.onChanged(
-                          widget.item.copyWith(quantity: quantity),
-                        );
-                      }
-                    },
+                  child: QuantityField(
+                    initialValue: item.quantity,
+                    onChanged: (quantity) =>
+                        onChanged(item.copyWith(quantity: quantity)),
                   ),
                 ),
                 const SizedBox(width: AppSizes.sm),
                 Expanded(
-                  flex: 2,
-                  child: MoneyField(
-                    initialValue: widget.item.unitPrice,
-                    onChanged: (price) => widget.onChanged(
-                      widget.item.copyWith(unitPrice: price),
-                    ),
+                  child: UnitField(
+                    value: item.unit,
+                    customUnits: customUnits,
+                    onChanged: (unit) => onChanged(item.copyWith(unit: unit)),
+                    onUnitCreated: onUnitCreated,
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: AppSizes.sm),
+            MoneyField(
+              initialValue: item.unitPrice,
+              onChanged: (price) => onChanged(item.copyWith(unitPrice: price)),
             ),
             const SizedBox(height: AppSizes.sm),
             Row(
               children: [
                 Expanded(
                   child: PercentField(
-                    initialValue: widget.item.discount,
+                    initialValue: item.discount,
                     label: l10n.discountLabel,
-                    onChanged: (discount) => widget.onChanged(
-                      widget.item.copyWith(discount: discount),
-                    ),
+                    onChanged: (discount) =>
+                        onChanged(item.copyWith(discount: discount)),
                   ),
                 ),
                 const SizedBox(width: AppSizes.sm),
                 Expanded(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      widget.item.lineTotal.format(
-                        locale: context.localeTag,
-                        symbol: widget.currency.symbol,
-                      ),
-                      style: context.textStyles.titleMedium,
-                    ),
+                  child: PercentField(
+                    initialValue: item.vatRate,
+                    label: l10n.vatRateLabel,
+                    onChanged: (vatRate) =>
+                        onChanged(item.copyWith(vatRate: vatRate)),
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: AppSizes.sm),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                item.lineTotal.format(
+                  locale: context.localeTag,
+                  symbol: currency.symbol,
+                ),
+                style: context.textStyles.titleMedium,
+              ),
             ),
           ],
         ),

@@ -128,7 +128,6 @@ void main() {
       expect(saved.name, 'Vida M8');
       expect(saved.price.minor, 1250);
       expect(saved.categoryId, 2);
-      expect(saved.vatRate, Percent.of(20)); // varsayılan
       expect(saved.id, isNull);
     });
   });
@@ -139,7 +138,6 @@ void main() {
       name: 'Somun',
       price: Money.fromLira(3, 25),
       categoryId: 1,
-      vatRate: Percent.of(10),
     );
 
     testWidgets('mevcut değerler forma yüklenir', (tester) async {

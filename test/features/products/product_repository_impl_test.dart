@@ -43,23 +43,6 @@ void main() {
       expect(products.single.price, Money.fromLira(12, 50));
       expect(products.single.price.minor, 1250);
       expect(products.single.categoryId, categoryId);
-      // Varsayılan KDV %20.
-      expect(products.single.vatRate, Percent.of(20));
-    });
-
-    test('KDV oranı üründe saklanır', () async {
-      await repository.create(
-        Product(
-          id: null,
-          name: 'Ekmek',
-          price: Money.fromLira(10),
-          categoryId: categoryId,
-          vatRate: Percent.of(1),
-        ),
-      );
-
-      final products = await repository.watchAll().first;
-      expect(products.single.vatRate, Percent.of(1));
     });
 
     test('ürün adının baştaki/sondaki boşlukları temizlenir', () async {
@@ -134,14 +117,12 @@ void main() {
           name: 'Vida M8',
           price: Money.fromLira(15, 75),
           categoryId: categoryId,
-          vatRate: Percent.of(10),
         ),
       );
 
       final updated = await repository.watchById(id).first;
       expect(updated!.name, 'Vida M8');
       expect(updated.price, Money.fromLira(15, 75));
-      expect(updated.vatRate, Percent.of(10));
     });
   });
 
