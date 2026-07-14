@@ -60,6 +60,35 @@
   "languageTurkish": "Turkish",
   "languageEnglish": "English",
 
+  "customerFieldLabel": "Customer",
+  "customerRequired": "Pick a customer",
+
+  "currencyLabel": "Currency",
+  "currencyTurkishLira": "Turkish Lira (₺)",
+  "currencyUsDollar": "US Dollar ($)",
+  "currencyEuro": "Euro (€)",
+  "currencyBritishPound": "British Pound (£)",
+
+  "quantityLabel": "Quantity",
+  "discountLabel": "Discount",
+  "generalDiscountLabel": "Overall discount",
+  "subtotalLabel": "Subtotal",
+  "vatTotalLabel": "VAT",
+  "grandTotalLabel": "Grand total",
+
+  "offerEdit": "Edit Quote",
+  "quotesEmptyTitle": "No quotes yet",
+  "quotesEmptyDescription": "Create your first quote.",
+  "quotesLoadError": "Quotes could not be loaded.",
+
+  "errorOffersLoad": "Quotes could not be loaded.",
+  "errorOfferSave": "The quote could not be saved.",
+  "errorOfferUpdate": "The quote could not be updated.",
+  "errorOfferDelete": "The quote could not be deleted.",
+  "errorOfferNotSaved": "An unsaved quote cannot be updated.",
+  "errorOfferCustomerRequired": "Pick a customer to create a quote.",
+  "errorOfferEmpty": "A quote must contain at least one product.",
+
   "productNew": "New Product",
   "productEdit": "Edit Product",
   "productDelete": "Delete product",

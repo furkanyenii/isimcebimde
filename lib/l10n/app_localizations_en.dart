@@ -113,6 +113,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageEnglish => 'English';
 
   @override
+  String get customerFieldLabel => 'Customer';
+
+  @override
+  String get customerRequired => 'Pick a customer';
+
+  @override
+  String get currencyLabel => 'Currency';
+
+  @override
+  String get currencyTurkishLira => 'Turkish Lira (₺)';
+
+  @override
+  String get currencyUsDollar => 'US Dollar (\$)';
+
+  @override
+  String get currencyEuro => 'Euro (€)';
+
+  @override
+  String get currencyBritishPound => 'British Pound (£)';
+
+  @override
+  String get quantityLabel => 'Quantity';
+
+  @override
+  String get discountLabel => 'Discount';
+
+  @override
+  String get generalDiscountLabel => 'Overall discount';
+
+  @override
+  String get subtotalLabel => 'Subtotal';
+
+  @override
+  String get vatTotalLabel => 'VAT';
+
+  @override
+  String get grandTotalLabel => 'Grand total';
+
+  @override
+  String get offerEdit => 'Edit Quote';
+
+  @override
+  String get quotesEmptyTitle => 'No quotes yet';
+
+  @override
+  String get quotesEmptyDescription => 'Create your first quote.';
+
+  @override
+  String get quotesLoadError => 'Quotes could not be loaded.';
+
+  @override
+  String get errorOffersLoad => 'Quotes could not be loaded.';
+
+  @override
+  String get errorOfferSave => 'The quote could not be saved.';
+
+  @override
+  String get errorOfferUpdate => 'The quote could not be updated.';
+
+  @override
+  String get errorOfferDelete => 'The quote could not be deleted.';
+
+  @override
+  String get errorOfferNotSaved => 'An unsaved quote cannot be updated.';
+
+  @override
+  String get errorOfferCustomerRequired => 'Pick a customer to create a quote.';
+
+  @override
+  String get errorOfferEmpty => 'A quote must contain at least one product.';
+
+  @override
   String get productNew => 'New Product';
 
   @override

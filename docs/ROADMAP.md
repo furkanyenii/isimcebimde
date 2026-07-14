@@ -260,30 +260,56 @@ Teklif sistemini oluşturmak.
 
 ## Yapılacaklar
 
-- Offer Entity
-- Offer Item Entity
-- Offer Repository
-- Teklif Listesi
-- Teklif Detayı
-- Yeni Teklif
+- [x] Offer Entity (aggregate root, satırlarını taşır)
+- [x] Offer Item Entity
+- [x] Offer Repository (arayüz + Drift implementasyonu, entegrasyon testli)
+- [x] Teklif Listesi
+- [x] Teklif Detayı (Yeni Teklif formunun düzenleme modu)
+- [x] Yeni Teklif
 
 ## Teklif Akışı
 
-- Müşteri seç
-- Para birimi seç
-- KDV oranı seç
-- Ürün ekle
-- Miktar gir
-- Fiyat otomatik getir
-- Fiyat düzenle
-- Satır indirimi
-- Genel indirim
-- Toplam hesaplama
-- Teklif kaydet
+- [x] Müşteri seç
+- [x] Para birimi seç (yalnızca gösterim etiketi, çevrim yok)
+- [x] KDV oranı seç (ürün eklenirken kopyalanır, satırda değiştirilebilir)
+- [x] Ürün ekle
+- [x] Miktar gir
+- [x] Fiyat otomatik getir
+- [x] Fiyat düzenle
+- [x] Satır indirimi
+- [x] Genel indirim (KDV'den sonra uygulanır)
+- [x] Toplam hesaplama
+- [x] Teklif kaydet
+
+## Bu phase'de alınan kararlar
+
+- **Para birimi yalnızca bir gösterim etiketidir, çevrim yapılmaz.** Kullanıcı
+  USD ile teklif vermek isterse tutarları o para biriminde elle girer/düzenler;
+  gerçek zamanlı kur offline-first ilkesiyle çelişirdi (network gerektirir).
+- **`Offer` aggregate root'tur**, satırlarını kendi içinde taşır.
+  `OfferRepository.save` teklif ve tüm satırlarını **tek transaction'da**
+  yazar. Güncellemede satırlar diff'lenmez, silinip verilen listeyle yeniden
+  yazılır — form tabanlı bir düzenleyici için yeterli ve basittir. `sortOrder`
+  sütunu bu stratejide satır sırasının korunmasını garanti eder.
+- **Genel indirim KDV'den sonra uygulanır**: ara toplam + KDV toplanır, bu
+  toplama ileri yönde bir indirim uygulanır. Satır değerlerine dokunulmaz;
+  bu "toplamdan geriye hesaplama" değildir.
+- **Müşteri seçimi ve en az bir ürün satırı zorunludur**, repository
+  sınırında da tekrar doğrulanır (`CustomerRequiredFailure`,
+  `EmptyOfferFailure`) — UI'ın doğrulaması tek güvence değildir.
+- **`customerName`/`customerContactPerson` ve satırın `productName`/
+  `unitPrice`'ı snapshot'tır** (Phase 2-3'teki ürün/müşteri silme kararlarıyla
+  aynı gerekçe): müşteri veya ürün silinse/değişse bile geçmiş teklif bozulmaz.
+- `CustomerPicker`/`ProductPicker` widget'ları kendi feature'larına ait
+  (customers/products), `CategoryPicker`'ın kurduğu çapraz-feature import
+  örüntüsünü izler. Kendi yerel arama metinlerini tutarlar ki picker'daki
+  arama, arkadaki liste ekranlarının paylaşılan arama kutusunu etkilemesin.
 
 ## Çıktı
 
-Kullanıcı teklif oluşturabilmeli.
+Kullanıcı teklif oluşturabiliyor. ✅
+
+`flutter analyze` temiz, 226/226 test geçiyor. Şema v6.
 
 ---
 

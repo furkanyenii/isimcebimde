@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,6 +9,7 @@ import '../../drift_schemas/schema_v1.dart' as v1;
 import '../../drift_schemas/schema_v2.dart' as v2;
 import '../../drift_schemas/schema_v3.dart' as v3;
 import '../../drift_schemas/schema_v4.dart' as v4;
+import '../../drift_schemas/schema_v5.dart' as v5;
 
 /// Kullanıcının cihazındaki veri geri getirilemez: backend yok, sunucuda yedek yok.
 /// Bu yüzden migration'lar **testsiz merge edilmez** (CLAUDE.md: Database Rules).
@@ -230,6 +232,191 @@ void main() {
       throwsA(isA<Exception>()),
     );
   });
+
+  test('v5 → v6 sonrası şema beklenen hale gelir', () async {
+    final connection = await verifier.startAt(5);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 6);
+  });
+
+  test('v1 → v6 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
+    final connection = await verifier.startAt(1);
+    final db = AppDatabase.forTesting(connection);
+    addTearDown(db.close);
+
+    await verifier.migrateAndValidate(db, 6);
+  });
+
+  test('v5\'teki ürün, müşteri ve ayarlar v6\'ya kayıpsız taşınır', () async {
+    // v5 → v6 yalnızca teklif tablolarını ekler; mevcut veriye dokunmamalı.
+    final schema = await verifier.schemaAt(5);
+    final oldDb = v5.DatabaseAtV5(schema.newConnection());
+
+    await oldDb.customStatement(
+      'INSERT INTO categories (id, name) VALUES (1, ?)',
+      ['Genel'],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO products (name, price_minor, category_id) VALUES (?, ?, 1)',
+      ['Vida M8', 1250],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO customers (type, name) VALUES (?, ?)',
+      ['company', 'Yılmaz İnşaat'],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 6);
+
+    expect(await db.select(db.products).get(), hasLength(1));
+    expect(await db.select(db.customers).get(), hasLength(1));
+    // Yeni tablolar boş ama kullanılabilir olmalı.
+    expect(await db.select(db.offers).get(), isEmpty);
+  });
+
+  test(
+    'teklif ve satırları tek transaction ile kaydedilir, sorgulanabilir',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final categoryId = await db
+          .into(db.categories)
+          .insert(CategoriesCompanion.insert(name: 'Hırdavat'));
+      final productId = await db
+          .into(db.products)
+          .insert(
+            ProductsCompanion.insert(
+              name: 'Vida M8',
+              priceMinor: 1250,
+              categoryId: categoryId,
+            ),
+          );
+      final customerId = await db
+          .into(db.customers)
+          .insert(
+            CustomersCompanion.insert(type: 'individual', name: 'Ahmet Yılmaz'),
+          );
+
+      final offerId = await db
+          .into(db.offers)
+          .insert(
+            OffersCompanion.insert(
+              customerId: Value(customerId),
+              customerName: 'Ahmet Yılmaz',
+            ),
+          );
+      await db
+          .into(db.offerItems)
+          .insert(
+            OfferItemsCompanion.insert(
+              offerId: offerId,
+              productId: Value(productId),
+              productName: 'Vida M8',
+              unitPriceMinor: 1250,
+              quantity: 100,
+              vatRateBasisPoints: 2000,
+            ),
+          );
+
+      final items = await db.select(db.offerItems).get();
+      expect(items, hasLength(1));
+      expect(items.single.quantity, 100);
+    },
+  );
+
+  test('teklif silinince satırları da kaskad olarak silinir', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    final offerId = await db
+        .into(db.offers)
+        .insert(OffersCompanion.insert(customerName: 'Ahmet Yılmaz'));
+    await db
+        .into(db.offerItems)
+        .insert(
+          OfferItemsCompanion.insert(
+            offerId: offerId,
+            productName: 'Vida M8',
+            unitPriceMinor: 1250,
+            quantity: 1,
+            vatRateBasisPoints: 2000,
+          ),
+        );
+
+    await (db.delete(db.offers)..where((o) => o.id.equals(offerId))).go();
+
+    expect(await db.select(db.offerItems).get(), isEmpty);
+  });
+
+  test(
+    'müşteri silinince teklifteki müşteri kimliği NULL olur, teklif kalır',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final customerId = await db
+          .into(db.customers)
+          .insert(
+            CustomersCompanion.insert(type: 'individual', name: 'Ahmet Yılmaz'),
+          );
+      await db
+          .into(db.offers)
+          .insert(
+            OffersCompanion.insert(
+              customerId: Value(customerId),
+              customerName: 'Ahmet Yılmaz',
+            ),
+          );
+
+      await (db.delete(
+        db.customers,
+      )..where((c) => c.id.equals(customerId))).go();
+
+      final offer = await db.select(db.offers).getSingle();
+      expect(offer.customerId, isNull);
+      expect(offer.customerName, 'Ahmet Yılmaz'); // Snapshot bozulmadı.
+    },
+  );
+
+  test(
+    'geçersiz para birimi ve sıfır miktar veritabanına giremez (CHECK)',
+    () async {
+      final db = AppDatabase.forTesting(NativeDatabase.memory());
+      addTearDown(db.close);
+
+      final offerId = await db
+          .into(db.offers)
+          .insert(OffersCompanion.insert(customerName: 'Ahmet Yılmaz'));
+
+      await expectLater(
+        db.customStatement('UPDATE offers SET currency_code = ? WHERE id = ?', [
+          'XYZ',
+          offerId,
+        ]),
+        throwsA(isA<Exception>()),
+      );
+
+      await expectLater(
+        db
+            .into(db.offerItems)
+            .insert(
+              OfferItemsCompanion.insert(
+                offerId: offerId,
+                productName: 'Vida M8',
+                unitPriceMinor: 1250,
+                quantity: 0,
+                vatRateBasisPoints: 2000,
+              ),
+            ),
+        throwsA(isA<Exception>()),
+      );
+    },
+  );
 
   test('müşteri tipi veritabanı seviyesinde kısıtlanır (CHECK)', () async {
     final db = AppDatabase.forTesting(NativeDatabase.memory());

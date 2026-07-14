@@ -68,6 +68,67 @@ class Customers extends Table {
   ];
 }
 
+/// Bir teklif ve başlık bilgileri. Satırları [OfferItems]'tadır.
+///
+/// [customerName] ve [customerContactPerson] müşteri seçildiği andaki
+/// **snapshot**'tır; [customerId] silinirse `NULL` olur (`ON DELETE SET NULL`)
+/// ama teklif bundan etkilenmez (CLAUDE.md: Database Rules — aynı gerekçe
+/// `Products`/`Customers` için de geçerli).
+@DataClassName('OfferRow')
+class Offers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get customerId => integer().nullable().references(
+    Customers,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get customerName => text().withLength(min: 1, max: 200)();
+  TextColumn get customerContactPerson =>
+      text().withLength(max: 200).nullable()();
+
+  /// ISO 4217 kodu; yalnızca gösterim etiketi, çevrim yapılmaz (bkz. `Currency`).
+  TextColumn get currencyCode =>
+      text().withLength(min: 3, max: 3).withDefault(const Constant('TRY'))();
+
+  IntColumn get generalDiscountBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  TextColumn get notes => text().withLength(max: 1000).nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  List<String> get customConstraints => const [
+    "CHECK (currency_code IN ('TRY', 'USD', 'EUR', 'GBP'))",
+  ];
+}
+
+/// Bir teklifin satırları. [productName]/[unitPriceMinor] ürünün eklendiği
+/// andaki **snapshot**'ıdır; ürün sonra değişse/silinse bile satır değişmez.
+///
+/// [sortOrder]: teklif düzenlenirken satırlar silinip yeniden yazılır
+/// (`OfferRepositoryImpl.update`); kullanıcının girdiği sıranın korunması
+/// otomatik id sırasına bırakılmaz, açıkça bu sütunla garanti edilir.
+@DataClassName('OfferItemRow')
+class OfferItems extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get offerId =>
+      integer().references(Offers, #id, onDelete: KeyAction.cascade)();
+  IntColumn get productId => integer().nullable().references(
+    Products,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get productName => text().withLength(min: 1, max: 200)();
+  IntColumn get unitPriceMinor => integer()();
+  IntColumn get quantity => integer()();
+  IntColumn get vatRateBasisPoints => integer()();
+  IntColumn get discountBasisPoints =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+
+  @override
+  List<String> get customConstraints => const ['CHECK (quantity > 0)'];
+}
+
 /// Ayarların tutulduğu **tek satır**. [id] her zaman 1'dir ve bu, CHECK kısıtıyla
 /// veritabanı seviyesinde garanti altındadır — ikinci bir ayar satırı, hangi
 /// satırın geçerli olduğu sorusunu doğurur ve o soru sessiz bir hataya döner.
@@ -117,7 +178,9 @@ const int kSettingsRowId = 1;
 
 /// Uygulamanın tek veri kaynağı. Backend yok — bu dosyadaki her şema
 /// değişikliği geri alınamaz kullanıcı verisine dokunur (CLAUDE.md: Database Rules).
-@DriftDatabase(tables: [Products, Categories, Customers, Settings])
+@DriftDatabase(
+  tables: [Products, Categories, Customers, Settings, Offers, OfferItems],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'isimcebimde'));
 
@@ -125,7 +188,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -168,6 +231,11 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(settings, settings.companyAddress);
         await m.addColumn(settings, settings.companyTaxOffice);
         await m.addColumn(settings, settings.companyTaxNumber);
+      }
+      if (from < 6) {
+        // v5 → v6: teklif modülü. Yalnızca yeni tablolar — mevcut veriye dokunulmaz.
+        await m.createTable(offers);
+        await m.createTable(offerItems);
       }
     },
     beforeOpen: (details) async {

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:isimcebimde/app/router/app_router.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
 
 /// Ana ekran. Modüllere kartlar üzerinden girilir.
 ///
@@ -24,7 +25,11 @@ class DashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               FilledButton.icon(
-                onPressed: null, // Phase 5 — Teklif modülü
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => const OfferFormScreen(),
+                  ),
+                ),
                 icon: const Icon(Icons.add),
                 label: Text(l10n.quoteNew),
               ),
@@ -38,7 +43,8 @@ class DashboardScreen extends StatelessWidget {
                   children: [
                     _ModuleCard(
                       icon: Icons.description_outlined,
-                      label: l10n.moduleQuotes, // Phase 5
+                      label: l10n.moduleQuotes,
+                      onTap: () => context.go(AppRoutes.quotes),
                     ),
                     _ModuleCard(
                       icon: Icons.inventory_2_outlined,

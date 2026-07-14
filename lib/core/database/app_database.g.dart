@@ -2103,6 +2103,1139 @@ class SettingsCompanion extends UpdateCompanion<SettingsRow> {
   }
 }
 
+class $OffersTable extends Offers with TableInfo<$OffersTable, OfferRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OffersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _customerIdMeta = const VerificationMeta(
+    'customerId',
+  );
+  @override
+  late final GeneratedColumn<int> customerId = GeneratedColumn<int>(
+    'customer_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES customers (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _customerNameMeta = const VerificationMeta(
+    'customerName',
+  );
+  @override
+  late final GeneratedColumn<String> customerName = GeneratedColumn<String>(
+    'customer_name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 200,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _customerContactPersonMeta =
+      const VerificationMeta('customerContactPerson');
+  @override
+  late final GeneratedColumn<String> customerContactPerson =
+      GeneratedColumn<String>(
+        'customer_contact_person',
+        aliasedName,
+        true,
+        additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 200),
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _currencyCodeMeta = const VerificationMeta(
+    'currencyCode',
+  );
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+    'currency_code',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 3,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('TRY'),
+  );
+  static const VerificationMeta _generalDiscountBasisPointsMeta =
+      const VerificationMeta('generalDiscountBasisPoints');
+  @override
+  late final GeneratedColumn<int> generalDiscountBasisPoints =
+      GeneratedColumn<int>(
+        'general_discount_basis_points',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 1000),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    customerId,
+    customerName,
+    customerContactPerson,
+    currencyCode,
+    generalDiscountBasisPoints,
+    notes,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'offers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OfferRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('customer_id')) {
+      context.handle(
+        _customerIdMeta,
+        customerId.isAcceptableOrUnknown(data['customer_id']!, _customerIdMeta),
+      );
+    }
+    if (data.containsKey('customer_name')) {
+      context.handle(
+        _customerNameMeta,
+        customerName.isAcceptableOrUnknown(
+          data['customer_name']!,
+          _customerNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_customerNameMeta);
+    }
+    if (data.containsKey('customer_contact_person')) {
+      context.handle(
+        _customerContactPersonMeta,
+        customerContactPerson.isAcceptableOrUnknown(
+          data['customer_contact_person']!,
+          _customerContactPersonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+        _currencyCodeMeta,
+        currencyCode.isAcceptableOrUnknown(
+          data['currency_code']!,
+          _currencyCodeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('general_discount_basis_points')) {
+      context.handle(
+        _generalDiscountBasisPointsMeta,
+        generalDiscountBasisPoints.isAcceptableOrUnknown(
+          data['general_discount_basis_points']!,
+          _generalDiscountBasisPointsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OfferRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OfferRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      customerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}customer_id'],
+      ),
+      customerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_name'],
+      )!,
+      customerContactPerson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_contact_person'],
+      ),
+      currencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency_code'],
+      )!,
+      generalDiscountBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}general_discount_basis_points'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $OffersTable createAlias(String alias) {
+    return $OffersTable(attachedDatabase, alias);
+  }
+}
+
+class OfferRow extends DataClass implements Insertable<OfferRow> {
+  final int id;
+  final int? customerId;
+  final String customerName;
+  final String? customerContactPerson;
+
+  /// ISO 4217 kodu; yalnızca gösterim etiketi, çevrim yapılmaz (bkz. `Currency`).
+  final String currencyCode;
+  final int generalDiscountBasisPoints;
+  final String? notes;
+  final DateTime createdAt;
+  const OfferRow({
+    required this.id,
+    this.customerId,
+    required this.customerName,
+    this.customerContactPerson,
+    required this.currencyCode,
+    required this.generalDiscountBasisPoints,
+    this.notes,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || customerId != null) {
+      map['customer_id'] = Variable<int>(customerId);
+    }
+    map['customer_name'] = Variable<String>(customerName);
+    if (!nullToAbsent || customerContactPerson != null) {
+      map['customer_contact_person'] = Variable<String>(customerContactPerson);
+    }
+    map['currency_code'] = Variable<String>(currencyCode);
+    map['general_discount_basis_points'] = Variable<int>(
+      generalDiscountBasisPoints,
+    );
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  OffersCompanion toCompanion(bool nullToAbsent) {
+    return OffersCompanion(
+      id: Value(id),
+      customerId: customerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerId),
+      customerName: Value(customerName),
+      customerContactPerson: customerContactPerson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerContactPerson),
+      currencyCode: Value(currencyCode),
+      generalDiscountBasisPoints: Value(generalDiscountBasisPoints),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory OfferRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OfferRow(
+      id: serializer.fromJson<int>(json['id']),
+      customerId: serializer.fromJson<int?>(json['customerId']),
+      customerName: serializer.fromJson<String>(json['customerName']),
+      customerContactPerson: serializer.fromJson<String?>(
+        json['customerContactPerson'],
+      ),
+      currencyCode: serializer.fromJson<String>(json['currencyCode']),
+      generalDiscountBasisPoints: serializer.fromJson<int>(
+        json['generalDiscountBasisPoints'],
+      ),
+      notes: serializer.fromJson<String?>(json['notes']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'customerId': serializer.toJson<int?>(customerId),
+      'customerName': serializer.toJson<String>(customerName),
+      'customerContactPerson': serializer.toJson<String?>(
+        customerContactPerson,
+      ),
+      'currencyCode': serializer.toJson<String>(currencyCode),
+      'generalDiscountBasisPoints': serializer.toJson<int>(
+        generalDiscountBasisPoints,
+      ),
+      'notes': serializer.toJson<String?>(notes),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  OfferRow copyWith({
+    int? id,
+    Value<int?> customerId = const Value.absent(),
+    String? customerName,
+    Value<String?> customerContactPerson = const Value.absent(),
+    String? currencyCode,
+    int? generalDiscountBasisPoints,
+    Value<String?> notes = const Value.absent(),
+    DateTime? createdAt,
+  }) => OfferRow(
+    id: id ?? this.id,
+    customerId: customerId.present ? customerId.value : this.customerId,
+    customerName: customerName ?? this.customerName,
+    customerContactPerson: customerContactPerson.present
+        ? customerContactPerson.value
+        : this.customerContactPerson,
+    currencyCode: currencyCode ?? this.currencyCode,
+    generalDiscountBasisPoints:
+        generalDiscountBasisPoints ?? this.generalDiscountBasisPoints,
+    notes: notes.present ? notes.value : this.notes,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  OfferRow copyWithCompanion(OffersCompanion data) {
+    return OfferRow(
+      id: data.id.present ? data.id.value : this.id,
+      customerId: data.customerId.present
+          ? data.customerId.value
+          : this.customerId,
+      customerName: data.customerName.present
+          ? data.customerName.value
+          : this.customerName,
+      customerContactPerson: data.customerContactPerson.present
+          ? data.customerContactPerson.value
+          : this.customerContactPerson,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      generalDiscountBasisPoints: data.generalDiscountBasisPoints.present
+          ? data.generalDiscountBasisPoints.value
+          : this.generalDiscountBasisPoints,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfferRow(')
+          ..write('id: $id, ')
+          ..write('customerId: $customerId, ')
+          ..write('customerName: $customerName, ')
+          ..write('customerContactPerson: $customerContactPerson, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('generalDiscountBasisPoints: $generalDiscountBasisPoints, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    customerId,
+    customerName,
+    customerContactPerson,
+    currencyCode,
+    generalDiscountBasisPoints,
+    notes,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OfferRow &&
+          other.id == this.id &&
+          other.customerId == this.customerId &&
+          other.customerName == this.customerName &&
+          other.customerContactPerson == this.customerContactPerson &&
+          other.currencyCode == this.currencyCode &&
+          other.generalDiscountBasisPoints == this.generalDiscountBasisPoints &&
+          other.notes == this.notes &&
+          other.createdAt == this.createdAt);
+}
+
+class OffersCompanion extends UpdateCompanion<OfferRow> {
+  final Value<int> id;
+  final Value<int?> customerId;
+  final Value<String> customerName;
+  final Value<String?> customerContactPerson;
+  final Value<String> currencyCode;
+  final Value<int> generalDiscountBasisPoints;
+  final Value<String?> notes;
+  final Value<DateTime> createdAt;
+  const OffersCompanion({
+    this.id = const Value.absent(),
+    this.customerId = const Value.absent(),
+    this.customerName = const Value.absent(),
+    this.customerContactPerson = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.generalDiscountBasisPoints = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  OffersCompanion.insert({
+    this.id = const Value.absent(),
+    this.customerId = const Value.absent(),
+    required String customerName,
+    this.customerContactPerson = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.generalDiscountBasisPoints = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : customerName = Value(customerName);
+  static Insertable<OfferRow> custom({
+    Expression<int>? id,
+    Expression<int>? customerId,
+    Expression<String>? customerName,
+    Expression<String>? customerContactPerson,
+    Expression<String>? currencyCode,
+    Expression<int>? generalDiscountBasisPoints,
+    Expression<String>? notes,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (customerId != null) 'customer_id': customerId,
+      if (customerName != null) 'customer_name': customerName,
+      if (customerContactPerson != null)
+        'customer_contact_person': customerContactPerson,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (generalDiscountBasisPoints != null)
+        'general_discount_basis_points': generalDiscountBasisPoints,
+      if (notes != null) 'notes': notes,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  OffersCompanion copyWith({
+    Value<int>? id,
+    Value<int?>? customerId,
+    Value<String>? customerName,
+    Value<String?>? customerContactPerson,
+    Value<String>? currencyCode,
+    Value<int>? generalDiscountBasisPoints,
+    Value<String?>? notes,
+    Value<DateTime>? createdAt,
+  }) {
+    return OffersCompanion(
+      id: id ?? this.id,
+      customerId: customerId ?? this.customerId,
+      customerName: customerName ?? this.customerName,
+      customerContactPerson:
+          customerContactPerson ?? this.customerContactPerson,
+      currencyCode: currencyCode ?? this.currencyCode,
+      generalDiscountBasisPoints:
+          generalDiscountBasisPoints ?? this.generalDiscountBasisPoints,
+      notes: notes ?? this.notes,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (customerId.present) {
+      map['customer_id'] = Variable<int>(customerId.value);
+    }
+    if (customerName.present) {
+      map['customer_name'] = Variable<String>(customerName.value);
+    }
+    if (customerContactPerson.present) {
+      map['customer_contact_person'] = Variable<String>(
+        customerContactPerson.value,
+      );
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (generalDiscountBasisPoints.present) {
+      map['general_discount_basis_points'] = Variable<int>(
+        generalDiscountBasisPoints.value,
+      );
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OffersCompanion(')
+          ..write('id: $id, ')
+          ..write('customerId: $customerId, ')
+          ..write('customerName: $customerName, ')
+          ..write('customerContactPerson: $customerContactPerson, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('generalDiscountBasisPoints: $generalDiscountBasisPoints, ')
+          ..write('notes: $notes, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $OfferItemsTable extends OfferItems
+    with TableInfo<$OfferItemsTable, OfferItemRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OfferItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _offerIdMeta = const VerificationMeta(
+    'offerId',
+  );
+  @override
+  late final GeneratedColumn<int> offerId = GeneratedColumn<int>(
+    'offer_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES offers (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<int> productId = GeneratedColumn<int>(
+    'product_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES products (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 200,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _unitPriceMinorMeta = const VerificationMeta(
+    'unitPriceMinor',
+  );
+  @override
+  late final GeneratedColumn<int> unitPriceMinor = GeneratedColumn<int>(
+    'unit_price_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _vatRateBasisPointsMeta =
+      const VerificationMeta('vatRateBasisPoints');
+  @override
+  late final GeneratedColumn<int> vatRateBasisPoints = GeneratedColumn<int>(
+    'vat_rate_basis_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _discountBasisPointsMeta =
+      const VerificationMeta('discountBasisPoints');
+  @override
+  late final GeneratedColumn<int> discountBasisPoints = GeneratedColumn<int>(
+    'discount_basis_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    offerId,
+    productId,
+    productName,
+    unitPriceMinor,
+    quantity,
+    vatRateBasisPoints,
+    discountBasisPoints,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'offer_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OfferItemRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('offer_id')) {
+      context.handle(
+        _offerIdMeta,
+        offerId.isAcceptableOrUnknown(data['offer_id']!, _offerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_offerIdMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('unit_price_minor')) {
+      context.handle(
+        _unitPriceMinorMeta,
+        unitPriceMinor.isAcceptableOrUnknown(
+          data['unit_price_minor']!,
+          _unitPriceMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_unitPriceMinorMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityMeta);
+    }
+    if (data.containsKey('vat_rate_basis_points')) {
+      context.handle(
+        _vatRateBasisPointsMeta,
+        vatRateBasisPoints.isAcceptableOrUnknown(
+          data['vat_rate_basis_points']!,
+          _vatRateBasisPointsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_vatRateBasisPointsMeta);
+    }
+    if (data.containsKey('discount_basis_points')) {
+      context.handle(
+        _discountBasisPointsMeta,
+        discountBasisPoints.isAcceptableOrUnknown(
+          data['discount_basis_points']!,
+          _discountBasisPointsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  OfferItemRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OfferItemRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      offerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}offer_id'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}product_id'],
+      ),
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      )!,
+      unitPriceMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}unit_price_minor'],
+      )!,
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quantity'],
+      )!,
+      vatRateBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}vat_rate_basis_points'],
+      )!,
+      discountBasisPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}discount_basis_points'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+    );
+  }
+
+  @override
+  $OfferItemsTable createAlias(String alias) {
+    return $OfferItemsTable(attachedDatabase, alias);
+  }
+}
+
+class OfferItemRow extends DataClass implements Insertable<OfferItemRow> {
+  final int id;
+  final int offerId;
+  final int? productId;
+  final String productName;
+  final int unitPriceMinor;
+  final int quantity;
+  final int vatRateBasisPoints;
+  final int discountBasisPoints;
+  final int sortOrder;
+  const OfferItemRow({
+    required this.id,
+    required this.offerId,
+    this.productId,
+    required this.productName,
+    required this.unitPriceMinor,
+    required this.quantity,
+    required this.vatRateBasisPoints,
+    required this.discountBasisPoints,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['offer_id'] = Variable<int>(offerId);
+    if (!nullToAbsent || productId != null) {
+      map['product_id'] = Variable<int>(productId);
+    }
+    map['product_name'] = Variable<String>(productName);
+    map['unit_price_minor'] = Variable<int>(unitPriceMinor);
+    map['quantity'] = Variable<int>(quantity);
+    map['vat_rate_basis_points'] = Variable<int>(vatRateBasisPoints);
+    map['discount_basis_points'] = Variable<int>(discountBasisPoints);
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  OfferItemsCompanion toCompanion(bool nullToAbsent) {
+    return OfferItemsCompanion(
+      id: Value(id),
+      offerId: Value(offerId),
+      productId: productId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productId),
+      productName: Value(productName),
+      unitPriceMinor: Value(unitPriceMinor),
+      quantity: Value(quantity),
+      vatRateBasisPoints: Value(vatRateBasisPoints),
+      discountBasisPoints: Value(discountBasisPoints),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory OfferItemRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OfferItemRow(
+      id: serializer.fromJson<int>(json['id']),
+      offerId: serializer.fromJson<int>(json['offerId']),
+      productId: serializer.fromJson<int?>(json['productId']),
+      productName: serializer.fromJson<String>(json['productName']),
+      unitPriceMinor: serializer.fromJson<int>(json['unitPriceMinor']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      vatRateBasisPoints: serializer.fromJson<int>(json['vatRateBasisPoints']),
+      discountBasisPoints: serializer.fromJson<int>(
+        json['discountBasisPoints'],
+      ),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'offerId': serializer.toJson<int>(offerId),
+      'productId': serializer.toJson<int?>(productId),
+      'productName': serializer.toJson<String>(productName),
+      'unitPriceMinor': serializer.toJson<int>(unitPriceMinor),
+      'quantity': serializer.toJson<int>(quantity),
+      'vatRateBasisPoints': serializer.toJson<int>(vatRateBasisPoints),
+      'discountBasisPoints': serializer.toJson<int>(discountBasisPoints),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  OfferItemRow copyWith({
+    int? id,
+    int? offerId,
+    Value<int?> productId = const Value.absent(),
+    String? productName,
+    int? unitPriceMinor,
+    int? quantity,
+    int? vatRateBasisPoints,
+    int? discountBasisPoints,
+    int? sortOrder,
+  }) => OfferItemRow(
+    id: id ?? this.id,
+    offerId: offerId ?? this.offerId,
+    productId: productId.present ? productId.value : this.productId,
+    productName: productName ?? this.productName,
+    unitPriceMinor: unitPriceMinor ?? this.unitPriceMinor,
+    quantity: quantity ?? this.quantity,
+    vatRateBasisPoints: vatRateBasisPoints ?? this.vatRateBasisPoints,
+    discountBasisPoints: discountBasisPoints ?? this.discountBasisPoints,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  OfferItemRow copyWithCompanion(OfferItemsCompanion data) {
+    return OfferItemRow(
+      id: data.id.present ? data.id.value : this.id,
+      offerId: data.offerId.present ? data.offerId.value : this.offerId,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      unitPriceMinor: data.unitPriceMinor.present
+          ? data.unitPriceMinor.value
+          : this.unitPriceMinor,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      vatRateBasisPoints: data.vatRateBasisPoints.present
+          ? data.vatRateBasisPoints.value
+          : this.vatRateBasisPoints,
+      discountBasisPoints: data.discountBasisPoints.present
+          ? data.discountBasisPoints.value
+          : this.discountBasisPoints,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfferItemRow(')
+          ..write('id: $id, ')
+          ..write('offerId: $offerId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('unitPriceMinor: $unitPriceMinor, ')
+          ..write('quantity: $quantity, ')
+          ..write('vatRateBasisPoints: $vatRateBasisPoints, ')
+          ..write('discountBasisPoints: $discountBasisPoints, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    offerId,
+    productId,
+    productName,
+    unitPriceMinor,
+    quantity,
+    vatRateBasisPoints,
+    discountBasisPoints,
+    sortOrder,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OfferItemRow &&
+          other.id == this.id &&
+          other.offerId == this.offerId &&
+          other.productId == this.productId &&
+          other.productName == this.productName &&
+          other.unitPriceMinor == this.unitPriceMinor &&
+          other.quantity == this.quantity &&
+          other.vatRateBasisPoints == this.vatRateBasisPoints &&
+          other.discountBasisPoints == this.discountBasisPoints &&
+          other.sortOrder == this.sortOrder);
+}
+
+class OfferItemsCompanion extends UpdateCompanion<OfferItemRow> {
+  final Value<int> id;
+  final Value<int> offerId;
+  final Value<int?> productId;
+  final Value<String> productName;
+  final Value<int> unitPriceMinor;
+  final Value<int> quantity;
+  final Value<int> vatRateBasisPoints;
+  final Value<int> discountBasisPoints;
+  final Value<int> sortOrder;
+  const OfferItemsCompanion({
+    this.id = const Value.absent(),
+    this.offerId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.unitPriceMinor = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.vatRateBasisPoints = const Value.absent(),
+    this.discountBasisPoints = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  });
+  OfferItemsCompanion.insert({
+    this.id = const Value.absent(),
+    required int offerId,
+    this.productId = const Value.absent(),
+    required String productName,
+    required int unitPriceMinor,
+    required int quantity,
+    required int vatRateBasisPoints,
+    this.discountBasisPoints = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+  }) : offerId = Value(offerId),
+       productName = Value(productName),
+       unitPriceMinor = Value(unitPriceMinor),
+       quantity = Value(quantity),
+       vatRateBasisPoints = Value(vatRateBasisPoints);
+  static Insertable<OfferItemRow> custom({
+    Expression<int>? id,
+    Expression<int>? offerId,
+    Expression<int>? productId,
+    Expression<String>? productName,
+    Expression<int>? unitPriceMinor,
+    Expression<int>? quantity,
+    Expression<int>? vatRateBasisPoints,
+    Expression<int>? discountBasisPoints,
+    Expression<int>? sortOrder,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (offerId != null) 'offer_id': offerId,
+      if (productId != null) 'product_id': productId,
+      if (productName != null) 'product_name': productName,
+      if (unitPriceMinor != null) 'unit_price_minor': unitPriceMinor,
+      if (quantity != null) 'quantity': quantity,
+      if (vatRateBasisPoints != null)
+        'vat_rate_basis_points': vatRateBasisPoints,
+      if (discountBasisPoints != null)
+        'discount_basis_points': discountBasisPoints,
+      if (sortOrder != null) 'sort_order': sortOrder,
+    });
+  }
+
+  OfferItemsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? offerId,
+    Value<int?>? productId,
+    Value<String>? productName,
+    Value<int>? unitPriceMinor,
+    Value<int>? quantity,
+    Value<int>? vatRateBasisPoints,
+    Value<int>? discountBasisPoints,
+    Value<int>? sortOrder,
+  }) {
+    return OfferItemsCompanion(
+      id: id ?? this.id,
+      offerId: offerId ?? this.offerId,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      unitPriceMinor: unitPriceMinor ?? this.unitPriceMinor,
+      quantity: quantity ?? this.quantity,
+      vatRateBasisPoints: vatRateBasisPoints ?? this.vatRateBasisPoints,
+      discountBasisPoints: discountBasisPoints ?? this.discountBasisPoints,
+      sortOrder: sortOrder ?? this.sortOrder,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (offerId.present) {
+      map['offer_id'] = Variable<int>(offerId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<int>(productId.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (unitPriceMinor.present) {
+      map['unit_price_minor'] = Variable<int>(unitPriceMinor.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (vatRateBasisPoints.present) {
+      map['vat_rate_basis_points'] = Variable<int>(vatRateBasisPoints.value);
+    }
+    if (discountBasisPoints.present) {
+      map['discount_basis_points'] = Variable<int>(discountBasisPoints.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OfferItemsCompanion(')
+          ..write('id: $id, ')
+          ..write('offerId: $offerId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('unitPriceMinor: $unitPriceMinor, ')
+          ..write('quantity: $quantity, ')
+          ..write('vatRateBasisPoints: $vatRateBasisPoints, ')
+          ..write('discountBasisPoints: $discountBasisPoints, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2110,6 +3243,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ProductsTable products = $ProductsTable(this);
   late final $CustomersTable customers = $CustomersTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
+  late final $OffersTable offers = $OffersTable(this);
+  late final $OfferItemsTable offerItems = $OfferItemsTable(this);
   late final Index idxCustomersName = Index(
     'idx_customers_name',
     'CREATE INDEX idx_customers_name ON customers (name)',
@@ -2123,8 +3258,34 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     products,
     customers,
     settings,
+    offers,
+    offerItems,
     idxCustomersName,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'customers',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('offers', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'offers',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('offer_items', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'products',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('offer_items', kind: UpdateKind.update)],
+    ),
+  ]);
 }
 
 typedef $$CategoriesTableCreateCompanionBuilder =
@@ -2422,6 +3583,24 @@ final class $$ProductsTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static MultiTypedResultKey<$OfferItemsTable, List<OfferItemRow>>
+  _offerItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.offerItems,
+    aliasName: 'products__id__offer_items__product_id',
+  );
+
+  $$OfferItemsTableProcessedTableManager get offerItemsRefs {
+    final manager = $$OfferItemsTableTableManager(
+      $_db,
+      $_db.offerItems,
+    ).filter((f) => f.productId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_offerItemsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ProductsTableFilterComposer
@@ -2484,6 +3663,31 @@ class $$ProductsTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> offerItemsRefs(
+    Expression<bool> Function($$OfferItemsTableFilterComposer f) f,
+  ) {
+    final $$OfferItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.offerItems,
+      getReferencedColumn: (t) => t.productId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OfferItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.offerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 }
 
@@ -2605,6 +3809,31 @@ class $$ProductsTableAnnotationComposer
     );
     return composer;
   }
+
+  Expression<T> offerItemsRefs<T extends Object>(
+    Expression<T> Function($$OfferItemsTableAnnotationComposer a) f,
+  ) {
+    final $$OfferItemsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.offerItems,
+      getReferencedColumn: (t) => t.productId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OfferItemsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.offerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ProductsTableTableManager
@@ -2620,7 +3849,7 @@ class $$ProductsTableTableManager
           $$ProductsTableUpdateCompanionBuilder,
           (ProductRow, $$ProductsTableReferences),
           ProductRow,
-          PrefetchHooks Function({bool categoryId})
+          PrefetchHooks Function({bool categoryId, bool offerItemsRefs})
         > {
   $$ProductsTableTableManager(_$AppDatabase db, $ProductsTable table)
     : super(
@@ -2677,47 +3906,70 @@ class $$ProductsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({categoryId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (categoryId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.categoryId,
-                                referencedTable: $$ProductsTableReferences
-                                    ._categoryIdTable(db),
-                                referencedColumn: $$ProductsTableReferences
-                                    ._categoryIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
+          prefetchHooksCallback:
+              ({categoryId = false, offerItemsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [if (offerItemsRefs) db.offerItems],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (categoryId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.categoryId,
+                                    referencedTable: $$ProductsTableReferences
+                                        ._categoryIdTable(db),
+                                    referencedColumn: $$ProductsTableReferences
+                                        ._categoryIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (offerItemsRefs)
+                        await $_getPrefetchedData<
+                          ProductRow,
+                          $ProductsTable,
+                          OfferItemRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ProductsTableReferences
+                              ._offerItemsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ProductsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).offerItemsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.productId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -2734,7 +3986,7 @@ typedef $$ProductsTableProcessedTableManager =
       $$ProductsTableUpdateCompanionBuilder,
       (ProductRow, $$ProductsTableReferences),
       ProductRow,
-      PrefetchHooks Function({bool categoryId})
+      PrefetchHooks Function({bool categoryId, bool offerItemsRefs})
     >;
 typedef $$CustomersTableCreateCompanionBuilder =
     CustomersCompanion Function({
@@ -2764,6 +4016,30 @@ typedef $$CustomersTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<DateTime> createdAt,
     });
+
+final class $$CustomersTableReferences
+    extends BaseReferences<_$AppDatabase, $CustomersTable, CustomerRow> {
+  $$CustomersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$OffersTable, List<OfferRow>> _offersRefsTable(
+    _$AppDatabase db,
+  ) => MultiTypedResultKey.fromTable(
+    db.offers,
+    aliasName: 'customers__id__offers__customer_id',
+  );
+
+  $$OffersTableProcessedTableManager get offersRefs {
+    final manager = $$OffersTableTableManager(
+      $_db,
+      $_db.offers,
+    ).filter((f) => f.customerId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_offersRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$CustomersTableFilterComposer
     extends Composer<_$AppDatabase, $CustomersTable> {
@@ -2828,6 +4104,31 @@ class $$CustomersTableFilterComposer
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> offersRefs(
+    Expression<bool> Function($$OffersTableFilterComposer f) f,
+  ) {
+    final $$OffersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.offers,
+      getReferencedColumn: (t) => t.customerId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OffersTableFilterComposer(
+            $db: $db,
+            $table: $db.offers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CustomersTableOrderingComposer
@@ -2938,6 +4239,31 @@ class $$CustomersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> offersRefs<T extends Object>(
+    Expression<T> Function($$OffersTableAnnotationComposer a) f,
+  ) {
+    final $$OffersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.offers,
+      getReferencedColumn: (t) => t.customerId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OffersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.offers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$CustomersTableTableManager
@@ -2951,12 +4277,9 @@ class $$CustomersTableTableManager
           $$CustomersTableAnnotationComposer,
           $$CustomersTableCreateCompanionBuilder,
           $$CustomersTableUpdateCompanionBuilder,
-          (
-            CustomerRow,
-            BaseReferences<_$AppDatabase, $CustomersTable, CustomerRow>,
-          ),
+          (CustomerRow, $$CustomersTableReferences),
           CustomerRow,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool offersRefs})
         > {
   $$CustomersTableTableManager(_$AppDatabase db, $CustomersTable table)
     : super(
@@ -3022,9 +4345,39 @@ class $$CustomersTableTableManager
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CustomersTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({offersRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (offersRefs) db.offers],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (offersRefs)
+                    await $_getPrefetchedData<
+                      CustomerRow,
+                      $CustomersTable,
+                      OfferRow
+                    >(
+                      currentTable: table,
+                      referencedTable: $$CustomersTableReferences
+                          ._offersRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$CustomersTableReferences(db, table, p0).offersRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.customerId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -3039,12 +4392,9 @@ typedef $$CustomersTableProcessedTableManager =
       $$CustomersTableAnnotationComposer,
       $$CustomersTableCreateCompanionBuilder,
       $$CustomersTableUpdateCompanionBuilder,
-      (
-        CustomerRow,
-        BaseReferences<_$AppDatabase, $CustomersTable, CustomerRow>,
-      ),
+      (CustomerRow, $$CustomersTableReferences),
       CustomerRow,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool offersRefs})
     >;
 typedef $$SettingsTableCreateCompanionBuilder =
     SettingsCompanion Function({
@@ -3369,6 +4719,952 @@ typedef $$SettingsTableProcessedTableManager =
       SettingsRow,
       PrefetchHooks Function()
     >;
+typedef $$OffersTableCreateCompanionBuilder =
+    OffersCompanion Function({
+      Value<int> id,
+      Value<int?> customerId,
+      required String customerName,
+      Value<String?> customerContactPerson,
+      Value<String> currencyCode,
+      Value<int> generalDiscountBasisPoints,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+    });
+typedef $$OffersTableUpdateCompanionBuilder =
+    OffersCompanion Function({
+      Value<int> id,
+      Value<int?> customerId,
+      Value<String> customerName,
+      Value<String?> customerContactPerson,
+      Value<String> currencyCode,
+      Value<int> generalDiscountBasisPoints,
+      Value<String?> notes,
+      Value<DateTime> createdAt,
+    });
+
+final class $$OffersTableReferences
+    extends BaseReferences<_$AppDatabase, $OffersTable, OfferRow> {
+  $$OffersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $CustomersTable _customerIdTable(_$AppDatabase db) =>
+      db.customers.createAlias('offers__customer_id__customers__id');
+
+  $$CustomersTableProcessedTableManager? get customerId {
+    final $_column = $_itemColumn<int>('customer_id');
+    if ($_column == null) return null;
+    final manager = $$CustomersTableTableManager(
+      $_db,
+      $_db.customers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_customerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$OfferItemsTable, List<OfferItemRow>>
+  _offerItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.offerItems,
+    aliasName: 'offers__id__offer_items__offer_id',
+  );
+
+  $$OfferItemsTableProcessedTableManager get offerItemsRefs {
+    final manager = $$OfferItemsTableTableManager(
+      $_db,
+      $_db.offerItems,
+    ).filter((f) => f.offerId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_offerItemsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$OffersTableFilterComposer
+    extends Composer<_$AppDatabase, $OffersTable> {
+  $$OffersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerContactPerson => $composableBuilder(
+    column: $table.customerContactPerson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get generalDiscountBasisPoints => $composableBuilder(
+    column: $table.generalDiscountBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CustomersTableFilterComposer get customerId {
+    final $$CustomersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.customerId,
+      referencedTable: $db.customers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomersTableFilterComposer(
+            $db: $db,
+            $table: $db.customers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<bool> offerItemsRefs(
+    Expression<bool> Function($$OfferItemsTableFilterComposer f) f,
+  ) {
+    final $$OfferItemsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.offerItems,
+      getReferencedColumn: (t) => t.offerId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OfferItemsTableFilterComposer(
+            $db: $db,
+            $table: $db.offerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$OffersTableOrderingComposer
+    extends Composer<_$AppDatabase, $OffersTable> {
+  $$OffersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerContactPerson => $composableBuilder(
+    column: $table.customerContactPerson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get generalDiscountBasisPoints => $composableBuilder(
+    column: $table.generalDiscountBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CustomersTableOrderingComposer get customerId {
+    final $$CustomersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.customerId,
+      referencedTable: $db.customers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomersTableOrderingComposer(
+            $db: $db,
+            $table: $db.customers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OffersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OffersTable> {
+  $$OffersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get customerName => $composableBuilder(
+    column: $table.customerName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerContactPerson => $composableBuilder(
+    column: $table.customerContactPerson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get currencyCode => $composableBuilder(
+    column: $table.currencyCode,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get generalDiscountBasisPoints => $composableBuilder(
+    column: $table.generalDiscountBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$CustomersTableAnnotationComposer get customerId {
+    final $$CustomersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.customerId,
+      referencedTable: $db.customers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CustomersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.customers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  Expression<T> offerItemsRefs<T extends Object>(
+    Expression<T> Function($$OfferItemsTableAnnotationComposer a) f,
+  ) {
+    final $$OfferItemsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.offerItems,
+      getReferencedColumn: (t) => t.offerId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OfferItemsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.offerItems,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$OffersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OffersTable,
+          OfferRow,
+          $$OffersTableFilterComposer,
+          $$OffersTableOrderingComposer,
+          $$OffersTableAnnotationComposer,
+          $$OffersTableCreateCompanionBuilder,
+          $$OffersTableUpdateCompanionBuilder,
+          (OfferRow, $$OffersTableReferences),
+          OfferRow,
+          PrefetchHooks Function({bool customerId, bool offerItemsRefs})
+        > {
+  $$OffersTableTableManager(_$AppDatabase db, $OffersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OffersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OffersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OffersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int?> customerId = const Value.absent(),
+                Value<String> customerName = const Value.absent(),
+                Value<String?> customerContactPerson = const Value.absent(),
+                Value<String> currencyCode = const Value.absent(),
+                Value<int> generalDiscountBasisPoints = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => OffersCompanion(
+                id: id,
+                customerId: customerId,
+                customerName: customerName,
+                customerContactPerson: customerContactPerson,
+                currencyCode: currencyCode,
+                generalDiscountBasisPoints: generalDiscountBasisPoints,
+                notes: notes,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int?> customerId = const Value.absent(),
+                required String customerName,
+                Value<String?> customerContactPerson = const Value.absent(),
+                Value<String> currencyCode = const Value.absent(),
+                Value<int> generalDiscountBasisPoints = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => OffersCompanion.insert(
+                id: id,
+                customerId: customerId,
+                customerName: customerName,
+                customerContactPerson: customerContactPerson,
+                currencyCode: currencyCode,
+                generalDiscountBasisPoints: generalDiscountBasisPoints,
+                notes: notes,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) =>
+                    (e.readTable(table), $$OffersTableReferences(db, table, e)),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({customerId = false, offerItemsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [if (offerItemsRefs) db.offerItems],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (customerId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.customerId,
+                                    referencedTable: $$OffersTableReferences
+                                        ._customerIdTable(db),
+                                    referencedColumn: $$OffersTableReferences
+                                        ._customerIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (offerItemsRefs)
+                        await $_getPrefetchedData<
+                          OfferRow,
+                          $OffersTable,
+                          OfferItemRow
+                        >(
+                          currentTable: table,
+                          referencedTable: $$OffersTableReferences
+                              ._offerItemsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$OffersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).offerItemsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.offerId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$OffersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OffersTable,
+      OfferRow,
+      $$OffersTableFilterComposer,
+      $$OffersTableOrderingComposer,
+      $$OffersTableAnnotationComposer,
+      $$OffersTableCreateCompanionBuilder,
+      $$OffersTableUpdateCompanionBuilder,
+      (OfferRow, $$OffersTableReferences),
+      OfferRow,
+      PrefetchHooks Function({bool customerId, bool offerItemsRefs})
+    >;
+typedef $$OfferItemsTableCreateCompanionBuilder =
+    OfferItemsCompanion Function({
+      Value<int> id,
+      required int offerId,
+      Value<int?> productId,
+      required String productName,
+      required int unitPriceMinor,
+      required int quantity,
+      required int vatRateBasisPoints,
+      Value<int> discountBasisPoints,
+      Value<int> sortOrder,
+    });
+typedef $$OfferItemsTableUpdateCompanionBuilder =
+    OfferItemsCompanion Function({
+      Value<int> id,
+      Value<int> offerId,
+      Value<int?> productId,
+      Value<String> productName,
+      Value<int> unitPriceMinor,
+      Value<int> quantity,
+      Value<int> vatRateBasisPoints,
+      Value<int> discountBasisPoints,
+      Value<int> sortOrder,
+    });
+
+final class $$OfferItemsTableReferences
+    extends BaseReferences<_$AppDatabase, $OfferItemsTable, OfferItemRow> {
+  $$OfferItemsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $OffersTable _offerIdTable(_$AppDatabase db) =>
+      db.offers.createAlias('offer_items__offer_id__offers__id');
+
+  $$OffersTableProcessedTableManager get offerId {
+    final $_column = $_itemColumn<int>('offer_id')!;
+
+    final manager = $$OffersTableTableManager(
+      $_db,
+      $_db.offers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_offerIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ProductsTable _productIdTable(_$AppDatabase db) =>
+      db.products.createAlias('offer_items__product_id__products__id');
+
+  $$ProductsTableProcessedTableManager? get productId {
+    final $_column = $_itemColumn<int>('product_id');
+    if ($_column == null) return null;
+    final manager = $$ProductsTableTableManager(
+      $_db,
+      $_db.products,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_productIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$OfferItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $OfferItemsTable> {
+  $$OfferItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get unitPriceMinor => $composableBuilder(
+    column: $table.unitPriceMinor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get vatRateBasisPoints => $composableBuilder(
+    column: $table.vatRateBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get discountBasisPoints => $composableBuilder(
+    column: $table.discountBasisPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$OffersTableFilterComposer get offerId {
+    final $$OffersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.offerId,
+      referencedTable: $db.offers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OffersTableFilterComposer(
+            $db: $db,
+            $table: $db.offers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ProductsTableFilterComposer get productId {
+    final $$ProductsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.productId,
+      referencedTable: $db.products,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProductsTableFilterComposer(
+            $db: $db,
+            $table: $db.products,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OfferItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OfferItemsTable> {
+  $$OfferItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get unitPriceMinor => $composableBuilder(
+    column: $table.unitPriceMinor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get vatRateBasisPoints => $composableBuilder(
+    column: $table.vatRateBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get discountBasisPoints => $composableBuilder(
+    column: $table.discountBasisPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$OffersTableOrderingComposer get offerId {
+    final $$OffersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.offerId,
+      referencedTable: $db.offers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OffersTableOrderingComposer(
+            $db: $db,
+            $table: $db.offers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ProductsTableOrderingComposer get productId {
+    final $$ProductsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.productId,
+      referencedTable: $db.products,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProductsTableOrderingComposer(
+            $db: $db,
+            $table: $db.products,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OfferItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OfferItemsTable> {
+  $$OfferItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get unitPriceMinor => $composableBuilder(
+    column: $table.unitPriceMinor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<int> get vatRateBasisPoints => $composableBuilder(
+    column: $table.vatRateBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get discountBasisPoints => $composableBuilder(
+    column: $table.discountBasisPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$OffersTableAnnotationComposer get offerId {
+    final $$OffersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.offerId,
+      referencedTable: $db.offers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$OffersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.offers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ProductsTableAnnotationComposer get productId {
+    final $$ProductsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.productId,
+      referencedTable: $db.products,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ProductsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.products,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$OfferItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OfferItemsTable,
+          OfferItemRow,
+          $$OfferItemsTableFilterComposer,
+          $$OfferItemsTableOrderingComposer,
+          $$OfferItemsTableAnnotationComposer,
+          $$OfferItemsTableCreateCompanionBuilder,
+          $$OfferItemsTableUpdateCompanionBuilder,
+          (OfferItemRow, $$OfferItemsTableReferences),
+          OfferItemRow,
+          PrefetchHooks Function({bool offerId, bool productId})
+        > {
+  $$OfferItemsTableTableManager(_$AppDatabase db, $OfferItemsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OfferItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OfferItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OfferItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> offerId = const Value.absent(),
+                Value<int?> productId = const Value.absent(),
+                Value<String> productName = const Value.absent(),
+                Value<int> unitPriceMinor = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
+                Value<int> vatRateBasisPoints = const Value.absent(),
+                Value<int> discountBasisPoints = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => OfferItemsCompanion(
+                id: id,
+                offerId: offerId,
+                productId: productId,
+                productName: productName,
+                unitPriceMinor: unitPriceMinor,
+                quantity: quantity,
+                vatRateBasisPoints: vatRateBasisPoints,
+                discountBasisPoints: discountBasisPoints,
+                sortOrder: sortOrder,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int offerId,
+                Value<int?> productId = const Value.absent(),
+                required String productName,
+                required int unitPriceMinor,
+                required int quantity,
+                required int vatRateBasisPoints,
+                Value<int> discountBasisPoints = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+              }) => OfferItemsCompanion.insert(
+                id: id,
+                offerId: offerId,
+                productId: productId,
+                productName: productName,
+                unitPriceMinor: unitPriceMinor,
+                quantity: quantity,
+                vatRateBasisPoints: vatRateBasisPoints,
+                discountBasisPoints: discountBasisPoints,
+                sortOrder: sortOrder,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$OfferItemsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({offerId = false, productId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (offerId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.offerId,
+                                referencedTable: $$OfferItemsTableReferences
+                                    ._offerIdTable(db),
+                                referencedColumn: $$OfferItemsTableReferences
+                                    ._offerIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+                    if (productId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.productId,
+                                referencedTable: $$OfferItemsTableReferences
+                                    ._productIdTable(db),
+                                referencedColumn: $$OfferItemsTableReferences
+                                    ._productIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$OfferItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OfferItemsTable,
+      OfferItemRow,
+      $$OfferItemsTableFilterComposer,
+      $$OfferItemsTableOrderingComposer,
+      $$OfferItemsTableAnnotationComposer,
+      $$OfferItemsTableCreateCompanionBuilder,
+      $$OfferItemsTableUpdateCompanionBuilder,
+      (OfferItemRow, $$OfferItemsTableReferences),
+      OfferItemRow,
+      PrefetchHooks Function({bool offerId, bool productId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3381,4 +5677,8 @@ class $AppDatabaseManager {
       $$CustomersTableTableManager(_db, _db.customers);
   $$SettingsTableTableManager get settings =>
       $$SettingsTableTableManager(_db, _db.settings);
+  $$OffersTableTableManager get offers =>
+      $$OffersTableTableManager(_db, _db.offers);
+  $$OfferItemsTableTableManager get offerItems =>
+      $$OfferItemsTableTableManager(_db, _db.offerItems);
 }
