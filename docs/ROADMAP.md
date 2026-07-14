@@ -365,51 +365,45 @@ Profesyonel PDF oluşturmak.
 
 ## Yapılacaklar
 
-- PDF tasarımı
-- Firma bilgileri
-- Logo
-- Müşteri bilgileri
-- Ürün tablosu
-- Toplamlar
-- Not alanı
-- Otomatik teklif numarası
+- [x] PDF tasarımı
+- [x] Firma bilgileri
+- [x] Logo
+- [x] Müşteri bilgileri
+- [x] Ürün tablosu
+- [x] Toplamlar
+- [x] Not alanı
+- [x] Otomatik teklif numarası
+
+## Bu phase'de alınan kararlar
+
+- **Teklif numarası için yeni kolon/migration yok.** `Offer.quoteNumber`,
+  `id` (zaten benzersiz, autoincrement) ve `createdAt.year`'dan türetilir
+  (`TKL-2026-000042`). `createdAt` DB'de zaten vardı ama domain'e
+  taşınmamıştı; yalnızca bu mapping eksikliği giderildi. schemaVersion 7'de
+  kaldı.
+- **PDF üretimi saf bir dönüşüm fonksiyonudur** (`buildOfferPdfBytes`):
+  dosya sistemine/DB'ye yazmaz, yalnızca `Uint8List` döner. Önizleme/paylaşım
+  bunu nasıl kullanacağına kendi karar verir.
+- **Önizleme `printing` paketinin hazır `PdfPreview` widget'ıyla yapılır.**
+  Ayrı bir state/provider gerekmedi; paket kendi loading/hata durumunu
+  yönetiyor. Paketin hazır yazdırma/paylaşım ikonları bu fazda kapatılmadı —
+  Faz 8'de özel çoklu-kanal paylaşım akışı bunun üzerine kurulacak.
+- **Giriş noktası teklif düzenleme ekranının AppBar'ı.** Yeni bir liste/detay
+  ekranı açılmadı; ikon yalnızca kaydedilmiş tekliflerde (`quoteNumber`
+  kaydedilmemiş bir teklifte üretilemeyeceği için) görünür.
+- **Türkçe karakterler için gömülü Noto Sans fontu eklendi**
+  (`assets/fonts/`, OFL lisanslı). `pdf` paketinin varsayılan Helvetica'sı
+  ç/ğ/ı/ö/ş/ü'yü basamıyor.
 
 ## Çıktı
 
-Profesyonel PDF oluşturulabiliyor olmalı.
+Profesyonel PDF oluşturulabiliyor. ✅
+
+`flutter analyze` temiz, 270/270 test geçiyor. Şema v7 (değişmedi).
 
 ---
 
-# Phase 8 - Excel Export
-
-## Amaç
-
-Excel çıktısı oluşturmak.
-
-## Yapılacaklar
-
-- Excel oluştur
-- Dosya kaydet
-
-## ⚠️ Karar gerekiyor (bu phase'e başlamadan)
-
-Sağlam bir `.xlsx` paketi yok:
-
-- `excel` paketi bayat (son yayın Ağustos 2024, pub puanı 115/160).
-- `syncfusion_flutter_xlsio` aktif ama **ticari lisans kısıtı** taşıyor →
-  hukuki karar gerektirir.
-
-**Öneri:** "Excel'e aktar" ihtiyacını **CSV** ile karşıla (Excel doğrudan açar,
-sıfır bağımlılık, sıfır lisans riski). Gerçek `.xlsx` ancak lisans kararı
-alındıktan sonra yazılır.
-
-## Çıktı
-
-Excel export tamamlanmalı.
-
----
-
-# Phase 9 - Share
+# Phase 8 - Share
 
 ## Amaç
 
@@ -429,7 +423,7 @@ Teklif paylaşılabiliyor olmalı.
 
 ---
 
-# Phase 10 - Finalization
+# Phase 9 - Finalization
 
 ## Amaç
 
@@ -459,6 +453,12 @@ Production Ready MVP.
 
 Her phase sonunda Claude aşağıdaki işlemleri yapmalıdır.
 
+- README güncellemesi
+- CHANGELOG güncellemesi
+
+Phase tamamlanmadan sonraki phase'e geçilmemelidir.
+
+# Tüm Fazlar Bittikten Sonra Yapılacaklar
 - Kod analizi
 - SOLID kontrolü
 - Clean Architecture kontrolü
@@ -467,7 +467,3 @@ Her phase sonunda Claude aşağıdaki işlemleri yapmalıdır.
 - Riverpod analizi
 - Drift analizi
 - UI analizi
-- README güncellemesi
-- CHANGELOG güncellemesi
-
-Phase tamamlanmadan sonraki phase'e geçilmemelidir.
