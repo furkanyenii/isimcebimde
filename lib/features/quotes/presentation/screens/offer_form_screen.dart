@@ -11,6 +11,7 @@ import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_form_controller.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
+import 'package:isimcebimde/features/quotes/presentation/screens/offer_pdf_preview_screen.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/currency_selector.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/offer_items_section.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/offer_summary.dart';
@@ -42,7 +43,7 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
   @override
   void initState() {
     super.initState();
-    _offer = widget.offer ?? const Offer(customerName: '', items: []);
+    _offer = widget.offer ?? Offer(customerName: '', items: const []);
     _notesController.text = _offer.notes ?? '';
   }
 
@@ -78,6 +79,14 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
               onPressed: _useTemplate,
               icon: const Icon(Icons.dashboard_customize_outlined),
               tooltip: l10n.templateUseTooltip,
+            ),
+          // Yalnızca kaydedilmiş tekliflerde anlamlı: quoteNumber id'den
+          // türetilir, kaydedilmemiş bir teklifte üretilemez.
+          if (_isEditing)
+            IconButton(
+              onPressed: _openPdfPreview,
+              icon: const Icon(Icons.picture_as_pdf_outlined),
+              tooltip: l10n.pdfGenerateTooltip,
             ),
           if (_offer.items.isNotEmpty)
             IconButton(
@@ -169,6 +178,14 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
         .save(_offer);
 
     if (saved && mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _openPdfPreview() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (context) => OfferPdfPreviewScreen(offer: _offer),
+      ),
+    );
   }
 
   Future<void> _useTemplate() async {

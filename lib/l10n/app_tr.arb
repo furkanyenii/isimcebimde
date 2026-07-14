@@ -60,6 +60,12 @@
   "quotesEmptyDescription": "İlk teklifini oluştur.",
   "quotesLoadError": "Teklifler yüklenemedi.",
 
+  "pdfGenerateTooltip": "PDF Oluştur",
+  "pdfPreviewTitle": "Teklif PDF'i",
+  "quoteNumberLabel": "Teklif No",
+  "quoteDateLabel": "Tarih",
+  "lineTotalLabel": "Tutar",
+
   "templateNew": "Yeni Şablon",
   "templateEdit": "Şablonu Düzenle",
   "templateDelete": "Şablonu sil",

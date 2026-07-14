@@ -154,6 +154,7 @@ class OfferRepositoryImpl implements OfferRepository {
       generalDiscount: Percent.fromBasisPoints(row.generalDiscountBasisPoints),
       notes: row.notes,
       items: itemRows.map(_itemToDomain).toList(),
+      createdAt: row.createdAt,
     );
   }
 
