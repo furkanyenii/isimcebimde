@@ -4,6 +4,53 @@ Bu dosya [Keep a Changelog](https://keepachangelog.com/tr/1.1.0/) biçimini izle
 
 ## [Unreleased]
 
+### Phase 5 — Offer Module (Temel)
+
+#### Eklendi
+
+- **Teklif oluşturma akışı uçtan uca çalışıyor:** müşteri seç → para birimi
+  seç → ürün ekle → miktar/fiyat/iskonto düzenle → genel indirim → kaydet.
+- Teklif listesi ve teklif formu (oluşturma + düzenleme aynı ekranda,
+  Product/Customer formlarıyla aynı desen).
+- `CustomerPicker` / `ProductPicker`: teklif satırı eklerken arama destekli
+  seçim (bottom sheet), kendi yerel arama metnini tutar.
+- Satır bazlı KDV ve iskonto hesabı, genel indirim, ara toplam/KDV
+  toplamı/genel toplam özeti — tamamı `Offer`/`OfferItem` domain
+  entity'lerinin getter'ları (12 birim testle doğrulandı).
+
+#### Şema
+
+- **schemaVersion 5 → 6.** `Offers` + `OfferItems` tabloları. `Offers`
+  tek satırlık değil; her teklif bir satır, satırları `OfferItems`'ta.
+  `currency_code` ve `quantity` (`> 0`) veritabanı seviyesinde `CHECK`
+  kısıtlı. `customerId`/`productId` `ON DELETE SET NULL`, `offerId`
+  `ON DELETE CASCADE`.
+
+#### Kararlar
+
+- **Para birimi yalnızca gösterim etiketidir, çevrim yapılmaz** — offline-first
+  ilkesiyle çelişecek bir kur hesaplaması eklenmedi. `Money.format()` zaten
+  bir `symbol` parametresi aldığı için bu, `Money`'de değişiklik gerektirmedi.
+- **`Offer` aggregate root'tur**, satırlarını kendi içinde taşır;
+  `OfferRepository` teklif + satırları **tek transaction'da** yazar. Güncelleme
+  satırları diff'lemez, silip yeniden yazar — `sortOrder` sütunu sırayı korur.
+- **Genel indirim KDV'den sonra uygulanır** (ara toplam + KDV üzerine, ileri
+  yönde) — satır değerlerine dokunmaz, toplamdan geriye hesaplama değildir.
+- **Müşteri seçimi ve en az bir ürün satırı repository sınırında da
+  zorunlu kılınır** (`CustomerRequiredFailure`, `EmptyOfferFailure`) — UI'ın
+  doğrulaması (Kaydet butonunun pasifliği) tek güvence değildir.
+- **Kaydet butonu `bottomNavigationBar`'a sabitlendi** (CustomerFormScreen'deki
+  gibi): form uzun, kullanıcı hepsini kaydırmadan kaydedebilmeli.
+
+#### Bilinen eksikler
+
+- Teklif silme UI'da yok (repository'de var). Roadmap'in "Temel" kapsamı
+  bunu istemiyordu.
+- Şablon (Phase 6), PDF/CSV export ve otomatik teklif numarası (Phase 7),
+  paylaşım (Phase 9) bu fazın kapsamı dışında.
+- `offer_form_screen.dart` 172 satır (CLAUDE.md eşiği 150) — mevcut
+  `customer_form_screen.dart` (317 satır) ile aynı kategoride bilinen borç.
+
 ### Phase 4 — Settings & Localization
 
 #### Eklendi

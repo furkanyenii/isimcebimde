@@ -9,7 +9,7 @@ import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_form_controller.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/currency_selector.dart';
-import 'package:isimcebimde/features/quotes/presentation/widgets/offer_item_row.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/offer_items_section.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/offer_summary.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/percent_field.dart';
 
@@ -89,25 +89,13 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
                   setState(() => _offer = _offer.copyWith(currency: currency)),
             ),
             const SizedBox(height: AppSizes.lg),
-            for (final item in _offer.items)
-              OfferItemRow(
-                key: ValueKey(item.hashCode),
-                item: item,
-                currency: _offer.currency,
-                onChanged: (updated) => setState(() {
-                  final items = [..._offer.items];
-                  items[items.indexOf(item)] = updated;
-                  _offer = _offer.copyWith(items: items);
-                }),
-                onRemove: () => setState(() {
-                  final items = [..._offer.items]..remove(item);
-                  _offer = _offer.copyWith(items: items);
-                }),
-              ),
-            OutlinedButton.icon(
-              onPressed: _addProduct,
-              icon: const Icon(Icons.add),
-              label: Text(l10n.productAdd),
+            OfferItemsSection(
+              items: _offer.items,
+              currency: _offer.currency,
+              onChanged: (items) =>
+                  setState(() => _offer = _offer.copyWith(items: items)),
+              onAddPressed: _addProduct,
+              addLabel: l10n.productAdd,
             ),
             const SizedBox(height: AppSizes.lg),
             PercentField(
