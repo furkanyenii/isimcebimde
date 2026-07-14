@@ -81,6 +81,12 @@
   "quotesEmptyDescription": "Create your first quote.",
   "quotesLoadError": "Quotes could not be loaded.",
 
+  "pdfGenerateTooltip": "Generate PDF",
+  "pdfPreviewTitle": "Quote PDF",
+  "quoteNumberLabel": "Quote No",
+  "quoteDateLabel": "Date",
+  "lineTotalLabel": "Amount",
+
   "templateNew": "New Template",
   "templateEdit": "Edit Template",
   "templateDelete": "Delete template",

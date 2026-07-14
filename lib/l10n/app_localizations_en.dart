@@ -164,6 +164,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quotesLoadError => 'Quotes could not be loaded.';
 
   @override
+  String get pdfGenerateTooltip => 'Generate PDF';
+
+  @override
+  String get pdfPreviewTitle => 'Quote PDF';
+
+  @override
+  String get quoteNumberLabel => 'Quote No';
+
+  @override
+  String get quoteDateLabel => 'Date';
+
+  @override
+  String get lineTotalLabel => 'Amount';
+
+  @override
   String get templateNew => 'New Template';
 
   @override

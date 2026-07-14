@@ -142,7 +142,7 @@ void main() {
 
   group('Offer/OfferItem — copyWith', () {
     test('copyWith null geçilen alanı korur, verilen alanı değiştirir', () {
-      const offer = Offer(customerName: 'Ahmet Yılmaz', customerId: 1);
+      final offer = Offer(customerName: 'Ahmet Yılmaz', customerId: 1);
       final updated = offer.copyWith(customerName: 'Mehmet Demir');
 
       expect(updated.customerName, 'Mehmet Demir');
@@ -150,7 +150,7 @@ void main() {
     });
 
     test('customerContactPerson sentinel ile açıkça temizlenebilir', () {
-      const offer = Offer(
+      final offer = Offer(
         customerName: 'Yılmaz İnşaat',
         customerContactPerson: 'Ahmet Yılmaz',
       );
@@ -174,6 +174,24 @@ void main() {
       expect(updated.quantity, 5);
       expect(updated.discount, Percent.of(10));
       expect(updated.unitPrice, item.unitPrice); // dokunulmadı
+    });
+  });
+
+  group('Offer — quoteNumber', () {
+    test('id ve oluşturulma yılından türetilir, 6 haneye doldurulur', () {
+      final offer = Offer(
+        id: 42,
+        customerName: 'Ahmet Yılmaz',
+        createdAt: DateTime(2026),
+      );
+
+      expect(offer.quoteNumber, 'TKL-2026-000042');
+    });
+
+    test('kaydedilmemiş teklifte (id null) hata fırlatır', () {
+      final offer = Offer(customerName: 'Ahmet Yılmaz');
+
+      expect(() => offer.quoteNumber, throwsStateError);
     });
   });
 }

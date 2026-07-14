@@ -15,7 +15,7 @@ import 'package:meta/meta.dart';
 /// müşteri sonradan silinse veya bilgileri değişse bile bu teklif değişmez.
 @immutable
 final class Offer {
-  const Offer({
+  Offer({
     this.id,
     this.customerId,
     required this.customerName,
@@ -24,10 +24,16 @@ final class Offer {
     this.generalDiscount = Percent.zero,
     this.notes,
     this.items = const [],
-  });
+    DateTime? createdAt,
+  }) : createdAt = createdAt ?? DateTime.now();
 
   /// Henüz kaydedilmemiş teklif için `null`.
   final int? id;
+
+  /// Teklifin oluşturulma anı. Kaydedilmemiş bir teklif için `DateTime.now()`
+  /// varsayılır; veritabanından okunduktan sonra asıl kayıt anını taşır ve
+  /// bir daha değişmez (`copyWith` bu alanı hep mevcut değerle korur).
+  final DateTime createdAt;
 
   /// Müşteri silinirse veritabanı seviyesinde `NULL` olur (`ON DELETE SET NULL`);
   /// yalnızca "bu müşteriye kaç teklif verdim" gibi ileri bir rapor için tutulur.
@@ -63,6 +69,18 @@ final class Offer {
   /// hesaplanmış toplamın üzerine ileri yönde bir indirim uygular.
   Money get grandTotal => totalBeforeGeneralDiscount.minusRate(generalDiscount);
 
+  /// Otomatik teklif numarası. Ayrı bir sayaç/kolon gerektirmez: `id`
+  /// veritabanında zaten benzersiz ve autoincrement'tır, `createdAt.year`
+  /// ile birleştirilerek türetilir. Yalnızca kaydedilmiş (`id != null`)
+  /// tekliflerde anlamlıdır.
+  String get quoteNumber {
+    final savedId = id;
+    if (savedId == null) {
+      throw StateError('quoteNumber, kaydedilmemiş bir teklif için okunamaz.');
+    }
+    return 'TKL-${createdAt.year}-${savedId.toString().padLeft(6, '0')}';
+  }
+
   /// Kasıtlı olarak sınırlı: alanı temizlemek gereken tek yer
   /// [customerContactPerson] ve [notes]'tur (müşteri değişince veya not
   /// silinince `null` olabilmeli). Diğer alanlar hep birlikte değişir.
@@ -89,6 +107,7 @@ final class Offer {
     generalDiscount: generalDiscount ?? this.generalDiscount,
     notes: _pick(notes, this.notes),
     items: items ?? this.items,
+    createdAt: createdAt,
   );
 
   static String? _pick(Object? incoming, String? current) =>
@@ -104,6 +123,7 @@ final class Offer {
       other.currency == currency &&
       other.generalDiscount == generalDiscount &&
       other.notes == notes &&
+      other.createdAt == createdAt &&
       _listEquals(other.items, items);
 
   static bool _listEquals(List<OfferItem> a, List<OfferItem> b) {
@@ -123,6 +143,7 @@ final class Offer {
     currency,
     generalDiscount,
     notes,
+    createdAt,
     Object.hashAll(items),
   );
 }

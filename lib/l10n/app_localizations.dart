@@ -398,6 +398,36 @@ abstract class AppLocalizations {
   /// **'Quotes could not be loaded.'**
   String get quotesLoadError;
 
+  /// No description provided for @pdfGenerateTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate PDF'**
+  String get pdfGenerateTooltip;
+
+  /// No description provided for @pdfPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote PDF'**
+  String get pdfPreviewTitle;
+
+  /// No description provided for @quoteNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote No'**
+  String get quoteNumberLabel;
+
+  /// No description provided for @quoteDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get quoteDateLabel;
+
+  /// No description provided for @lineTotalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get lineTotalLabel;
+
   /// No description provided for @templateNew.
   ///
   /// In en, this message translates to:

@@ -164,6 +164,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quotesLoadError => 'Teklifler yüklenemedi.';
 
   @override
+  String get pdfGenerateTooltip => 'PDF Oluştur';
+
+  @override
+  String get pdfPreviewTitle => 'Teklif PDF\'i';
+
+  @override
+  String get quoteNumberLabel => 'Teklif No';
+
+  @override
+  String get quoteDateLabel => 'Tarih';
+
+  @override
+  String get lineTotalLabel => 'Tutar';
+
+  @override
   String get templateNew => 'Yeni Şablon';
 
   @override
