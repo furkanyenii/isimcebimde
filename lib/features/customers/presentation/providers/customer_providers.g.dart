@@ -164,6 +164,56 @@ final class CustomerListProvider
 
 String _$customerListHash() => r'92177337dff91ac704b50ce70c34ba3b2696d2e5';
 
+/// Arama filtresinden bağımsız, tüm müşteriler. Dashboard'daki müşteri sayısı
+/// bunu kullanır; [customerListProvider] arama metnine bağlı olduğundan
+/// kullanıcı müşteri ararken sayının filtreye kaymasını önler.
+
+@ProviderFor(allCustomers)
+final allCustomersProvider = AllCustomersProvider._();
+
+/// Arama filtresinden bağımsız, tüm müşteriler. Dashboard'daki müşteri sayısı
+/// bunu kullanır; [customerListProvider] arama metnine bağlı olduğundan
+/// kullanıcı müşteri ararken sayının filtreye kaymasını önler.
+
+final class AllCustomersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Customer>>,
+          List<Customer>,
+          Stream<List<Customer>>
+        >
+    with $FutureModifier<List<Customer>>, $StreamProvider<List<Customer>> {
+  /// Arama filtresinden bağımsız, tüm müşteriler. Dashboard'daki müşteri sayısı
+  /// bunu kullanır; [customerListProvider] arama metnine bağlı olduğundan
+  /// kullanıcı müşteri ararken sayının filtreye kaymasını önler.
+  AllCustomersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allCustomersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$allCustomersHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Customer>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Customer>> create(Ref ref) {
+    return allCustomers(ref);
+  }
+}
+
+String _$allCustomersHash() => r'2634089a2c0089f13d83fc6ec5f2b03fe9a5458e';
+
 /// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
 /// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
 /// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).

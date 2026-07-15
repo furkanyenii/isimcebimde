@@ -22,10 +22,8 @@
   "moduleSettings": "Ayarlar",
   "quoteNew": "Yeni Teklif",
 
-  "dashboardGreeting": "Hoş geldin",
-  "dashboardSubtitle": "Müşterinin karşısında, 60 saniyede teklif.",
   "dashboardStatQuotes": "Teklif",
-  "dashboardStatTotal": "Toplam tutar",
+  "dashboardStatCustomers": "Müşteri",
   "dashboardSectionModules": "Yönet",
   "moduleQuotesSubtitle": "Oluştur, düzenle, paylaş",
   "moduleProductsSubtitle": "Fiyat listesi ve kategoriler",

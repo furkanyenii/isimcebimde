@@ -206,29 +206,17 @@ abstract class AppLocalizations {
   /// **'New Quote'**
   String get quoteNew;
 
-  /// No description provided for @dashboardGreeting.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome'**
-  String get dashboardGreeting;
-
-  /// No description provided for @dashboardSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'A quote in 60 seconds, right in front of the customer.'**
-  String get dashboardSubtitle;
-
   /// No description provided for @dashboardStatQuotes.
   ///
   /// In en, this message translates to:
   /// **'Quotes'**
   String get dashboardStatQuotes;
 
-  /// No description provided for @dashboardStatTotal.
+  /// No description provided for @dashboardStatCustomers.
   ///
   /// In en, this message translates to:
-  /// **'Total value'**
-  String get dashboardStatTotal;
+  /// **'Customers'**
+  String get dashboardStatCustomers;
 
   /// No description provided for @dashboardSectionModules.
   ///

@@ -6,8 +6,10 @@ import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/theme/app_colors.dart';
 import 'package:isimcebimde/core/theme/app_typography.dart';
-import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/widgets/app_surfaces.dart';
+import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
+import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
+import 'package:isimcebimde/features/customers/presentation/screens/customer_form_screen.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
@@ -23,6 +25,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final offers = ref.watch(offerListProvider);
+    final customers = ref.watch(allCustomersProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -35,17 +38,7 @@ class DashboardScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(AppSizes.md),
               children: [
-                _BrandHeader(offers: offers),
-                const SizedBox(height: AppSizes.lg),
-                FilledButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const OfferFormScreen(),
-                    ),
-                  ),
-                  icon: const Icon(Icons.bolt_rounded),
-                  label: Text(l10n.quoteNew),
-                ),
+                _BrandHeader(offers: offers, customers: customers),
                 const SizedBox(height: AppSizes.lg),
                 Padding(
                   padding: const EdgeInsets.only(
@@ -97,26 +90,25 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Gradyanlı marka paneli ve iki özet rakamı.
+/// Gradyanlı marka paneli ve iki tıklanabilir özet.
 ///
-/// Özetler ekranın birincil içeriği değil, süsüdür: teklifler henüz yüklenmemiş
-/// veya okunamamışsa modüllere giriş yine de çalışmalı. Bu yüzden burada
+/// Sayılar ekranın birincil içeriği değil: liste henüz yüklenmemiş veya
+/// okunamamışsa modüllere giriş yine de çalışmalı. Bu yüzden burada
 /// spinner/hata ekranı gösterilmez, rakam yerine "—" basılır. Hatanın kendisi
-/// Teklifler ekranında tekrar-dene aksiyonuyla birlikte gösterilir.
+/// ilgili liste ekranında tekrar-dene aksiyonuyla birlikte gösterilir.
+///
+/// Her sayı bir kısayoldur: teklif → yeni teklif, müşteri → yeni müşteri.
 class _BrandHeader extends StatelessWidget {
-  const _BrandHeader({required this.offers});
+  const _BrandHeader({required this.offers, required this.customers});
 
   final AsyncValue<List<Offer>> offers;
+  final AsyncValue<List<Customer>> customers;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final data = offers.value;
-
-    final total = data?.fold<Money>(
-      Money.zero,
-      (sum, offer) => sum + offer.grandTotal,
-    );
+    final offerCount = offers.value?.length;
+    final customerCount = customers.value?.length;
 
     return AppGradientPanel(
       child: Column(
@@ -133,26 +125,31 @@ class _BrandHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSizes.lg),
-          Text(l10n.dashboardGreeting, style: context.textStyles.labelMedium),
-          const SizedBox(height: AppSizes.xs),
-          Text(l10n.dashboardSubtitle, style: context.textStyles.headlineSmall),
-          const SizedBox(height: AppSizes.lg),
           Row(
             children: [
               Expanded(
                 child: _HeaderStat(
+                  icon: Icons.description_outlined,
                   label: l10n.dashboardStatQuotes,
-                  value: data == null ? '—' : '${data.length}',
+                  value: offerCount == null ? '—' : '$offerCount',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const OfferFormScreen(),
+                    ),
+                  ),
                 ),
               ),
+              const SizedBox(width: AppSizes.md),
               Expanded(
                 child: _HeaderStat(
-                  label: l10n.dashboardStatTotal,
-                  // Teklifler farklı para birimlerinde olabilir; toplam,
-                  // kullanıcının varsayılan sembolüyle değil, yalın biçimlenir.
-                  value: total == null
-                      ? '—'
-                      : total.format(locale: context.localeTag, symbol: ''),
+                  icon: Icons.people_outline,
+                  label: l10n.dashboardStatCustomers,
+                  value: customerCount == null ? '—' : '$customerCount',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const CustomerFormScreen(),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -163,25 +160,58 @@ class _BrandHeader extends StatelessWidget {
   }
 }
 
+/// Gradyan üzerinde tıklanabilir özet: yarı saydam beyaz yüzey onu buton gibi
+/// okutur; değer büyük ve tabular, altında etiket ve ekleme ipucu ikonu.
 class _HeaderStat extends StatelessWidget {
-  const _HeaderStat({required this.label, required this.value});
+  const _HeaderStat({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
 
+  final IconData icon;
   final String label;
   final String value;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textStyles.headlineMedium?.tabular,
+    final borderRadius = BorderRadius.circular(AppSizes.radiusLg);
+
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: borderRadius,
+        child: Ink(
+          padding: const EdgeInsets.all(AppSizes.md),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.14),
+            borderRadius: borderRadius,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(icon, size: AppSizes.iconSm),
+                  const Icon(Icons.add_rounded, size: AppSizes.iconSm),
+                ],
+              ),
+              const SizedBox(height: AppSizes.sm),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyles.displaySmall?.tabular,
+              ),
+              Text(label, style: context.textStyles.labelSmall),
+            ],
+          ),
         ),
-        Text(label, style: context.textStyles.labelSmall),
-      ],
+      ),
     );
   }
 }

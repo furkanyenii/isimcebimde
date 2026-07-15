@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
-import 'package:isimcebimde/core/utils/money.dart';
-import 'package:isimcebimde/core/utils/quantity.dart';
+import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
+import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
+import 'package:isimcebimde/features/customers/domain/repositories/customer_repository.dart';
+import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
-import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/repositories/offer_repository.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 
@@ -36,20 +37,52 @@ class _FakeOfferRepository implements OfferRepository {
   Future<void> delete(int id) async {}
 }
 
+class _FakeCustomerRepository implements CustomerRepository {
+  _FakeCustomerRepository(this._controller);
+
+  final StreamController<List<Customer>> _controller;
+
+  @override
+  Stream<List<Customer>> watchAll({String? query, CustomerType? type}) =>
+      _controller.stream;
+
+  @override
+  Stream<Customer?> watchById(int id) => const Stream.empty();
+
+  @override
+  Future<int> create(Customer customer) async => 1;
+
+  @override
+  Future<void> update(Customer customer) async {}
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
 void main() {
   // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
   final tr = l10nFor(const Locale('tr'));
 
   late StreamController<List<Offer>> controller;
+  late StreamController<List<Customer>> customerController;
 
-  setUp(() => controller = StreamController<List<Offer>>.broadcast());
-  tearDown(() => controller.close());
+  setUp(() {
+    controller = StreamController<List<Offer>>.broadcast();
+    customerController = StreamController<List<Customer>>.broadcast();
+  });
+  tearDown(() {
+    controller.close();
+    customerController.close();
+  });
 
   Widget buildSubject() => ProviderScope(
     retry: (retryCount, error) => null,
     overrides: [
       offerRepositoryProvider.overrideWithValue(
         _FakeOfferRepository(controller),
+      ),
+      customerRepositoryProvider.overrideWithValue(
+        _FakeCustomerRepository(customerController),
       ),
     ],
     child: localizedApp(const DashboardScreen()),
@@ -87,42 +120,50 @@ void main() {
     expect(find.text(tr.moduleQuotes), findsOneWidget);
   });
 
-  testWidgets('teklifler gelince adet ve toplam tutar özetlenir', (
+  testWidgets('teklif ve müşteri sayıları özetlenir', (tester) async {
+    useTallSurface(tester);
+    await tester.pumpWidget(buildSubject());
+    controller.add([
+      Offer(id: 1, customerName: 'Yılmaz İnşaat'),
+      Offer(id: 2, customerName: 'Acme Ltd.'),
+    ]);
+    customerController.add(const [
+      Customer(id: 1, name: 'Yılmaz İnşaat', type: CustomerType.company),
+    ]);
+    await tester.pumpAndSettle();
+
+    expect(find.text('2'), findsOneWidget); // teklif adedi
+    expect(find.text('1'), findsOneWidget); // müşteri adedi
+  });
+
+  testWidgets('teklif sayısına dokununca yeni teklif formu açılır', (
     tester,
   ) async {
     useTallSurface(tester);
     await tester.pumpWidget(buildSubject());
-    controller.add([
-      Offer(
-        id: 1,
-        customerName: 'Yılmaz İnşaat',
-        items: [
-          OfferItem(
-            productName: 'Vida M8',
-            unitPrice: Money.fromLira(12, 50),
-            quantity: Quantity.of(100),
-            vatRate: Percent.of(20),
-          ),
-        ],
-      ),
-    ]);
+    controller.add([Offer(id: 1, customerName: 'Yılmaz İnşaat')]);
+    customerController.add(const []);
     await tester.pumpAndSettle();
 
-    expect(find.text('1'), findsOneWidget); // teklif adedi
-    // 1250 ₺ (ara toplam) + %20 KDV = 1500 ₺. Sembolsüz biçimlenir: toplam
-    // farklı para birimlerindeki teklifleri kapsayabilir.
-    expect(find.textContaining('1.500,00'), findsOneWidget);
-  });
-
-  testWidgets('Yeni Teklif butonu teklif formunu açar', (tester) async {
-    useTallSurface(tester);
-    await tester.pumpWidget(buildSubject());
-    await tester.pump();
-
-    await tester.tap(find.byType(FilledButton));
+    await tester.tap(find.text(tr.dashboardStatQuotes));
     await tester.pumpAndSettle();
 
     expect(find.text(tr.quoteNew), findsOneWidget); // AppBar başlığı
+  });
+
+  testWidgets('müşteri sayısına dokununca yeni müşteri formu açılır', (
+    tester,
+  ) async {
+    useTallSurface(tester);
+    await tester.pumpWidget(buildSubject());
+    controller.add(const []);
+    customerController.add(const []);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(tr.dashboardStatCustomers));
+    await tester.pumpAndSettle();
+
+    expect(find.text(tr.customerNew), findsOneWidget); // AppBar başlığı
   });
 
   testWidgets('geniş ekranda içerik sınırlı genişlikte ortalanır', (

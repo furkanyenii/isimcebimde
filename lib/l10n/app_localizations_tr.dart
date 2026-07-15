@@ -68,16 +68,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quoteNew => 'Yeni Teklif';
 
   @override
-  String get dashboardGreeting => 'Hoş geldin';
-
-  @override
-  String get dashboardSubtitle => 'Müşterinin karşısında, 60 saniyede teklif.';
-
-  @override
   String get dashboardStatQuotes => 'Teklif';
 
   @override
-  String get dashboardStatTotal => 'Toplam tutar';
+  String get dashboardStatCustomers => 'Müşteri';
 
   @override
   String get dashboardSectionModules => 'Yönet';

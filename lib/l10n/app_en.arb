@@ -40,10 +40,8 @@
   "moduleSettings": "Settings",
   "quoteNew": "New Quote",
 
-  "dashboardGreeting": "Welcome",
-  "dashboardSubtitle": "A quote in 60 seconds, right in front of the customer.",
   "dashboardStatQuotes": "Quotes",
-  "dashboardStatTotal": "Total value",
+  "dashboardStatCustomers": "Customers",
   "dashboardSectionModules": "Manage",
   "moduleQuotesSubtitle": "Create, edit, share",
   "moduleProductsSubtitle": "Price list and categories",
