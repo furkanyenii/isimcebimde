@@ -63,9 +63,22 @@ flutter:
   assets:
     - assets/images/
 
-  # PDF çıktısında Türkçe karakterleri (ç, ğ, ı, ö, ş, ü) doğru basmak için.
-  # package:pdf'in varsayılan Helvetica'sı bu glyph'leri içermiyor.
   fonts:
+    # Arayüz fontu (OFL, assets/fonts/Inter-LICENSE.txt). Dosyalar repoya gömülür:
+    # `google_fonts` paketi fontu çalışma anında ağdan indirir ve offline-first
+    # kuralını çiğner.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+
+    # PDF çıktısında Türkçe karakterleri (ç, ğ, ı, ö, ş, ü) doğru basmak için.
+    # package:pdf'in varsayılan Helvetica'sı bu glyph'leri içermiyor.
     - family: NotoSans
       fonts:
         - asset: assets/fonts/NotoSans-Regular.ttf
@@ -73,17 +86,19 @@ flutter:
           weight: 700
 
 # `dart run flutter_launcher_icons` ile tüm platform ikonlarını üretir.
-# Kaynak görsel zaten tam kare + opak (alfa yok) — iOS App Store kuralına uygun.
+# Kaynak quotra_icon.png tam kare + opak (alfa yok): iOS App Store kuralına
+# uygun ve siyah köşeler rozet lacivertiyle dolduruldu — maskelenince temiz.
+# Splash ise şeffaf köşeli quotra_logo_transparent.png kullanır.
 flutter_launcher_icons:
-  image_path: "assets/images/quotra_logo.png"
+  image_path: "assets/images/quotra_icon.png"
   android: true
   ios: true
   macos:
     generate: true
-    image_path: "assets/images/quotra_logo.png"
+    image_path: "assets/images/quotra_icon.png"
   windows:
     generate: true
-    image_path: "assets/images/quotra_logo.png"
+    image_path: "assets/images/quotra_icon.png"
   web:
     generate: true
-    image_path: "assets/images/quotra_logo.png"
+    image_path: "assets/images/quotra_icon.png"

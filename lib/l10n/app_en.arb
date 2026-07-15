@@ -40,6 +40,19 @@
   "moduleSettings": "Settings",
   "quoteNew": "New Quote",
 
+  "dashboardStatQuotes": "Quotes",
+  "dashboardStatCustomers": "Customers",
+  "dashboardSectionModules": "Manage",
+  "moduleQuotesSubtitle": "Create, edit, share",
+  "moduleProductsSubtitle": "Price list and categories",
+  "moduleCustomersSubtitle": "Saved customers",
+  "moduleSettingsSubtitle": "Company, theme, language",
+  "quoteDraftLabel": "Quote-Draft",
+  "quoteItemCount": "{count} items",
+  "@quoteItemCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "settingsCompany": "Company Details",
   "settingsCompanySubtitle": "Shown on your quotes",
   "companyNameFieldLabel": "Company name",

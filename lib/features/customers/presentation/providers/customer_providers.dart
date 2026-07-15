@@ -27,6 +27,13 @@ Stream<List<Customer>> customerList(Ref ref) {
   return ref.watch(customerRepositoryProvider).watchAll(query: query);
 }
 
+/// Arama filtresinden bağımsız, tüm müşteriler. Dashboard'daki müşteri sayısı
+/// bunu kullanır; [customerListProvider] arama metnine bağlı olduğundan
+/// kullanıcı müşteri ararken sayının filtreye kaymasını önler.
+@riverpod
+Stream<List<Customer>> allCustomers(Ref ref) =>
+    ref.watch(customerRepositoryProvider).watchAll(query: '');
+
 /// Tek bir müşteriyi id ile izler. Müşteri silinirse `null` yayınlar —
 /// çağıran taraf bunu bir hata değil, "artık yok" olarak ele almalı
 /// (CLAUDE.md: müşteri serbestçe silinebilir, geçmiş teklif bozulmaz).

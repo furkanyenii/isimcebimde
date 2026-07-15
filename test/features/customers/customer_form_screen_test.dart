@@ -122,47 +122,29 @@ void main() {
       expect(customers.created, isEmpty);
     });
 
-    testWidgets('eksik haneli vergi no reddedilir', (tester) async {
-      await tester.pumpWidget(buildSubject());
-      await tester.pumpAndSettle();
+    testWidgets(
+      'harf içeren vergi/kimlik no kabul edilir (uzunluk kontrolü yok)',
+      (tester) async {
+        // Uygulama Türkiye dışında da kullanılabilir: numara harf içerebilir
+        // (ör. AB VAT) ve biçim/uzunluk kontrolü yoktur.
+        await tester.pumpWidget(buildSubject());
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.widgetWithText(TextFormField, tr.fullNameLabel),
-        'Ayşe Demir',
-      );
-      await tester.enterText(
-        find.widgetWithText(TextFormField, tr.taxNumberLabel),
-        '123',
-      );
-      await tester.tap(find.text(tr.actionSave));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.widgetWithText(TextFormField, tr.fullNameLabel),
+          'Ayşe Demir',
+        );
+        await tester.enterText(
+          find.widgetWithText(TextFormField, tr.taxNumberLabel),
+          'DE123456789',
+        );
+        await tester.tap(find.text(tr.actionSave));
+        await tester.pumpAndSettle();
 
-      expect(find.text(tr.errorTaxNumberLength), findsOneWidget);
-      expect(customers.created, isEmpty);
-    });
-
-    testWidgets('11 haneli eski kayıt (TCKN) hâlâ kabul edilir', (
-      tester,
-    ) async {
-      // Bu alan eskiden bireyselde TC Kimlik No'ydu; o kayıtları düzenlemeye
-      // açan kullanıcı kendi verisiyle uğraşmak zorunda kalmamalı.
-      await tester.pumpWidget(buildSubject());
-      await tester.pumpAndSettle();
-
-      await tester.enterText(
-        find.widgetWithText(TextFormField, tr.fullNameLabel),
-        'Ayşe Demir',
-      );
-      await tester.enterText(
-        find.widgetWithText(TextFormField, tr.taxNumberLabel),
-        '12345678901',
-      );
-      await tester.tap(find.text(tr.actionSave));
-      await tester.pumpAndSettle();
-
-      expect(find.text(tr.errorTaxNumberLength), findsNothing);
-      expect(customers.created, hasLength(1));
-    });
+        expect(customers.created, hasLength(1));
+        expect(customers.created.single.taxNumber, 'DE123456789');
+      },
+    );
   });
 
   group('kayıt', () {

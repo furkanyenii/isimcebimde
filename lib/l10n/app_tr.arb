@@ -22,6 +22,19 @@
   "moduleSettings": "Ayarlar",
   "quoteNew": "Yeni Teklif",
 
+  "dashboardStatQuotes": "Teklif",
+  "dashboardStatCustomers": "Müşteri",
+  "dashboardSectionModules": "Yönet",
+  "moduleQuotesSubtitle": "Oluştur, düzenle, paylaş",
+  "moduleProductsSubtitle": "Fiyat listesi ve kategoriler",
+  "moduleCustomersSubtitle": "Kayıtlı müşteriler",
+  "moduleSettingsSubtitle": "Firma, tema, dil",
+  "quoteDraftLabel": "Teklif-Taslak",
+  "quoteItemCount": "{count} ürün",
+  "@quoteItemCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "settingsCompany": "Firma Bilgileri",
   "settingsCompanySubtitle": "Teklif çıktısında görünür",
   "companyNameFieldLabel": "Firma adı",

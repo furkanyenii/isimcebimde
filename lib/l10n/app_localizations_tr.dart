@@ -68,6 +68,35 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quoteNew => 'Yeni Teklif';
 
   @override
+  String get dashboardStatQuotes => 'Teklif';
+
+  @override
+  String get dashboardStatCustomers => 'Müşteri';
+
+  @override
+  String get dashboardSectionModules => 'Yönet';
+
+  @override
+  String get moduleQuotesSubtitle => 'Oluştur, düzenle, paylaş';
+
+  @override
+  String get moduleProductsSubtitle => 'Fiyat listesi ve kategoriler';
+
+  @override
+  String get moduleCustomersSubtitle => 'Kayıtlı müşteriler';
+
+  @override
+  String get moduleSettingsSubtitle => 'Firma, tema, dil';
+
+  @override
+  String get quoteDraftLabel => 'Teklif-Taslak';
+
+  @override
+  String quoteItemCount(int count) {
+    return '$count ürün';
+  }
+
+  @override
   String get settingsCompany => 'Firma Bilgileri';
 
   @override

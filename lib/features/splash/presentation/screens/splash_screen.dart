@@ -5,6 +5,7 @@ import 'package:isimcebimde/app/di/app_initialization_provider.dart';
 import 'package:isimcebimde/app/router/app_router.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/theme/app_theme.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/splash/presentation/widgets/pulsing_logo.dart';
 
@@ -49,18 +50,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
 
     final initialization = ref.watch(appInitializationProvider);
 
-    return Scaffold(
-      backgroundColor: context.colors.surface,
-      body: Center(
-        child: initialization.when(
-          data: (_) => _Branding(onAnimationFinished: _onAnimationFinished),
-          loading: () => _Branding(
-            showProgress: true,
-            onAnimationFinished: _onAnimationFinished,
-          ),
-          error: (error, _) => AppErrorView(
-            message: context.l10n.splashInitError,
-            onRetry: () => ref.invalidate(appInitializationProvider),
+    // Splash marka rengiyle (koyu gradyan dünyası) tasarlandı; kullanıcının
+    // tema tercihinden bağımsız olarak her zaman koyu görünür. Builder, alt
+    // ağacın (context.colors) bu koyu temayı okumasını sağlar.
+    return Theme(
+      data: AppTheme.dark,
+      child: Builder(
+        builder: (context) => Scaffold(
+          backgroundColor: context.colors.surface,
+          body: Center(
+            child: initialization.when(
+              data: (_) => _Branding(onAnimationFinished: _onAnimationFinished),
+              loading: () => _Branding(
+                showProgress: true,
+                onAnimationFinished: _onAnimationFinished,
+              ),
+              error: (error, _) => AppErrorView(
+                message: context.l10n.splashInitError,
+                onRetry: () => ref.invalidate(appInitializationProvider),
+              ),
+            ),
           ),
         ),
       ),

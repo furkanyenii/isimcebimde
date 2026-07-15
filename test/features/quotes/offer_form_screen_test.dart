@@ -14,11 +14,8 @@ import 'package:isimcebimde/features/products/presentation/providers/product_pro
 import 'package:isimcebimde/features/quotes/domain/entities/currency.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
-import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
 import 'package:isimcebimde/features/quotes/domain/repositories/offer_repository.dart';
-import 'package:isimcebimde/features/quotes/domain/repositories/template_repository.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
-import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/quantity_field.dart';
 
@@ -98,40 +95,13 @@ class _FakeOfferRepository implements OfferRepository {
   Stream<Offer?> watchById(int id) => const Stream.empty();
 }
 
-class _FakeTemplateRepository implements TemplateRepository {
-  _FakeTemplateRepository([this._initial = const []]);
-
-  final List<Template> _initial;
-  final List<Template> created = [];
-
-  @override
-  Future<int> create(Template template) async {
-    created.add(template);
-    return 1;
-  }
-
-  @override
-  Future<void> update(Template template) async {}
-
-  @override
-  Future<void> delete(int id) async {}
-
-  @override
-  Stream<List<Template>> watchAll() => Stream.value(_initial);
-
-  @override
-  Stream<Template?> watchById(int id) => const Stream.empty();
-}
-
 void main() {
   final tr = l10nFor(const Locale('tr'));
 
   late _FakeOfferRepository offers;
-  late _FakeTemplateRepository templates;
 
   setUp(() {
     offers = _FakeOfferRepository();
-    templates = _FakeTemplateRepository();
   });
 
   // Form uzun (müşteri, para birimi, satırlar, indirim, not, özet); varsayılan
@@ -149,7 +119,6 @@ void main() {
     retry: (retryCount, error) => null,
     overrides: [
       offerRepositoryProvider.overrideWithValue(offers),
-      templateRepositoryProvider.overrideWithValue(templates),
       customerRepositoryProvider.overrideWithValue(_FakeCustomerRepository()),
       productRepositoryProvider.overrideWithValue(_FakeProductRepository()),
     ],
@@ -320,94 +289,18 @@ void main() {
     expect(find.text(tr.errorOfferCustomerRequired), findsOneWidget);
   });
 
-  testWidgets('teklif şablon olarak kaydedilir', (tester) async {
+  testWidgets('PDF butonu satır eklenince görünür, kaydetmek gerekmez', (
+    tester,
+  ) async {
     await pumpTallSurface(tester, buildSubject());
     await tester.pumpAndSettle();
 
+    // Yeni (kaydedilmemiş) teklif: satır yokken PDF üretmek anlamsız.
+    expect(find.byTooltip(tr.pdfGenerateTooltip), findsNothing);
+
     await addProduct(tester, 'Vida M8');
 
-    await tester.tap(find.byTooltip(tr.templateSaveAsTooltip));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.widgetWithText(TextField, tr.templateNameLabel),
-      'Standart Hırdavat',
-    );
-    await tester.tap(find.text(tr.actionAdd));
-    await tester.pumpAndSettle();
-
-    expect(templates.created, hasLength(1));
-    final saved = templates.created.single;
-    expect(saved.name, 'Standart Hırdavat');
-    expect(saved.items.single.productName, 'Vida M8');
-  });
-
-  testWidgets(
-    'şablondan oluşturunca satırlar/para birimi/indirim gelir, müşteriye dokunulmaz',
-    (tester) async {
-      templates = _FakeTemplateRepository([
-        Template(
-          id: 1,
-          name: 'Standart Hırdavat',
-          currency: Currency.usDollar,
-          generalDiscount: Percent.of(10),
-          items: [
-            OfferItem(
-              productName: 'Rondela',
-              unitPrice: Money.fromLira(2),
-              quantity: Quantity.of(50),
-              vatRate: Percent.of(20),
-            ),
-          ],
-        ),
-      ]);
-
-      await pumpTallSurface(tester, buildSubject());
-      await tester.pumpAndSettle();
-
-      await selectCustomer(tester, 'Ahmet Yılmaz');
-
-      await tester.tap(find.byTooltip(tr.templateUseTooltip));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Standart Hırdavat'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Rondela'), findsOneWidget);
-      expect(find.text('Ahmet Yılmaz'), findsOneWidget); // müşteri korunur
-
-      await tester.tap(find.text(tr.actionSave));
-      await tester.pumpAndSettle();
-
-      final saved = offers.created.single;
-      expect(saved.customerId, 1);
-      expect(saved.currency, Currency.usDollar);
-      expect(saved.generalDiscount, Percent.of(10));
-      expect(saved.items.single.productName, 'Rondela');
-    },
-  );
-
-  testWidgets('yeni teklif olmayan (düzenleme) ekranda şablon butonu yoktur', (
-    tester,
-  ) async {
-    final existing = Offer(
-      id: 7,
-      customerId: 2,
-      customerName: 'Yılmaz İnşaat',
-      items: [
-        OfferItem(
-          productId: 1,
-          productName: 'Vida M8',
-          unitPrice: Money.fromLira(12, 50),
-          quantity: Quantity.of(10),
-          vatRate: Percent.of(20),
-        ),
-      ],
-    );
-
-    await pumpTallSurface(tester, buildSubject(offer: existing));
-    await tester.pumpAndSettle();
-
-    expect(find.byTooltip(tr.templateUseTooltip), findsNothing);
-    // Ürün zaten var; "şablon olarak kaydet" düzenlemede de görünür.
-    expect(find.byTooltip(tr.templateSaveAsTooltip), findsOneWidget);
+    // Kaydetmeden, sadece satır eklenerek PDF butonu erişilebilir olur.
+    expect(find.byTooltip(tr.pdfGenerateTooltip), findsOneWidget);
   });
 }

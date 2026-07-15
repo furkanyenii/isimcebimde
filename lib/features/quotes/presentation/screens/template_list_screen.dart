@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/template.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/template_form_screen.dart';
@@ -33,8 +34,16 @@ class TemplateListScreen extends ConsumerWidget {
               onAction: () => _openTemplateForm(context),
             );
           }
-          return ListView.builder(
+          return ListView.separated(
+            // FAB son kartı örtmesin.
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.md,
+              AppSizes.sm,
+              AppSizes.md,
+              AppSizes.xxl + AppSizes.lg,
+            ),
             itemCount: items.length,
+            separatorBuilder: (_, _) => const SizedBox(height: AppSizes.sm),
             itemBuilder: (context, index) =>
                 _TemplateTile(template: items[index]),
           );
@@ -64,11 +73,10 @@ class _TemplateTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
-      leading: const Icon(Icons.bookmark_outline),
-      title: Text(template.name),
-      subtitle: Text('${template.items.length} ürün'),
+    return AppListCard(
+      icon: Icons.bookmark_outline,
+      title: template.name,
+      subtitle: context.l10n.quoteItemCount(template.items.length),
       onTap: () => _openTemplateForm(context, template: template),
     );
   }

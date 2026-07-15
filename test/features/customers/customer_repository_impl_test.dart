@@ -139,49 +139,24 @@ void main() {
       expect(saved!.email, 'ayse@demir.com.tr');
     });
 
-    test('kurumsal vergi no 10 hane olmalı', () async {
-      await expectLater(
-        repository.create(company.copyWith(taxNumber: '123')),
-        throwsA(isA<ValidationFailure>()),
-      );
-    });
-
-    test('bireysel müşteride de 10 haneli vergi no kabul edilir', () async {
-      // Vergi dairesi/no artık her iki tipte de sorulur: şahıs firması da
-      // vergiye tabidir.
+    test('vergi/kimlik no serbest metindir, olduğu gibi saklanır', () async {
+      // Uygulama Türkiye dışında da kullanılabilir: numara harf içerebilir
+      // (ör. AB VAT) ve biçim/uzunluk kontrolü yoktur. Yalnızca trim edilir.
       final id = await repository.create(
-        individual.copyWith(taxNumber: '1234567890', taxOffice: 'Kadıköy'),
+        company.copyWith(taxNumber: 'DE123456789', taxOffice: 'Berlin'),
       );
       final saved = await repository.watchById(id).first;
 
-      expect(saved!.taxNumber, '1234567890');
-      expect(saved.taxOffice, 'Kadıköy');
+      expect(saved!.taxNumber, 'DE123456789');
+      expect(saved.taxOffice, 'Berlin');
     });
 
-    test('vergi no 10 veya 11 hane değilse reddedilir', () async {
-      // 11 hane hâlâ geçerli: eskiden TCKN yazılmış kayıtlar bozulmamalı.
-      await expectLater(
-        repository.create(individual.copyWith(taxNumber: '12345')),
-        throwsA(isA<ValidationFailure>()),
-      );
-
+    test('kısa/alışılmadık vergi no reddedilmez', () async {
       final id = await repository.create(
-        individual.copyWith(taxNumber: '12345678901'),
+        individual.copyWith(taxNumber: '12345'),
       );
-      expect((await repository.watchById(id).first)!.taxNumber, '12345678901');
+      expect((await repository.watchById(id).first)!.taxNumber, '12345');
     });
-
-    test(
-      'vergi no boşluklu/tireli girilebilir, rakamlara indirgenir',
-      () async {
-        final id = await repository.create(
-          company.copyWith(taxNumber: '123 456 78-90'),
-        );
-        final saved = await repository.watchById(id).first;
-
-        expect(saved!.taxNumber, '1234567890');
-      },
-    );
   });
 
   group('arama (Türkçe karakter duyarsız)', () {

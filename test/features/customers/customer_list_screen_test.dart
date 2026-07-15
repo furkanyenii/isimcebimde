@@ -111,14 +111,13 @@ void main() {
     expect(find.byIcon(Icons.person_outline), findsOneWidget);
   });
 
-  testWidgets('hiç müşteri yoksa yönlendirici boş durum gösterilir', (
-    tester,
-  ) async {
+  testWidgets('hiç müşteri yoksa boş durum gösterilir', (tester) async {
     await tester.pumpWidget(buildSubject(_FakeCustomerRepository()));
     await tester.pumpAndSettle();
 
     expect(find.text(tr.customersEmptyTitle), findsOneWidget);
-    expect(find.text(tr.customerAdd), findsOneWidget);
+    // Eylem butonu yok: yeni müşteri FAB ile açılır.
+    expect(find.widgetWithText(FilledButton, tr.customerAdd), findsNothing);
   });
 
   testWidgets('arama sonucu boşsa farklı bir boş durum gösterilir', (

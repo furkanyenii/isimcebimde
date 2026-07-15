@@ -7,6 +7,7 @@ import 'package:isimcebimde/core/widgets/app_picker_sheet.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
+import 'package:isimcebimde/features/customers/presentation/screens/customer_form_screen.dart';
 
 /// Teklif oluştururken müşteri seçimi.
 ///
@@ -76,6 +77,17 @@ class _CustomerPickerSheetState extends ConsumerState<_CustomerPickerSheet> {
     super.dispose();
   }
 
+  /// Aranan müşteri listede yoksa akış kesilmez: kullanıcı müşteriyi buradan
+  /// oluşturur ve oluşturulan müşteri doğrudan teklife seçili olarak döner.
+  Future<void> _createCustomer() async {
+    final created = await Navigator.of(context).push<Customer>(
+      MaterialPageRoute(builder: (context) => const CustomerFormScreen()),
+    );
+
+    if (created == null || !mounted) return;
+    Navigator.of(context).pop(created);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -95,6 +107,13 @@ class _CustomerPickerSheetState extends ConsumerState<_CustomerPickerSheet> {
               prefixIcon: const Icon(Icons.search),
             ),
             onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSizes.sm),
+          // Aranan müşteri yoksa her zaman görünür bu buton ile eklenir.
+          OutlinedButton.icon(
+            onPressed: _createCustomer,
+            icon: const Icon(Icons.add),
+            label: Text(l10n.customerNew),
           ),
           const SizedBox(height: AppSizes.sm),
           Expanded(

@@ -10,13 +10,32 @@ abstract final class AppSizes {
   /// Erişilebilirlik: minimum dokunma hedefi (Material 3).
   static const double minTapTarget = 48;
 
+  /// Birincil butonlar dokunma hedefinin de üstünde: sahada, ayakta,
+  /// tek elle kullanılıyor.
+  static const double buttonHeight = 52;
+
   static const double radiusSm = 8;
   static const double radiusMd = 12;
-  static const double radiusLg = 20;
+  static const double radiusLg = 16;
+  static const double radiusXl = 24;
+
+  /// Tam yuvarlak kenar (chip, rozet). Yükseklikten büyük herhangi bir değer.
+  static const double radiusPill = 999;
 
   static const double iconSm = 20;
   static const double iconMd = 24;
   static const double iconLg = 64;
+
+  /// Liste kartlarındaki ikon kutusu.
+  static const double iconTile = 44;
+
+  /// Tablet/yatayda içerik bu genişlikte ortalanır. Satır uzunluğu okunabilir
+  /// kalır; kart tam ekrana yayılıp seyrelmez.
+  static const double maxContentWidth = 640;
+
+  /// Açılır menü (dropdown) en fazla bu yükseklikte olur; uzun liste ekranı
+  /// aşıp taşmasın.
+  static const double dropdownMaxHeight = 320;
 
   /// Splash ekranındaki marka logosu.
   static const double logoSplash = 120;
@@ -29,6 +48,6 @@ abstract final class AppDurations {
   static const Duration slow = Duration(milliseconds: 400);
 
   /// Splash logosunun tek bir "kalp atışı" (büyü-küçül) döngü süresi.
-  /// 5 döngü × 500ms = splash ekranının toplam 2.5sn sürmesini sağlar.
-  static const Duration heartbeat = Duration(milliseconds: 500);
+  /// Yavaş ve sakin: 3 döngü × 900ms ≈ splash ekranı ~2.7sn sürer.
+  static const Duration heartbeat = Duration(milliseconds: 900);
 }

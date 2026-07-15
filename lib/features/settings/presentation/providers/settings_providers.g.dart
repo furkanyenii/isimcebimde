@@ -234,7 +234,7 @@ final class SettingsControllerProvider
 }
 
 String _$settingsControllerHash() =>
-    r'183b15034782f4d0b7abbcb3a343c578876dfd86';
+    r'c6be61b6fdde1d6ce5c08eaee21775bc9cf960e0';
 
 /// Dil ve tema tercihini kaydeder.
 

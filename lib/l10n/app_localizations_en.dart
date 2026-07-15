@@ -68,6 +68,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quoteNew => 'New Quote';
 
   @override
+  String get dashboardStatQuotes => 'Quotes';
+
+  @override
+  String get dashboardStatCustomers => 'Customers';
+
+  @override
+  String get dashboardSectionModules => 'Manage';
+
+  @override
+  String get moduleQuotesSubtitle => 'Create, edit, share';
+
+  @override
+  String get moduleProductsSubtitle => 'Price list and categories';
+
+  @override
+  String get moduleCustomersSubtitle => 'Saved customers';
+
+  @override
+  String get moduleSettingsSubtitle => 'Company, theme, language';
+
+  @override
+  String get quoteDraftLabel => 'Quote-Draft';
+
+  @override
+  String quoteItemCount(int count) {
+    return '$count items';
+  }
+
+  @override
   String get settingsCompany => 'Company Details';
 
   @override
