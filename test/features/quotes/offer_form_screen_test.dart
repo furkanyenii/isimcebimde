@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/utils/quantity.dart';
+import 'package:isimcebimde/features/categories/domain/entities/category.dart';
+import 'package:isimcebimde/features/categories/domain/repositories/category_repository.dart';
+import 'package:isimcebimde/features/categories/presentation/providers/category_providers.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer_type.dart';
 import 'package:isimcebimde/features/customers/domain/repositories/customer_repository.dart';
@@ -67,6 +70,20 @@ class _FakeProductRepository implements ProductRepository {
   Future<void> delete(int id) async {}
 }
 
+/// Ürün seçici artık ürünleri kategori altında gruplar (`productGroups`),
+/// bu yüzden kategori repository'si de sahte bir uygulamayla takılır.
+class _FakeCategoryRepository implements CategoryRepository {
+  @override
+  Stream<List<Category>> watchAll() =>
+      Stream.value(const [Category(id: 1, name: 'Genel')]);
+
+  @override
+  Future<int> create(String name) async => 1;
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
 class _FakeOfferRepository implements OfferRepository {
   final List<Offer> created = [];
   final List<Offer> updated = [];
@@ -121,6 +138,7 @@ void main() {
       offerRepositoryProvider.overrideWithValue(offers),
       customerRepositoryProvider.overrideWithValue(_FakeCustomerRepository()),
       productRepositoryProvider.overrideWithValue(_FakeProductRepository()),
+      categoryRepositoryProvider.overrideWithValue(_FakeCategoryRepository()),
     ],
     child: localizedApp(OfferFormScreen(offer: offer)),
   );

@@ -7,6 +7,7 @@ import 'package:isimcebimde/core/theme/app_typography.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
+import 'package:isimcebimde/features/products/presentation/product_grouping.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
 import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
 
@@ -15,8 +16,8 @@ class ProductListScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final products = ref.watch(productListProvider);
     final query = ref.watch(productSearchQueryProvider);
+    final groups = ref.watch(productGroupsProvider(query: query));
     final l10n = context.l10n;
 
     return Scaffold(
@@ -28,11 +29,11 @@ class ProductListScreen extends ConsumerWidget {
             child: _SearchField(),
           ),
           Expanded(
-            child: products.when(
+            child: groups.when(
               loading: () => const AppLoadingView(),
               error: (error, _) => AppErrorView(
                 message: l10n.productsLoadError,
-                onRetry: () => ref.invalidate(productListProvider),
+                onRetry: () => ref.invalidate(allProductsProvider),
               ),
               data: (items) {
                 if (items.isEmpty) {
@@ -50,7 +51,7 @@ class ProductListScreen extends ConsumerWidget {
                           description: l10n.emptySearchDescription,
                         );
                 }
-                return ListView.separated(
+                return ListView.builder(
                   // FAB son kartı örtmesin.
                   padding: const EdgeInsets.fromLTRB(
                     AppSizes.md,
@@ -59,11 +60,10 @@ class ProductListScreen extends ConsumerWidget {
                     AppSizes.xxl + AppSizes.lg,
                   ),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSizes.sm),
-                  itemBuilder: (context, index) => _ProductTile(
-                    product: items[index],
-                    onTap: () => _openForm(context, product: items[index]),
+                  itemBuilder: (context, index) => _CategorySection(
+                    group: items[index],
+                    onProductTap: (product) =>
+                        _openForm(context, product: product),
                   ),
                 );
               },
@@ -126,6 +126,41 @@ class _SearchFieldState extends ConsumerState<_SearchField> {
         ref.read(productSearchQueryProvider.notifier).update(value);
         setState(() {}); // yalnızca temizle butonunun görünürlüğü için
       },
+    );
+  }
+}
+
+/// Bir kategori başlığı ve altındaki ürün kartları.
+class _CategorySection extends StatelessWidget {
+  const _CategorySection({required this.group, required this.onProductTap});
+
+  final ProductGroup group;
+  final ValueChanged<Product> onProductTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.xs,
+            AppSizes.md,
+            AppSizes.xs,
+            AppSizes.sm,
+          ),
+          child: Text(
+            group.categoryName,
+            style: context.textStyles.titleSmall?.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
+        ),
+        for (final product in group.products) ...[
+          _ProductTile(product: product, onTap: () => onProductTap(product)),
+          const SizedBox(height: AppSizes.sm),
+        ],
+      ],
     );
   }
 }

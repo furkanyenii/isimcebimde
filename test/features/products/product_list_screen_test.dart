@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
+import 'package:isimcebimde/features/categories/domain/entities/category.dart';
+import 'package:isimcebimde/features/categories/domain/repositories/category_repository.dart';
+import 'package:isimcebimde/features/categories/presentation/providers/category_providers.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/domain/repositories/product_repository.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
@@ -37,6 +40,20 @@ class _FakeProductRepository implements ProductRepository {
   Future<void> delete(int id) async {}
 }
 
+/// Ürünler artık kategori altında gruplanır (`productGroups`), bu yüzden
+/// kategori repository'si de sahte bir uygulamayla takılır.
+class _FakeCategoryRepository implements CategoryRepository {
+  @override
+  Stream<List<Category>> watchAll() =>
+      Stream.value(const [Category(id: 1, name: 'Genel')]);
+
+  @override
+  Future<int> create(String name) async => 1;
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
 void main() {
   // Beklenen metinler ARB'den okunur (bkz. test/support/localized_app.dart).
   final tr = l10nFor(const Locale('tr'));
@@ -53,6 +70,7 @@ void main() {
       productRepositoryProvider.overrideWithValue(
         _FakeProductRepository(controller),
       ),
+      categoryRepositoryProvider.overrideWithValue(_FakeCategoryRepository()),
     ],
     child: localizedApp(const ProductListScreen(), locale: locale),
   );

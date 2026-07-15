@@ -4,6 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:isimcebimde/core/errors/failure.dart';
 import 'package:isimcebimde/core/utils/money.dart';
 import 'package:isimcebimde/core/utils/quantity.dart';
+import 'package:isimcebimde/features/categories/domain/entities/category.dart';
+import 'package:isimcebimde/features/categories/domain/repositories/category_repository.dart';
+import 'package:isimcebimde/features/categories/presentation/providers/category_providers.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
 import 'package:isimcebimde/features/products/domain/repositories/product_repository.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
@@ -35,6 +38,20 @@ class _FakeProductRepository implements ProductRepository {
 
   @override
   Future<void> update(Product product) async {}
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
+/// Ürün seçici artık ürünleri kategori altında gruplar (`productGroups`),
+/// bu yüzden kategori repository'si de sahte bir uygulamayla takılır.
+class _FakeCategoryRepository implements CategoryRepository {
+  @override
+  Stream<List<Category>> watchAll() =>
+      Stream.value(const [Category(id: 1, name: 'Genel')]);
+
+  @override
+  Future<int> create(String name) async => 1;
 
   @override
   Future<void> delete(int id) async {}
@@ -93,6 +110,7 @@ void main() {
     overrides: [
       templateRepositoryProvider.overrideWithValue(templates),
       productRepositoryProvider.overrideWithValue(_FakeProductRepository()),
+      categoryRepositoryProvider.overrideWithValue(_FakeCategoryRepository()),
     ],
     child: localizedApp(TemplateFormScreen(template: template)),
   );

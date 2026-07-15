@@ -119,16 +119,18 @@ abstract class _$ProductSearchQuery extends $Notifier<String> {
   }
 }
 
-/// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
-/// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
+/// Tüm (arşivlenmemiş) ürünler, filtresiz. Gruplama ve arama presentation
+/// katmanında yapılır (kategori adında da aranabilmesi için); DB değiştikçe
+/// kendiliğinden yayın yapar.
 
-@ProviderFor(productList)
-final productListProvider = ProductListProvider._();
+@ProviderFor(allProducts)
+final allProductsProvider = AllProductsProvider._();
 
-/// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
-/// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
+/// Tüm (arşivlenmemiş) ürünler, filtresiz. Gruplama ve arama presentation
+/// katmanında yapılır (kategori adında da aranabilmesi için); DB değiştikçe
+/// kendiliğinden yayın yapar.
 
-final class ProductListProvider
+final class AllProductsProvider
     extends
         $FunctionalProvider<
           AsyncValue<List<Product>>,
@@ -136,21 +138,22 @@ final class ProductListProvider
           Stream<List<Product>>
         >
     with $FutureModifier<List<Product>>, $StreamProvider<List<Product>> {
-  /// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
-  /// Arama metni değişince sorgu da kendiliğinden yeniden kurulur.
-  ProductListProvider._()
+  /// Tüm (arşivlenmemiş) ürünler, filtresiz. Gruplama ve arama presentation
+  /// katmanında yapılır (kategori adında da aranabilmesi için); DB değiştikçe
+  /// kendiliğinden yayın yapar.
+  AllProductsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'productListProvider',
+        name: r'allProductsProvider',
         isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$productListHash();
+  String debugGetCreateSourceHash() => _$allProductsHash();
 
   @$internal
   @override
@@ -160,8 +163,119 @@ final class ProductListProvider
 
   @override
   Stream<List<Product>> create(Ref ref) {
-    return productList(ref);
+    return allProducts(ref);
   }
 }
 
-String _$productListHash() => r'da6a09976f21dae0e2b9cd7f5fae74717942b4ef';
+String _$allProductsHash() => r'd0ac44611683a0d11b49aeeb0d6f66ba6c554088';
+
+/// Ürünleri kategorileri altında gruplar ve [query] ile filtreler.
+///
+/// Hem ürün listesi ekranı (paylaşılan arama metniyle) hem teklif ürün seçici
+/// bottom sheet'i (kendi yerel arama metniyle) aynı sağlayıcıyı kullanır;
+/// bu yüzden [query] parametreyle geçilir. Ürün veya kategori değişince
+/// kendiliğinden yeniden hesaplanır.
+
+@ProviderFor(productGroups)
+final productGroupsProvider = ProductGroupsFamily._();
+
+/// Ürünleri kategorileri altında gruplar ve [query] ile filtreler.
+///
+/// Hem ürün listesi ekranı (paylaşılan arama metniyle) hem teklif ürün seçici
+/// bottom sheet'i (kendi yerel arama metniyle) aynı sağlayıcıyı kullanır;
+/// bu yüzden [query] parametreyle geçilir. Ürün veya kategori değişince
+/// kendiliğinden yeniden hesaplanır.
+
+final class ProductGroupsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProductGroup>>,
+          List<ProductGroup>,
+          FutureOr<List<ProductGroup>>
+        >
+    with
+        $FutureModifier<List<ProductGroup>>,
+        $FutureProvider<List<ProductGroup>> {
+  /// Ürünleri kategorileri altında gruplar ve [query] ile filtreler.
+  ///
+  /// Hem ürün listesi ekranı (paylaşılan arama metniyle) hem teklif ürün seçici
+  /// bottom sheet'i (kendi yerel arama metniyle) aynı sağlayıcıyı kullanır;
+  /// bu yüzden [query] parametreyle geçilir. Ürün veya kategori değişince
+  /// kendiliğinden yeniden hesaplanır.
+  ProductGroupsProvider._({
+    required ProductGroupsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'productGroupsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$productGroupsHash();
+
+  @override
+  String toString() {
+    return r'productGroupsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ProductGroup>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProductGroup>> create(Ref ref) {
+    final argument = this.argument as String;
+    return productGroups(ref, query: argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is ProductGroupsProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$productGroupsHash() => r'8771677bfe45430935f7633cabd0f04116f15202';
+
+/// Ürünleri kategorileri altında gruplar ve [query] ile filtreler.
+///
+/// Hem ürün listesi ekranı (paylaşılan arama metniyle) hem teklif ürün seçici
+/// bottom sheet'i (kendi yerel arama metniyle) aynı sağlayıcıyı kullanır;
+/// bu yüzden [query] parametreyle geçilir. Ürün veya kategori değişince
+/// kendiliğinden yeniden hesaplanır.
+
+final class ProductGroupsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<ProductGroup>>, String> {
+  ProductGroupsFamily._()
+    : super(
+        retry: null,
+        name: r'productGroupsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Ürünleri kategorileri altında gruplar ve [query] ile filtreler.
+  ///
+  /// Hem ürün listesi ekranı (paylaşılan arama metniyle) hem teklif ürün seçici
+  /// bottom sheet'i (kendi yerel arama metniyle) aynı sağlayıcıyı kullanır;
+  /// bu yüzden [query] parametreyle geçilir. Ürün veya kategori değişince
+  /// kendiliğinden yeniden hesaplanır.
+
+  ProductGroupsProvider call({required String query}) =>
+      ProductGroupsProvider._(argument: query, from: this);
+
+  @override
+  String toString() => r'productGroupsProvider';
+}

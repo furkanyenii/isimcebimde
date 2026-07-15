@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
-import 'package:isimcebimde/core/utils/turkish_text.dart';
 import 'package:isimcebimde/core/widgets/app_picker_sheet.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
+import 'package:isimcebimde/features/products/presentation/product_grouping.dart';
 import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
 import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
 
@@ -54,7 +54,10 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final products = ref.watch(productListProvider);
+    final query = _searchController.text.trim();
+    // Ürünler ekranıyla aynı gruplama: kategori başlıkları altında listelenir,
+    // arama hem ürün hem kategori adında yapılır.
+    final groups = ref.watch(productGroupsProvider(query: query));
 
     return Padding(
       padding: const EdgeInsets.all(AppSizes.md),
@@ -73,23 +76,18 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
           // Aranan ürün listede yoksa akış kesilmez: her zaman görünür bu buton
           // ile ürün buradan oluşturulur ve doğrudan teklife eklenir.
           OutlinedButton.icon(
-            onPressed: () => _createProduct(_searchController.text.trim()),
+            onPressed: () => _createProduct(query),
             icon: const Icon(Icons.add),
             label: Text(l10n.productNew),
           ),
           const SizedBox(height: AppSizes.sm),
           Expanded(
-            child: products.when(
+            child: groups.when(
               loading: () => const AppLoadingView(),
               error: (error, _) =>
                   AppErrorView(message: l10n.productsLoadError),
               data: (items) {
-                final query = _searchController.text.trim();
-                final filtered = items
-                    .where((p) => containsNormalized(p.name, query))
-                    .toList();
-
-                if (filtered.isEmpty) {
+                if (items.isEmpty) {
                   return AppEmptyView(
                     icon: Icons.search_off,
                     title: l10n.emptySearchTitle,
@@ -100,21 +98,55 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
                 }
 
                 return ListView.builder(
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final product = filtered[index];
-                    return ListTile(
-                      title: Text(product.name),
-                      trailing: Text(context.formatMoney(product.price)),
-                      onTap: () => Navigator.of(context).pop(product),
-                    );
-                  },
+                  itemCount: items.length,
+                  itemBuilder: (context, index) => _CategorySection(
+                    group: items[index],
+                    onProductTap: (product) =>
+                        Navigator.of(context).pop(product),
+                  ),
                 );
               },
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Bir kategori başlığı ve altındaki ürün satırları (seçici için).
+class _CategorySection extends StatelessWidget {
+  const _CategorySection({required this.group, required this.onProductTap});
+
+  final ProductGroup group;
+  final ValueChanged<Product> onProductTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.md,
+            AppSizes.md,
+            AppSizes.md,
+            AppSizes.xs,
+          ),
+          child: Text(
+            group.categoryName,
+            style: context.textStyles.titleSmall?.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
+        ),
+        for (final product in group.products)
+          ListTile(
+            title: Text(product.name),
+            trailing: Text(context.formatMoney(product.price)),
+            onTap: () => onProductTap(product),
+          ),
+      ],
     );
   }
 }
