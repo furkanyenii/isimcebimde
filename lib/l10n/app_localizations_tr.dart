@@ -46,7 +46,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get emptySearchDescription => 'Farklı bir arama dene.';
 
   @override
-  String get appTagline => 'Dakikalar içinde teklif';
+  String get appTagline => 'Dakikalar içinde teklif oluştur';
 
   @override
   String get splashInitError =>

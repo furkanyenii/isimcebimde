@@ -46,7 +46,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptySearchDescription => 'Try a different search.';
 
   @override
-  String get appTagline => 'Quotes in minutes';
+  String get appTagline => 'Create quotes in minutes';
 
   @override
   String get splashInitError =>

@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTagline.
   ///
   /// In en, this message translates to:
-  /// **'Quotes in minutes'**
+  /// **'Create quotes in minutes'**
   String get appTagline;
 
   /// No description provided for @splashInitError.

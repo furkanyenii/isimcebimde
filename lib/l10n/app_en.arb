@@ -31,7 +31,7 @@
   "emptySearchTitle": "No results",
   "emptySearchDescription": "Try a different search.",
 
-  "appTagline": "Quotes in minutes",
+  "appTagline": "Create quotes in minutes",
   "splashInitError": "The app could not start. The database cannot be opened.",
 
   "moduleQuotes": "Quotes",
