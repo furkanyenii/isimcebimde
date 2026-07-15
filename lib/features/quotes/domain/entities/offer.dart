@@ -10,9 +10,11 @@ import 'package:meta/meta.dart';
 /// `OfferRepository.save` teklifi ve tüm satırlarını **tek transaction'da**
 /// yazar (CLAUDE.md: "yarım kaydedilmiş teklif kabul edilemez").
 ///
-/// [customerName] ve [customerContactPerson], müşteri seçildiği andaki
-/// **snapshot**'ıdır (Phase 3'teki müşteri silme kararıyla aynı gerekçe):
-/// müşteri sonradan silinse veya bilgileri değişse bile bu teklif değişmez.
+/// Müşteri bilgileri ([customerName], [customerContactPerson], [customerPhone],
+/// [customerEmail], [customerAddress], [customerTaxOffice], [customerTaxNumber])
+/// müşteri seçildiği andaki **snapshot**'ıdır (Phase 3'teki müşteri silme
+/// kararıyla aynı gerekçe): müşteri sonradan silinse veya bilgileri değişse bile
+/// bu teklif değişmez. PDF çıktısı bunlardan basar.
 @immutable
 final class Offer {
   Offer({
@@ -20,6 +22,11 @@ final class Offer {
     this.customerId,
     required this.customerName,
     this.customerContactPerson,
+    this.customerPhone,
+    this.customerEmail,
+    this.customerAddress,
+    this.customerTaxOffice,
+    this.customerTaxNumber,
     this.currency = Currency.turkishLira,
     this.generalDiscount = Percent.zero,
     this.notes,
@@ -43,6 +50,14 @@ final class Offer {
 
   /// Yalnızca kurumsal müşteride anlamlıdır; müşteri seçildiği anda kopyalanır.
   final String? customerContactPerson;
+
+  /// Müşteri seçildiği anda kopyalanan iletişim/vergi bilgileri. Girilmemişse
+  /// `null`; PDF yalnızca dolu olanları basar.
+  final String? customerPhone;
+  final String? customerEmail;
+  final String? customerAddress;
+  final String? customerTaxOffice;
+  final String? customerTaxNumber;
 
   /// Yalnızca gösterim etiketi — çevrim yapılmaz (bkz. [Currency]).
   final Currency currency;
@@ -86,9 +101,9 @@ final class Offer {
   /// çağıran taraf taslak bir etiketle doldurur.
   String? get quoteNumberOrNull => id == null ? null : quoteNumber;
 
-  /// Kasıtlı olarak sınırlı: alanı temizlemek gereken tek yer
-  /// [customerContactPerson] ve [notes]'tur (müşteri değişince veya not
-  /// silinince `null` olabilmeli). Diğer alanlar hep birlikte değişir.
+  /// Kasıtlı olarak sınırlı: alanı temizlemek gereken alanlar müşteri
+  /// snapshot'ı (yeni müşteride dolu alan boşa düşebilir) ve [notes]'tur.
+  /// [_unchanged] nöbetçisi "dokunma" ile "null yap"ı ayırır.
   static const Object _unchanged = Object();
 
   Offer copyWith({
@@ -96,6 +111,11 @@ final class Offer {
     int? customerId,
     String? customerName,
     Object? customerContactPerson = _unchanged,
+    Object? customerPhone = _unchanged,
+    Object? customerEmail = _unchanged,
+    Object? customerAddress = _unchanged,
+    Object? customerTaxOffice = _unchanged,
+    Object? customerTaxNumber = _unchanged,
     Currency? currency,
     Percent? generalDiscount,
     Object? notes = _unchanged,
@@ -108,6 +128,11 @@ final class Offer {
       customerContactPerson,
       this.customerContactPerson,
     ),
+    customerPhone: _pick(customerPhone, this.customerPhone),
+    customerEmail: _pick(customerEmail, this.customerEmail),
+    customerAddress: _pick(customerAddress, this.customerAddress),
+    customerTaxOffice: _pick(customerTaxOffice, this.customerTaxOffice),
+    customerTaxNumber: _pick(customerTaxNumber, this.customerTaxNumber),
     currency: currency ?? this.currency,
     generalDiscount: generalDiscount ?? this.generalDiscount,
     notes: _pick(notes, this.notes),
@@ -125,6 +150,11 @@ final class Offer {
       other.customerId == customerId &&
       other.customerName == customerName &&
       other.customerContactPerson == customerContactPerson &&
+      other.customerPhone == customerPhone &&
+      other.customerEmail == customerEmail &&
+      other.customerAddress == customerAddress &&
+      other.customerTaxOffice == customerTaxOffice &&
+      other.customerTaxNumber == customerTaxNumber &&
       other.currency == currency &&
       other.generalDiscount == generalDiscount &&
       other.notes == notes &&
@@ -145,6 +175,11 @@ final class Offer {
     customerId,
     customerName,
     customerContactPerson,
+    customerPhone,
+    customerEmail,
+    customerAddress,
+    customerTaxOffice,
+    customerTaxNumber,
     currency,
     generalDiscount,
     notes,

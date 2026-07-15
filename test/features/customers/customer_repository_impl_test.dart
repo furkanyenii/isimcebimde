@@ -54,6 +54,19 @@ void main() {
       },
     );
 
+    test(
+      'vergi no harf içerebilir, uzun olabilir ve büyük/küçük harf korunur',
+      () async {
+        // 11 haneden uzun, harf içeren, karışık büyük/küçük harfli bir vergi
+        // no: uzunluk sınırı yok, otomatik büyütme yok (Talep 2).
+        final customer = company.copyWith(taxNumber: 'tr-Ab12345678901234');
+        final id = await repository.create(customer);
+        final saved = await repository.watchById(id).first;
+
+        expect(saved!.taxNumber, 'tr-Ab12345678901234');
+      },
+    );
+
     test('yalnızca ad zorunludur; gerisi boş bırakılabilir', () async {
       // Sahada 60 saniyede teklif hedefi: detay sonradan doldurulur.
       const minimal = Customer(

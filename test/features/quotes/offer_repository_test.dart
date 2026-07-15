@@ -57,6 +57,45 @@ void main() {
     expect(offer.items.single.unitPrice, Money.fromLira(12, 50));
   });
 
+  test(
+    'müşteri iletişim/vergi bilgileri snapshot olarak kaydedilip okunur',
+    () async {
+      // Vergi no hem harf içerir hem 11 haneden uzundur: uzunluk sınırı
+      // kalkmış olmalı.
+      final offer = sampleOffer().copyWith(
+        customerContactPerson: 'Ahmet Yılmaz',
+        customerPhone: '0532 111 22 33',
+        customerEmail: 'info@yilmaz.com',
+        customerAddress: 'Çekmeköy, İstanbul',
+        customerTaxOffice: 'Ümraniye',
+        customerTaxNumber: 'TR1234567890123',
+      );
+
+      final id = await repository.create(offer);
+      final saved = await repository.watchById(id).first;
+
+      expect(saved!.customerContactPerson, 'Ahmet Yılmaz');
+      expect(saved.customerPhone, '0532 111 22 33');
+      expect(saved.customerEmail, 'info@yilmaz.com');
+      expect(saved.customerAddress, 'Çekmeköy, İstanbul');
+      expect(saved.customerTaxOffice, 'Ümraniye');
+      expect(saved.customerTaxNumber, 'TR1234567890123');
+    },
+  );
+
+  test('boş müşteri bilgileri null olarak normalize edilir', () async {
+    final offer = sampleOffer().copyWith(
+      customerPhone: '   ',
+      customerEmail: '',
+    );
+
+    final id = await repository.create(offer);
+    final saved = await repository.watchById(id).first;
+
+    expect(saved!.customerPhone, isNull);
+    expect(saved.customerEmail, isNull);
+  });
+
   test('müşteri seçilmeden teklif oluşturulamaz', () async {
     final offer = Offer(customerName: '', items: [sampleItem()]);
 

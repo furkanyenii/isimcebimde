@@ -41,6 +41,7 @@
   "quoteNew": "New Quote",
 
   "dashboardStatQuotes": "Quotes",
+  "dashboardStatProducts": "Products",
   "dashboardStatCustomers": "Customers",
   "dashboardSectionModules": "Manage",
   "moduleQuotesSubtitle": "Create, edit, share",

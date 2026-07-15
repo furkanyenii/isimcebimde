@@ -72,8 +72,12 @@ class CategoryPicker extends ConsumerWidget {
           DropdownMenuItem(
             value: category.id,
             // Açılır menü öğeleri ekranın kenarına yapışmasın diye yatay boşluk.
+            // Menü, alandan daha dar açıldığı için bu boşluk belirgin olmalı.
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSizes.md,
+                vertical: AppSizes.xs,
+              ),
               child: Text(category.name, overflow: TextOverflow.ellipsis),
             ),
           ),

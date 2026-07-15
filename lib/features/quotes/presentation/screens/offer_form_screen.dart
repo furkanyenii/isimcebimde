@@ -104,10 +104,19 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
                         ? null
                         : _offer.customerName,
                     onChanged: (customer) => setState(() {
+                      // Müşterinin o anki bilgileri teklife kopyalanır
+                      // (snapshot): PDF bunlardan basar, müşteri sonradan
+                      // değişse bile bu teklif bozulmaz. Boş ('') geçilen alan
+                      // repository sınırında `null`'a normalize edilir.
                       _offer = _offer.copyWith(
                         customerId: customer.id,
                         customerName: customer.name,
                         customerContactPerson: customer.contactPerson ?? '',
+                        customerPhone: customer.phone ?? '',
+                        customerEmail: customer.email ?? '',
+                        customerAddress: customer.address ?? '',
+                        customerTaxOffice: customer.taxOffice ?? '',
+                        customerTaxNumber: customer.taxNumber ?? '',
                       );
                     }),
                   ),

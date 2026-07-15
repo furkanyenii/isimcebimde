@@ -10,6 +10,9 @@ import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/customers/presentation/screens/customer_form_screen.dart';
+import 'package:isimcebimde/features/products/domain/entities/product.dart';
+import 'package:isimcebimde/features/products/presentation/providers/product_providers.dart';
+import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
@@ -25,6 +28,7 @@ class DashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final offers = ref.watch(offerListProvider);
+    final products = ref.watch(allProductsProvider);
     final customers = ref.watch(allCustomersProvider);
 
     return Scaffold(
@@ -38,7 +42,11 @@ class DashboardScreen extends ConsumerWidget {
             child: ListView(
               padding: const EdgeInsets.all(AppSizes.md),
               children: [
-                _BrandHeader(offers: offers, customers: customers),
+                _BrandHeader(
+                  offers: offers,
+                  products: products,
+                  customers: customers,
+                ),
                 const SizedBox(height: AppSizes.lg),
                 Padding(
                   padding: const EdgeInsets.only(
@@ -90,24 +98,31 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Gradyanlı marka paneli ve iki tıklanabilir özet.
+/// Gradyanlı marka paneli ve üç tıklanabilir özet.
 ///
 /// Sayılar ekranın birincil içeriği değil: liste henüz yüklenmemiş veya
 /// okunamamışsa modüllere giriş yine de çalışmalı. Bu yüzden burada
 /// spinner/hata ekranı gösterilmez, rakam yerine "—" basılır. Hatanın kendisi
 /// ilgili liste ekranında tekrar-dene aksiyonuyla birlikte gösterilir.
 ///
-/// Her sayı bir kısayoldur: teklif → yeni teklif, müşteri → yeni müşteri.
+/// Her özetin iki eylemi vardır: rakam/etiket → ilgili **liste** sayfası,
+/// kartın kalan (harici) alanı → o türden **yeni ekleme** sayfası.
 class _BrandHeader extends StatelessWidget {
-  const _BrandHeader({required this.offers, required this.customers});
+  const _BrandHeader({
+    required this.offers,
+    required this.products,
+    required this.customers,
+  });
 
   final AsyncValue<List<Offer>> offers;
+  final AsyncValue<List<Product>> products;
   final AsyncValue<List<Customer>> customers;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final offerCount = offers.value?.length;
+    final productCount = products.value?.length;
     final customerCount = customers.value?.length;
 
     return AppGradientPanel(
@@ -129,26 +144,43 @@ class _BrandHeader extends StatelessWidget {
           ),
           const SizedBox(height: AppSizes.lg),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: _HeaderStat(
                   icon: Icons.description_outlined,
                   label: l10n.dashboardStatQuotes,
                   value: offerCount == null ? '—' : '$offerCount',
-                  onTap: () => Navigator.of(context).push(
+                  onStatTap: () => context.go(AppRoutes.quotes),
+                  onAddTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const OfferFormScreen(),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: AppSizes.md),
+              const SizedBox(width: AppSizes.sm),
+              Expanded(
+                child: _HeaderStat(
+                  icon: Icons.inventory_2_outlined,
+                  label: l10n.dashboardStatProducts,
+                  value: productCount == null ? '—' : '$productCount',
+                  onStatTap: () => context.go(AppRoutes.products),
+                  onAddTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const ProductFormScreen(),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSizes.sm),
               Expanded(
                 child: _HeaderStat(
                   icon: Icons.people_outline,
                   label: l10n.dashboardStatCustomers,
                   value: customerCount == null ? '—' : '$customerCount',
-                  onTap: () => Navigator.of(context).push(
+                  onStatTap: () => context.go(AppRoutes.customers),
+                  onAddTap: () => Navigator.of(context).push(
                     MaterialPageRoute<void>(
                       builder: (context) => const CustomerFormScreen(),
                     ),
@@ -164,28 +196,36 @@ class _BrandHeader extends StatelessWidget {
 }
 
 /// Gradyan üzerinde tıklanabilir özet: yarı saydam beyaz yüzey onu buton gibi
-/// okutur; değer büyük ve tabular, altında etiket ve ekleme ipucu ikonu.
+/// okutur; değer büyük ve tabular, altında etiket.
+///
+/// İki tıklama bölgesi: rakam+etiket ([onStatTap]) ilgili **liste** sayfasına,
+/// kartın kalan alanı ([onAddTap]) **yeni ekleme** sayfasına gider. Üstteki "+"
+/// ikonu bu ekleme kısayolunu ima eder.
 class _HeaderStat extends StatelessWidget {
   const _HeaderStat({
     required this.icon,
     required this.label,
     required this.value,
-    required this.onTap,
+    required this.onStatTap,
+    required this.onAddTap,
   });
 
   final IconData icon;
   final String label;
   final String value;
-  final VoidCallback onTap;
+  final VoidCallback onStatTap;
+  final VoidCallback onAddTap;
 
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(AppSizes.radiusLg);
+    final innerRadius = BorderRadius.circular(AppSizes.radiusSm);
 
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        onTap: onTap,
+        // Kartın harici alanı: yeni ekleme sayfası.
+        onTap: onAddTap,
         borderRadius: borderRadius,
         child: Ink(
           padding: const EdgeInsets.all(AppSizes.md),
@@ -204,13 +244,24 @@ class _HeaderStat extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSizes.sm),
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyles.displaySmall?.tabular,
+              // Rakam+etiket: iç InkWell, bu bölgedeki dokunuşu üstteki karttan
+              // devralır ve ilgili liste sayfasına götürür.
+              InkWell(
+                onTap: onStatTap,
+                borderRadius: innerRadius,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyles.displaySmall?.tabular,
+                    ),
+                    Text(label, style: context.textStyles.labelSmall),
+                  ],
+                ),
               ),
-              Text(label, style: context.textStyles.labelSmall),
             ],
           ),
         ),

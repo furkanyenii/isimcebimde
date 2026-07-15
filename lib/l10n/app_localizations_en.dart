@@ -71,6 +71,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardStatQuotes => 'Quotes';
 
   @override
+  String get dashboardStatProducts => 'Products';
+
+  @override
   String get dashboardStatCustomers => 'Customers';
 
   @override

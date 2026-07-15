@@ -60,7 +60,11 @@ class Customers extends Table {
   TextColumn get email => text().withLength(max: 200).nullable()();
   TextColumn get address => text().withLength(max: 500).nullable()();
   TextColumn get taxOffice => text().withLength(max: 100).nullable()();
-  TextColumn get taxNumber => text().withLength(max: 11).nullable()();
+
+  /// Vergi/kimlik no serbest metindir: rakam, harf (büyük/küçük) içerebilir ve
+  /// uzunluğu ülkeye göre değişir (TCKN 11, vergi no 10, AB VAT farklı). Bu
+  /// yüzden **uzunluk sınırı yoktur**; biçim kontrolü de yapılmaz.
+  TextColumn get taxNumber => text().nullable()();
   TextColumn get notes => text().withLength(max: 1000).nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 
@@ -73,10 +77,13 @@ class Customers extends Table {
 
 /// Bir teklif ve başlık bilgileri. Satırları [OfferItems]'tadır.
 ///
-/// [customerName] ve [customerContactPerson] müşteri seçildiği andaki
-/// **snapshot**'tır; [customerId] silinirse `NULL` olur (`ON DELETE SET NULL`)
-/// ama teklif bundan etkilenmez (CLAUDE.md: Database Rules — aynı gerekçe
-/// `Products`/`Customers` için de geçerli).
+/// Müşteri bilgileri ([customerName], [customerContactPerson], [customerPhone],
+/// [customerEmail], [customerAddress], [customerTaxOffice], [customerTaxNumber])
+/// müşteri seçildiği andaki **snapshot**'tır; [customerId] silinirse `NULL` olur
+/// (`ON DELETE SET NULL`) ama teklif bundan etkilenmez (CLAUDE.md: Database
+/// Rules — aynı gerekçe `Products`/`Customers` için de geçerli). PDF bu
+/// alanlardan basar; müşteri sonradan değişse/silinse bile geçmiş teklif
+/// çıktısı bozulmaz.
 @DataClassName('OfferRow')
 class Offers extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -88,6 +95,13 @@ class Offers extends Table {
   TextColumn get customerName => text().withLength(min: 1, max: 200)();
   TextColumn get customerContactPerson =>
       text().withLength(max: 200).nullable()();
+  TextColumn get customerPhone => text().withLength(max: 32).nullable()();
+  TextColumn get customerEmail => text().withLength(max: 200).nullable()();
+  TextColumn get customerAddress => text().withLength(max: 500).nullable()();
+  TextColumn get customerTaxOffice => text().withLength(max: 100).nullable()();
+
+  /// Vergi no serbest metindir (bkz. `Customers.taxNumber`): uzunluk sınırı yok.
+  TextColumn get customerTaxNumber => text().nullable()();
 
   /// ISO 4217 kodu; yalnızca gösterim etiketi, çevrim yapılmaz (bkz. `Currency`).
   TextColumn get currencyCode =>
@@ -235,7 +249,10 @@ class Settings extends Table {
   TextColumn get companyWebsite => text().withLength(max: 200).nullable()();
   TextColumn get companyAddress => text().withLength(max: 500).nullable()();
   TextColumn get companyTaxOffice => text().withLength(max: 100).nullable()();
-  TextColumn get companyTaxNumber => text().withLength(max: 11).nullable()();
+
+  /// Vergi no serbest metindir (bkz. `Customers.taxNumber`): uzunluk/biçim
+  /// sınırı yoktur.
+  TextColumn get companyTaxNumber => text().nullable()();
 
   /// Teklifi hazırlayan kişi (bkz. `PreparerInfo`). Firma bilgisinden ayrıdır:
   /// aynı firmada birden çok satış temsilcisi teklif hazırlar. Hepsi opsiyonel;
@@ -283,7 +300,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -351,6 +368,21 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(settings, settings.preparerTitle);
         await m.addColumn(settings, settings.preparerEmail);
         await m.addColumn(settings, settings.preparerPhone);
+      }
+      if (from >= 6 && from < 10) {
+        // v9 → v10: müşteri iletişim/vergi bilgileri teklife snapshot'lanır.
+        // Yalnızca nullable sütun ekleme — mevcut teklifler olduğu gibi kalır,
+        // yeni alanları `NULL` gelir (eski tekliflerde müşteri detayı yoktu).
+        //
+        // `from >= 6` koşulu v4 → v5 / v8 → v9 adımlarıyla aynı gerekçeye
+        // dayanır: `offers` tablosu v6'da yaratılıyor; daha eski bir sürümden
+        // geliniyorsa yukarıdaki `createTable` onu zaten **güncel** tanımıyla
+        // (bu sütunlar dahil) kurmuştur.
+        await m.addColumn(offers, offers.customerPhone);
+        await m.addColumn(offers, offers.customerEmail);
+        await m.addColumn(offers, offers.customerAddress);
+        await m.addColumn(offers, offers.customerTaxOffice);
+        await m.addColumn(offers, offers.customerTaxNumber);
       }
     },
     beforeOpen: (details) async {

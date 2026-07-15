@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Quotes'**
   String get dashboardStatQuotes;
 
+  /// No description provided for @dashboardStatProducts.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get dashboardStatProducts;
+
   /// No description provided for @dashboardStatCustomers.
   ///
   /// In en, this message translates to:

@@ -71,6 +71,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get dashboardStatQuotes => 'Teklif';
 
   @override
+  String get dashboardStatProducts => 'Ürün';
+
+  @override
   String get dashboardStatCustomers => 'Müşteri';
 
   @override

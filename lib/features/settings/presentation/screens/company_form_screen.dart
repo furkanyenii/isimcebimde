@@ -170,11 +170,10 @@ class _CompanyFormState extends ConsumerState<_CompanyForm> {
                   ),
                 ),
                 const SizedBox(height: AppSizes.md),
-                // Vergi/kimlik no ülkeye göre harf de içerebilir; biçim/uzunluk
-                // kontrolü yok, serbest metin.
+                // Vergi no serbest metindir: rakam, harf (büyük ya da küçük)
+                // içerebilir; biçim/uzunluk kontrolü ve otomatik büyütme yok.
                 TextFormField(
                   controller: _taxNumber,
-                  textCapitalization: TextCapitalization.characters,
                   decoration: InputDecoration(
                     labelText: l10n.taxNumberFieldLabel,
                     helperText: l10n.optionalField,

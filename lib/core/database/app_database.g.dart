@@ -831,7 +831,6 @@ class $CustomersTable extends Customers
     'tax_number',
     aliasedName,
     true,
-    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 11),
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
@@ -1024,6 +1023,10 @@ class CustomerRow extends DataClass implements Insertable<CustomerRow> {
   final String? email;
   final String? address;
   final String? taxOffice;
+
+  /// Vergi/kimlik no serbest metindir: rakam, harf (büyük/küçük) içerebilir ve
+  /// uzunluğu ülkeye göre değişir (TCKN 11, vergi no 10, AB VAT farklı). Bu
+  /// yüzden **uzunluk sınırı yoktur**; biçim kontrolü de yapılmaz.
   final String? taxNumber;
   final String? notes;
   final DateTime createdAt;
@@ -1520,7 +1523,6 @@ class $SettingsTable extends Settings
     'company_tax_number',
     aliasedName,
     true,
-    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 11),
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
@@ -1844,6 +1846,9 @@ class SettingsRow extends DataClass implements Insertable<SettingsRow> {
   final String? companyWebsite;
   final String? companyAddress;
   final String? companyTaxOffice;
+
+  /// Vergi no serbest metindir (bkz. `Customers.taxNumber`): uzunluk/biçim
+  /// sınırı yoktur.
   final String? companyTaxNumber;
 
   /// Teklifi hazırlayan kişi (bkz. `PreparerInfo`). Firma bilgisinden ayrıdır:
@@ -2454,6 +2459,67 @@ class $OffersTable extends Offers with TableInfo<$OffersTable, OfferRow> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _customerPhoneMeta = const VerificationMeta(
+    'customerPhone',
+  );
+  @override
+  late final GeneratedColumn<String> customerPhone = GeneratedColumn<String>(
+    'customer_phone',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 32),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerEmailMeta = const VerificationMeta(
+    'customerEmail',
+  );
+  @override
+  late final GeneratedColumn<String> customerEmail = GeneratedColumn<String>(
+    'customer_email',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 200),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerAddressMeta = const VerificationMeta(
+    'customerAddress',
+  );
+  @override
+  late final GeneratedColumn<String> customerAddress = GeneratedColumn<String>(
+    'customer_address',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 500),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _customerTaxOfficeMeta = const VerificationMeta(
+    'customerTaxOffice',
+  );
+  @override
+  late final GeneratedColumn<String> customerTaxOffice =
+      GeneratedColumn<String>(
+        'customer_tax_office',
+        aliasedName,
+        true,
+        additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 100),
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _customerTaxNumberMeta = const VerificationMeta(
+    'customerTaxNumber',
+  );
+  @override
+  late final GeneratedColumn<String> customerTaxNumber =
+      GeneratedColumn<String>(
+        'customer_tax_number',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _currencyCodeMeta = const VerificationMeta(
     'currencyCode',
   );
@@ -2510,6 +2576,11 @@ class $OffersTable extends Offers with TableInfo<$OffersTable, OfferRow> {
     customerId,
     customerName,
     customerContactPerson,
+    customerPhone,
+    customerEmail,
+    customerAddress,
+    customerTaxOffice,
+    customerTaxNumber,
     currencyCode,
     generalDiscountBasisPoints,
     notes,
@@ -2553,6 +2624,51 @@ class $OffersTable extends Offers with TableInfo<$OffersTable, OfferRow> {
         customerContactPerson.isAcceptableOrUnknown(
           data['customer_contact_person']!,
           _customerContactPersonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_phone')) {
+      context.handle(
+        _customerPhoneMeta,
+        customerPhone.isAcceptableOrUnknown(
+          data['customer_phone']!,
+          _customerPhoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_email')) {
+      context.handle(
+        _customerEmailMeta,
+        customerEmail.isAcceptableOrUnknown(
+          data['customer_email']!,
+          _customerEmailMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_address')) {
+      context.handle(
+        _customerAddressMeta,
+        customerAddress.isAcceptableOrUnknown(
+          data['customer_address']!,
+          _customerAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_tax_office')) {
+      context.handle(
+        _customerTaxOfficeMeta,
+        customerTaxOffice.isAcceptableOrUnknown(
+          data['customer_tax_office']!,
+          _customerTaxOfficeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('customer_tax_number')) {
+      context.handle(
+        _customerTaxNumberMeta,
+        customerTaxNumber.isAcceptableOrUnknown(
+          data['customer_tax_number']!,
+          _customerTaxNumberMeta,
         ),
       );
     }
@@ -2611,6 +2727,26 @@ class $OffersTable extends Offers with TableInfo<$OffersTable, OfferRow> {
         DriftSqlType.string,
         data['${effectivePrefix}customer_contact_person'],
       ),
+      customerPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_phone'],
+      ),
+      customerEmail: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_email'],
+      ),
+      customerAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_address'],
+      ),
+      customerTaxOffice: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_tax_office'],
+      ),
+      customerTaxNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}customer_tax_number'],
+      ),
       currencyCode: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}currency_code'],
@@ -2641,6 +2777,13 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
   final int? customerId;
   final String customerName;
   final String? customerContactPerson;
+  final String? customerPhone;
+  final String? customerEmail;
+  final String? customerAddress;
+  final String? customerTaxOffice;
+
+  /// Vergi no serbest metindir (bkz. `Customers.taxNumber`): uzunluk sınırı yok.
+  final String? customerTaxNumber;
 
   /// ISO 4217 kodu; yalnızca gösterim etiketi, çevrim yapılmaz (bkz. `Currency`).
   final String currencyCode;
@@ -2652,6 +2795,11 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
     this.customerId,
     required this.customerName,
     this.customerContactPerson,
+    this.customerPhone,
+    this.customerEmail,
+    this.customerAddress,
+    this.customerTaxOffice,
+    this.customerTaxNumber,
     required this.currencyCode,
     required this.generalDiscountBasisPoints,
     this.notes,
@@ -2667,6 +2815,21 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
     map['customer_name'] = Variable<String>(customerName);
     if (!nullToAbsent || customerContactPerson != null) {
       map['customer_contact_person'] = Variable<String>(customerContactPerson);
+    }
+    if (!nullToAbsent || customerPhone != null) {
+      map['customer_phone'] = Variable<String>(customerPhone);
+    }
+    if (!nullToAbsent || customerEmail != null) {
+      map['customer_email'] = Variable<String>(customerEmail);
+    }
+    if (!nullToAbsent || customerAddress != null) {
+      map['customer_address'] = Variable<String>(customerAddress);
+    }
+    if (!nullToAbsent || customerTaxOffice != null) {
+      map['customer_tax_office'] = Variable<String>(customerTaxOffice);
+    }
+    if (!nullToAbsent || customerTaxNumber != null) {
+      map['customer_tax_number'] = Variable<String>(customerTaxNumber);
     }
     map['currency_code'] = Variable<String>(currencyCode);
     map['general_discount_basis_points'] = Variable<int>(
@@ -2689,6 +2852,21 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
       customerContactPerson: customerContactPerson == null && nullToAbsent
           ? const Value.absent()
           : Value(customerContactPerson),
+      customerPhone: customerPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerPhone),
+      customerEmail: customerEmail == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerEmail),
+      customerAddress: customerAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerAddress),
+      customerTaxOffice: customerTaxOffice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerTaxOffice),
+      customerTaxNumber: customerTaxNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(customerTaxNumber),
       currencyCode: Value(currencyCode),
       generalDiscountBasisPoints: Value(generalDiscountBasisPoints),
       notes: notes == null && nullToAbsent
@@ -2710,6 +2888,15 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
       customerContactPerson: serializer.fromJson<String?>(
         json['customerContactPerson'],
       ),
+      customerPhone: serializer.fromJson<String?>(json['customerPhone']),
+      customerEmail: serializer.fromJson<String?>(json['customerEmail']),
+      customerAddress: serializer.fromJson<String?>(json['customerAddress']),
+      customerTaxOffice: serializer.fromJson<String?>(
+        json['customerTaxOffice'],
+      ),
+      customerTaxNumber: serializer.fromJson<String?>(
+        json['customerTaxNumber'],
+      ),
       currencyCode: serializer.fromJson<String>(json['currencyCode']),
       generalDiscountBasisPoints: serializer.fromJson<int>(
         json['generalDiscountBasisPoints'],
@@ -2728,6 +2915,11 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
       'customerContactPerson': serializer.toJson<String?>(
         customerContactPerson,
       ),
+      'customerPhone': serializer.toJson<String?>(customerPhone),
+      'customerEmail': serializer.toJson<String?>(customerEmail),
+      'customerAddress': serializer.toJson<String?>(customerAddress),
+      'customerTaxOffice': serializer.toJson<String?>(customerTaxOffice),
+      'customerTaxNumber': serializer.toJson<String?>(customerTaxNumber),
       'currencyCode': serializer.toJson<String>(currencyCode),
       'generalDiscountBasisPoints': serializer.toJson<int>(
         generalDiscountBasisPoints,
@@ -2742,6 +2934,11 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
     Value<int?> customerId = const Value.absent(),
     String? customerName,
     Value<String?> customerContactPerson = const Value.absent(),
+    Value<String?> customerPhone = const Value.absent(),
+    Value<String?> customerEmail = const Value.absent(),
+    Value<String?> customerAddress = const Value.absent(),
+    Value<String?> customerTaxOffice = const Value.absent(),
+    Value<String?> customerTaxNumber = const Value.absent(),
     String? currencyCode,
     int? generalDiscountBasisPoints,
     Value<String?> notes = const Value.absent(),
@@ -2753,6 +2950,21 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
     customerContactPerson: customerContactPerson.present
         ? customerContactPerson.value
         : this.customerContactPerson,
+    customerPhone: customerPhone.present
+        ? customerPhone.value
+        : this.customerPhone,
+    customerEmail: customerEmail.present
+        ? customerEmail.value
+        : this.customerEmail,
+    customerAddress: customerAddress.present
+        ? customerAddress.value
+        : this.customerAddress,
+    customerTaxOffice: customerTaxOffice.present
+        ? customerTaxOffice.value
+        : this.customerTaxOffice,
+    customerTaxNumber: customerTaxNumber.present
+        ? customerTaxNumber.value
+        : this.customerTaxNumber,
     currencyCode: currencyCode ?? this.currencyCode,
     generalDiscountBasisPoints:
         generalDiscountBasisPoints ?? this.generalDiscountBasisPoints,
@@ -2771,6 +2983,21 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
       customerContactPerson: data.customerContactPerson.present
           ? data.customerContactPerson.value
           : this.customerContactPerson,
+      customerPhone: data.customerPhone.present
+          ? data.customerPhone.value
+          : this.customerPhone,
+      customerEmail: data.customerEmail.present
+          ? data.customerEmail.value
+          : this.customerEmail,
+      customerAddress: data.customerAddress.present
+          ? data.customerAddress.value
+          : this.customerAddress,
+      customerTaxOffice: data.customerTaxOffice.present
+          ? data.customerTaxOffice.value
+          : this.customerTaxOffice,
+      customerTaxNumber: data.customerTaxNumber.present
+          ? data.customerTaxNumber.value
+          : this.customerTaxNumber,
       currencyCode: data.currencyCode.present
           ? data.currencyCode.value
           : this.currencyCode,
@@ -2789,6 +3016,11 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
           ..write('customerId: $customerId, ')
           ..write('customerName: $customerName, ')
           ..write('customerContactPerson: $customerContactPerson, ')
+          ..write('customerPhone: $customerPhone, ')
+          ..write('customerEmail: $customerEmail, ')
+          ..write('customerAddress: $customerAddress, ')
+          ..write('customerTaxOffice: $customerTaxOffice, ')
+          ..write('customerTaxNumber: $customerTaxNumber, ')
           ..write('currencyCode: $currencyCode, ')
           ..write('generalDiscountBasisPoints: $generalDiscountBasisPoints, ')
           ..write('notes: $notes, ')
@@ -2803,6 +3035,11 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
     customerId,
     customerName,
     customerContactPerson,
+    customerPhone,
+    customerEmail,
+    customerAddress,
+    customerTaxOffice,
+    customerTaxNumber,
     currencyCode,
     generalDiscountBasisPoints,
     notes,
@@ -2816,6 +3053,11 @@ class OfferRow extends DataClass implements Insertable<OfferRow> {
           other.customerId == this.customerId &&
           other.customerName == this.customerName &&
           other.customerContactPerson == this.customerContactPerson &&
+          other.customerPhone == this.customerPhone &&
+          other.customerEmail == this.customerEmail &&
+          other.customerAddress == this.customerAddress &&
+          other.customerTaxOffice == this.customerTaxOffice &&
+          other.customerTaxNumber == this.customerTaxNumber &&
           other.currencyCode == this.currencyCode &&
           other.generalDiscountBasisPoints == this.generalDiscountBasisPoints &&
           other.notes == this.notes &&
@@ -2827,6 +3069,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
   final Value<int?> customerId;
   final Value<String> customerName;
   final Value<String?> customerContactPerson;
+  final Value<String?> customerPhone;
+  final Value<String?> customerEmail;
+  final Value<String?> customerAddress;
+  final Value<String?> customerTaxOffice;
+  final Value<String?> customerTaxNumber;
   final Value<String> currencyCode;
   final Value<int> generalDiscountBasisPoints;
   final Value<String?> notes;
@@ -2836,6 +3083,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
     this.customerId = const Value.absent(),
     this.customerName = const Value.absent(),
     this.customerContactPerson = const Value.absent(),
+    this.customerPhone = const Value.absent(),
+    this.customerEmail = const Value.absent(),
+    this.customerAddress = const Value.absent(),
+    this.customerTaxOffice = const Value.absent(),
+    this.customerTaxNumber = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.generalDiscountBasisPoints = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2846,6 +3098,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
     this.customerId = const Value.absent(),
     required String customerName,
     this.customerContactPerson = const Value.absent(),
+    this.customerPhone = const Value.absent(),
+    this.customerEmail = const Value.absent(),
+    this.customerAddress = const Value.absent(),
+    this.customerTaxOffice = const Value.absent(),
+    this.customerTaxNumber = const Value.absent(),
     this.currencyCode = const Value.absent(),
     this.generalDiscountBasisPoints = const Value.absent(),
     this.notes = const Value.absent(),
@@ -2856,6 +3113,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
     Expression<int>? customerId,
     Expression<String>? customerName,
     Expression<String>? customerContactPerson,
+    Expression<String>? customerPhone,
+    Expression<String>? customerEmail,
+    Expression<String>? customerAddress,
+    Expression<String>? customerTaxOffice,
+    Expression<String>? customerTaxNumber,
     Expression<String>? currencyCode,
     Expression<int>? generalDiscountBasisPoints,
     Expression<String>? notes,
@@ -2867,6 +3129,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
       if (customerName != null) 'customer_name': customerName,
       if (customerContactPerson != null)
         'customer_contact_person': customerContactPerson,
+      if (customerPhone != null) 'customer_phone': customerPhone,
+      if (customerEmail != null) 'customer_email': customerEmail,
+      if (customerAddress != null) 'customer_address': customerAddress,
+      if (customerTaxOffice != null) 'customer_tax_office': customerTaxOffice,
+      if (customerTaxNumber != null) 'customer_tax_number': customerTaxNumber,
       if (currencyCode != null) 'currency_code': currencyCode,
       if (generalDiscountBasisPoints != null)
         'general_discount_basis_points': generalDiscountBasisPoints,
@@ -2880,6 +3147,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
     Value<int?>? customerId,
     Value<String>? customerName,
     Value<String?>? customerContactPerson,
+    Value<String?>? customerPhone,
+    Value<String?>? customerEmail,
+    Value<String?>? customerAddress,
+    Value<String?>? customerTaxOffice,
+    Value<String?>? customerTaxNumber,
     Value<String>? currencyCode,
     Value<int>? generalDiscountBasisPoints,
     Value<String?>? notes,
@@ -2891,6 +3163,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
       customerName: customerName ?? this.customerName,
       customerContactPerson:
           customerContactPerson ?? this.customerContactPerson,
+      customerPhone: customerPhone ?? this.customerPhone,
+      customerEmail: customerEmail ?? this.customerEmail,
+      customerAddress: customerAddress ?? this.customerAddress,
+      customerTaxOffice: customerTaxOffice ?? this.customerTaxOffice,
+      customerTaxNumber: customerTaxNumber ?? this.customerTaxNumber,
       currencyCode: currencyCode ?? this.currencyCode,
       generalDiscountBasisPoints:
           generalDiscountBasisPoints ?? this.generalDiscountBasisPoints,
@@ -2916,6 +3193,21 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
         customerContactPerson.value,
       );
     }
+    if (customerPhone.present) {
+      map['customer_phone'] = Variable<String>(customerPhone.value);
+    }
+    if (customerEmail.present) {
+      map['customer_email'] = Variable<String>(customerEmail.value);
+    }
+    if (customerAddress.present) {
+      map['customer_address'] = Variable<String>(customerAddress.value);
+    }
+    if (customerTaxOffice.present) {
+      map['customer_tax_office'] = Variable<String>(customerTaxOffice.value);
+    }
+    if (customerTaxNumber.present) {
+      map['customer_tax_number'] = Variable<String>(customerTaxNumber.value);
+    }
     if (currencyCode.present) {
       map['currency_code'] = Variable<String>(currencyCode.value);
     }
@@ -2940,6 +3232,11 @@ class OffersCompanion extends UpdateCompanion<OfferRow> {
           ..write('customerId: $customerId, ')
           ..write('customerName: $customerName, ')
           ..write('customerContactPerson: $customerContactPerson, ')
+          ..write('customerPhone: $customerPhone, ')
+          ..write('customerEmail: $customerEmail, ')
+          ..write('customerAddress: $customerAddress, ')
+          ..write('customerTaxOffice: $customerTaxOffice, ')
+          ..write('customerTaxNumber: $customerTaxNumber, ')
           ..write('currencyCode: $currencyCode, ')
           ..write('generalDiscountBasisPoints: $generalDiscountBasisPoints, ')
           ..write('notes: $notes, ')
@@ -6605,6 +6902,11 @@ typedef $$OffersTableCreateCompanionBuilder =
       Value<int?> customerId,
       required String customerName,
       Value<String?> customerContactPerson,
+      Value<String?> customerPhone,
+      Value<String?> customerEmail,
+      Value<String?> customerAddress,
+      Value<String?> customerTaxOffice,
+      Value<String?> customerTaxNumber,
       Value<String> currencyCode,
       Value<int> generalDiscountBasisPoints,
       Value<String?> notes,
@@ -6616,6 +6918,11 @@ typedef $$OffersTableUpdateCompanionBuilder =
       Value<int?> customerId,
       Value<String> customerName,
       Value<String?> customerContactPerson,
+      Value<String?> customerPhone,
+      Value<String?> customerEmail,
+      Value<String?> customerAddress,
+      Value<String?> customerTaxOffice,
+      Value<String?> customerTaxNumber,
       Value<String> currencyCode,
       Value<int> generalDiscountBasisPoints,
       Value<String?> notes,
@@ -6683,6 +6990,31 @@ class $$OffersTableFilterComposer
 
   ColumnFilters<String> get customerContactPerson => $composableBuilder(
     column: $table.customerContactPerson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerPhone => $composableBuilder(
+    column: $table.customerPhone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerEmail => $composableBuilder(
+    column: $table.customerEmail,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerAddress => $composableBuilder(
+    column: $table.customerAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerTaxOffice => $composableBuilder(
+    column: $table.customerTaxOffice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get customerTaxNumber => $composableBuilder(
+    column: $table.customerTaxNumber,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6779,6 +7111,31 @@ class $$OffersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get customerPhone => $composableBuilder(
+    column: $table.customerPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerEmail => $composableBuilder(
+    column: $table.customerEmail,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerAddress => $composableBuilder(
+    column: $table.customerAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerTaxOffice => $composableBuilder(
+    column: $table.customerTaxOffice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get customerTaxNumber => $composableBuilder(
+    column: $table.customerTaxNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get currencyCode => $composableBuilder(
     column: $table.currencyCode,
     builder: (column) => ColumnOrderings(column),
@@ -6842,6 +7199,31 @@ class $$OffersTableAnnotationComposer
 
   GeneratedColumn<String> get customerContactPerson => $composableBuilder(
     column: $table.customerContactPerson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerPhone => $composableBuilder(
+    column: $table.customerPhone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerEmail => $composableBuilder(
+    column: $table.customerEmail,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerAddress => $composableBuilder(
+    column: $table.customerAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerTaxOffice => $composableBuilder(
+    column: $table.customerTaxOffice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get customerTaxNumber => $composableBuilder(
+    column: $table.customerTaxNumber,
     builder: (column) => column,
   );
 
@@ -6942,6 +7324,11 @@ class $$OffersTableTableManager
                 Value<int?> customerId = const Value.absent(),
                 Value<String> customerName = const Value.absent(),
                 Value<String?> customerContactPerson = const Value.absent(),
+                Value<String?> customerPhone = const Value.absent(),
+                Value<String?> customerEmail = const Value.absent(),
+                Value<String?> customerAddress = const Value.absent(),
+                Value<String?> customerTaxOffice = const Value.absent(),
+                Value<String?> customerTaxNumber = const Value.absent(),
                 Value<String> currencyCode = const Value.absent(),
                 Value<int> generalDiscountBasisPoints = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -6951,6 +7338,11 @@ class $$OffersTableTableManager
                 customerId: customerId,
                 customerName: customerName,
                 customerContactPerson: customerContactPerson,
+                customerPhone: customerPhone,
+                customerEmail: customerEmail,
+                customerAddress: customerAddress,
+                customerTaxOffice: customerTaxOffice,
+                customerTaxNumber: customerTaxNumber,
                 currencyCode: currencyCode,
                 generalDiscountBasisPoints: generalDiscountBasisPoints,
                 notes: notes,
@@ -6962,6 +7354,11 @@ class $$OffersTableTableManager
                 Value<int?> customerId = const Value.absent(),
                 required String customerName,
                 Value<String?> customerContactPerson = const Value.absent(),
+                Value<String?> customerPhone = const Value.absent(),
+                Value<String?> customerEmail = const Value.absent(),
+                Value<String?> customerAddress = const Value.absent(),
+                Value<String?> customerTaxOffice = const Value.absent(),
+                Value<String?> customerTaxNumber = const Value.absent(),
                 Value<String> currencyCode = const Value.absent(),
                 Value<int> generalDiscountBasisPoints = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
@@ -6971,6 +7368,11 @@ class $$OffersTableTableManager
                 customerId: customerId,
                 customerName: customerName,
                 customerContactPerson: customerContactPerson,
+                customerPhone: customerPhone,
+                customerEmail: customerEmail,
+                customerAddress: customerAddress,
+                customerTaxOffice: customerTaxOffice,
+                customerTaxNumber: customerTaxNumber,
                 currencyCode: currencyCode,
                 generalDiscountBasisPoints: generalDiscountBasisPoints,
                 notes: notes,

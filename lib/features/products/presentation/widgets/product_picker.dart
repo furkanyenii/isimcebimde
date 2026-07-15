@@ -126,18 +126,44 @@ class _CategorySection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSizes.md,
-            AppSizes.md,
+        // Belirgin kategori bandı: dolu arka plan + ikon + kalın, harflerarası
+        // açık büyük başlık; ürün satırlarından net biçimde ayrışsın.
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.fromLTRB(
+            AppSizes.xs,
             AppSizes.md,
             AppSizes.xs,
+            AppSizes.sm,
           ),
-          child: Text(
-            group.categoryName,
-            style: context.textStyles.titleSmall?.copyWith(
-              color: context.colors.onSurfaceVariant,
-            ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSizes.sm,
+            vertical: AppSizes.xs,
+          ),
+          decoration: BoxDecoration(
+            color: context.colors.primaryContainer,
+            borderRadius: BorderRadius.circular(AppSizes.radiusSm),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.folder_outlined,
+                size: AppSizes.iconSm,
+                color: context.colors.onPrimaryContainer,
+              ),
+              const SizedBox(width: AppSizes.xs),
+              Expanded(
+                child: Text(
+                  group.categoryName.toUpperCase(),
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyles.labelLarge?.copyWith(
+                    color: context.colors.onPrimaryContainer,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         for (final product in group.products)

@@ -211,6 +211,27 @@ class _CustomerSection extends pw.StatelessWidget {
 
   @override
   pw.Widget build(pw.Context context) {
+    // Müşterinin girilmiş bilgileri (bireysel/kurumsal farketmez): yalnızca
+    // dolu olan satırlar basılır — sahada eksik bilgiyle de teklif çıkar.
+    final details = <String>[
+      if (_isNotBlank(offer.customerContactPerson))
+        '${l10n.contactPersonLabel}: ${offer.customerContactPerson!.trim()}',
+      if (_isNotBlank(offer.customerPhone))
+        '${l10n.phoneLabel}: ${offer.customerPhone!.trim()}',
+      if (_isNotBlank(offer.customerEmail))
+        '${l10n.emailLabel}: ${offer.customerEmail!.trim()}',
+      if (_isNotBlank(offer.customerAddress))
+        '${l10n.addressLabel}: ${offer.customerAddress!.trim()}',
+      if (_isNotBlank(offer.customerTaxOffice) &&
+          _isNotBlank(offer.customerTaxNumber))
+        '${l10n.taxOfficeLabel}: ${offer.customerTaxOffice!.trim()} - '
+            '${offer.customerTaxNumber!.trim()}'
+      else if (_isNotBlank(offer.customerTaxOffice))
+        '${l10n.taxOfficeLabel}: ${offer.customerTaxOffice!.trim()}'
+      else if (_isNotBlank(offer.customerTaxNumber))
+        '${l10n.taxNumberFieldLabel}: ${offer.customerTaxNumber!.trim()}',
+    ];
+
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -223,15 +244,14 @@ class _CustomerSection extends pw.StatelessWidget {
         ),
         pw.SizedBox(height: 2),
         pw.Text(offer.customerName, style: const pw.TextStyle(fontSize: 11)),
-        if (offer.customerContactPerson != null &&
-            offer.customerContactPerson!.trim().isNotEmpty)
-          pw.Text(
-            '${l10n.contactPersonLabel}: ${offer.customerContactPerson}',
-            style: const pw.TextStyle(fontSize: 9),
-          ),
+        for (final line in details)
+          pw.Text(line, style: const pw.TextStyle(fontSize: 9)),
       ],
     );
   }
+
+  static bool _isNotBlank(String? value) =>
+      value != null && value.trim().isNotEmpty;
 }
 
 class _ItemsTable extends pw.StatelessWidget {

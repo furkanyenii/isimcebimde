@@ -13,6 +13,7 @@ import '../../drift_schemas/schema_v5.dart' as v5;
 import '../../drift_schemas/schema_v6.dart' as v6;
 import '../../drift_schemas/schema_v7.dart' as v7;
 import '../../drift_schemas/schema_v8.dart' as v8;
+import '../../drift_schemas/schema_v9.dart' as v9;
 
 /// Kullanıcının cihazındaki veri geri getirilemez: backend yok, sunucuda yedek yok.
 /// Bu yüzden migration'lar **testsiz merge edilmez** (CLAUDE.md: Database Rules).
@@ -156,7 +157,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
 
     expect(await db.select(db.products).get(), hasLength(1));
     expect(await db.select(db.customers).get(), hasLength(1));
@@ -174,7 +175,7 @@ void main() {
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
   });
 
   test('v4\'teki dil ve tema tercihi v9\'a kayıpsız taşınır', () async {
@@ -191,7 +192,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
 
     final row = await db.select(db.settings).getSingle();
     expect(row.languageCode, 'en');
@@ -239,7 +240,7 @@ void main() {
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
   });
 
   test('v5\'teki ürün, müşteri ve ayarlar v8\'e kayıpsız taşınır', () async {
@@ -264,7 +265,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
 
     expect(await db.select(db.products).get(), hasLength(1));
     expect(await db.select(db.customers).get(), hasLength(1));
@@ -277,7 +278,7 @@ void main() {
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
   });
 
   test('v6\'daki teklifler v8\'e kayıpsız taşınır', () async {
@@ -310,7 +311,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
 
     expect(await db.select(db.products).get(), hasLength(1));
     expect(await db.select(db.customers).get(), hasLength(1));
@@ -329,7 +330,7 @@ void main() {
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
   });
 
   test('v1 → v9 tek seferde yükseltilebilir (sürüm atlanmaz)', () async {
@@ -337,7 +338,7 @@ void main() {
     final db = AppDatabase.forTesting(connection);
     addTearDown(db.close);
 
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
   });
 
   test('v7\'deki miktarlar v8\'de binde bire ölçeklenir, değeri korunur', () async {
@@ -370,7 +371,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
 
     final item = await db.select(db.offerItems).getSingle();
     expect(item.quantity, 3000, reason: '3 adet, 3,000 olarak taşınmalı');
@@ -400,7 +401,7 @@ void main() {
 
     final db = AppDatabase.forTesting(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 9);
+    await verifier.migrateAndValidate(db, 10);
 
     final row = await db.select(db.settings).getSingle();
     expect(row.companyName, 'Yılmaz İnşaat');
@@ -408,6 +409,46 @@ void main() {
     expect(row.themeMode, 'dark');
     expect(row.preparerFirstName, isNull);
     expect(row.preparerTitle, isNull);
+  });
+
+  test('v9\'daki teklifler v10\'a kayıpsız taşınır', () async {
+    // v9 → v10 yalnızca nullable sütun ekler: mevcut teklif ve müşteri adı
+    // snapshot'ı korunmalı, yeni müşteri iletişim/vergi alanları boş gelmeli
+    // (eski tekliflerde bu bilgi hiç yoktu).
+    final schema = await verifier.schemaAt(9);
+    final oldDb = v9.DatabaseAtV9(schema.newConnection());
+
+    final offerId = await oldDb.customInsert(
+      'INSERT INTO offers (customer_name, customer_contact_person) '
+      'VALUES (?, ?)',
+      variables: [
+        const Variable('Yılmaz İnşaat'),
+        const Variable('Ahmet Yılmaz'),
+      ],
+    );
+    await oldDb.customStatement(
+      'INSERT INTO offer_items (offer_id, product_name, unit_price_minor, quantity, vat_rate_basis_points) '
+      'VALUES (?, ?, ?, ?, ?)',
+      [offerId, 'Vida M8', 1250, 3000, 2000],
+    );
+    await oldDb.close();
+
+    final db = AppDatabase.forTesting(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 10);
+
+    final offer = await db.select(db.offers).getSingle();
+    expect(offer.customerName, 'Yılmaz İnşaat'); // Snapshot bozulmadı.
+    expect(offer.customerContactPerson, 'Ahmet Yılmaz');
+    // Yeni alanlar boş gelir: eski teklifte müşteri detayı yoktu.
+    expect(offer.customerPhone, isNull);
+    expect(offer.customerEmail, isNull);
+    expect(offer.customerAddress, isNull);
+    expect(offer.customerTaxOffice, isNull);
+    expect(offer.customerTaxNumber, isNull);
+
+    // Satır da korunmalı.
+    expect(await db.select(db.offerItems).get(), hasLength(1));
   });
 
   test('kullanıcının eklediği birim tekrar eklenemez (UNIQUE)', () async {

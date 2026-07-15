@@ -43,6 +43,30 @@ void main() {
     expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
   });
 
+  testWidgets('müşterinin tüm iletişim/vergi bilgileriyle PDF üretir', (
+    tester,
+  ) async {
+    // Yeni müşteri snapshot alanları (adres, telefon, e-posta, vergi) dolu
+    // olduğunda da PDF hatasız üretilmeli.
+    final offer = sampleOffer().copyWith(
+      customerPhone: '0532 111 22 33',
+      customerEmail: 'info@yilmaz.com',
+      customerAddress: 'Çekmeköy, İstanbul',
+      customerTaxOffice: 'Ümraniye',
+      customerTaxNumber: 'TR1234567890',
+    );
+
+    final bytes = await buildOfferPdfBytes(
+      offer: offer,
+      company: const CompanyInfo(name: 'Şahin Yapı Malzemeleri'),
+      l10n: l10nFor(const Locale('tr')),
+      localeName: 'tr',
+    );
+
+    expect(bytes, isNotEmpty);
+    expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
+  });
+
   testWidgets('firma bilgisi boşken de (opsiyonel alanlar) üretir', (
     tester,
   ) async {
