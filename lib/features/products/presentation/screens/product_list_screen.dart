@@ -37,13 +37,12 @@ class ProductListScreen extends ConsumerWidget {
               data: (items) {
                 if (items.isEmpty) {
                   // Arama sonucu boş olmakla, hiç ürün olmaması farklı şeylerdir.
+                  // Eylem butonu yok: yeni ürün zaten sağ alttaki FAB ile açılır.
                   return query.trim().isEmpty
                       ? AppEmptyView(
                           icon: Icons.inventory_2_outlined,
                           title: l10n.productsEmptyTitle,
                           description: l10n.productsEmptyDescription,
-                          actionLabel: l10n.productAdd,
-                          onAction: () => _openForm(context),
                         )
                       : AppEmptyView(
                           icon: Icons.search_off,

@@ -46,7 +46,7 @@ final class CustomerFormControllerProvider
 }
 
 String _$customerFormControllerHash() =>
-    r'cf00a348e41b39c33468470e73dbffc7053afe66';
+    r'572bc2a50b5e0143bcc6f4df47d807d0a99427a2';
 
 /// Müşteri kaydetme/silme işlemlerinin durumu.
 ///

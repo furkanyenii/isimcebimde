@@ -143,14 +143,10 @@ class CustomerRepositoryImpl implements CustomerRepository {
       throw const InvalidEmailFailure();
     }
 
-    final taxNumber = _digitsOrNull(customer.taxNumber);
-    // Vergi no her iki tipte de sorulur (şahıs firması da vergiye tabidir):
-    // 10 hane vergi no, 11 hane ise eskiden TCKN olarak girilmiş kayıt.
-    // Checksum doğrulaması yapılmaz: geçerli ama alışılmadık bir numarada
-    // kullanıcıyı bloklamak, hatalı numaraya izin vermekten daha kötüdür.
-    if (taxNumber != null && taxNumber.length != 10 && taxNumber.length != 11) {
-      throw const InvalidTaxNumberFailure();
-    }
+    // Vergi/kimlik no serbest metindir: uygulama Türkiye dışında da
+    // kullanılabilir ve numaralar harf içerebilir (ör. AB VAT). Biçim/uzunluk
+    // kontrolü ve rakama indirgeme yapılmaz; yalnızca boş → null normalize edilir.
+    final taxNumber = _blankToNull(customer.taxNumber);
 
     // Yetkili kişi yalnızca kurumsalda anlamlıdır: tip değiştirildiğinde
     // gizlenen alanın eski değeri veritabanında hayalet gibi kalmamalı.
@@ -176,12 +172,6 @@ class CustomerRepositoryImpl implements CustomerRepository {
   static String? _blankToNull(String? value) {
     final trimmed = value?.trim();
     return (trimmed == null || trimmed.isEmpty) ? null : trimmed;
-  }
-
-  /// Kullanıcı vergi numarasını boşluklu/tireli yazabilir; rakamlara indirgenir.
-  static String? _digitsOrNull(String? value) {
-    final digits = value?.replaceAll(RegExp(r'\D'), '') ?? '';
-    return digits.isEmpty ? null : digits;
   }
 
   /// Kasıtlı olarak gevşek: amacı yazım hatasını yakalamak, RFC 5322'yi

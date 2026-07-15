@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:isimcebimde/app/router/app_router.dart';
+import 'package:intl/intl.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/theme/app_typography.dart';
@@ -20,16 +19,7 @@ class OfferListScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.moduleQuotes),
-        actions: [
-          IconButton(
-            onPressed: () => context.push(AppRoutes.templates),
-            icon: const Icon(Icons.bookmarks_outlined),
-            tooltip: l10n.templatesTitle,
-          ),
-        ],
-      ),
+      appBar: AppBar(title: Text(l10n.moduleQuotes)),
       body: offers.when(
         loading: () => const AppLoadingView(),
         error: (error, _) => AppErrorView(
@@ -38,12 +28,11 @@ class OfferListScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
+            // Eylem butonu yok: yeni teklif zaten sağ alttaki FAB ile açılır.
             return AppEmptyView(
               icon: Icons.description_outlined,
               title: l10n.quotesEmptyTitle,
               description: l10n.quotesEmptyDescription,
-              actionLabel: l10n.quoteNew,
-              onAction: () => _openOfferForm(context),
             );
           }
           return ListView.separated(
@@ -84,10 +73,15 @@ class _OfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // "3 ürün · 15.07.2026" — adet ve tarih tek alt satırda.
+    final date = DateFormat.yMd(context.localeTag).format(offer.createdAt);
+    final subtitle =
+        '${context.l10n.quoteItemCount(offer.items.length)} · $date';
+
     return AppListCard(
       icon: Icons.description_outlined,
       title: offer.customerName,
-      subtitle: context.l10n.quoteItemCount(offer.items.length),
+      subtitle: subtitle,
       onTap: () => _openOfferForm(context, offer: offer),
       trailing: Text(
         offer.grandTotal.format(

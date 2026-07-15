@@ -81,6 +81,11 @@ final class Offer {
     return 'TKL-${createdAt.year}-${savedId.toString().padLeft(6, '0')}';
   }
 
+  /// Kaydedilmiş teklifte [quoteNumber], kaydedilmemişte `null`. Teklifi
+  /// kaydetmeden PDF üretimi bunu kullanır: dosya adı/paylaşım konusu için
+  /// çağıran taraf taslak bir etiketle doldurur.
+  String? get quoteNumberOrNull => id == null ? null : quoteNumber;
+
   /// Kasıtlı olarak sınırlı: alanı temizlemek gereken tek yer
   /// [customerContactPerson] ve [notes]'tur (müşteri değişince veya not
   /// silinince `null` olabilmeli). Diğer alanlar hep birlikte değişir.

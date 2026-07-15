@@ -89,6 +89,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get moduleSettingsSubtitle => 'Firma, tema, dil';
 
   @override
+  String get quoteDraftLabel => 'Teklif-Taslak';
+
+  @override
   String quoteItemCount(int count) {
     return '$count ürün';
   }

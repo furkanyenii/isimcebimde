@@ -248,6 +248,12 @@ abstract class AppLocalizations {
   /// **'Company, theme, language'**
   String get moduleSettingsSubtitle;
 
+  /// No description provided for @quoteDraftLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote-Draft'**
+  String get quoteDraftLabel;
+
   /// No description provided for @quoteItemCount.
   ///
   /// In en, this message translates to:

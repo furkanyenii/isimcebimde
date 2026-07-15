@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash/launch arka planı — Flutter splash ekranının koyu zemini
+         (#0B0E1A) ile birebir aynı: açılışta beyaz flaş görünmez. -->
+    <color name="splash_background">#0B0E1A</color>
+</resources>

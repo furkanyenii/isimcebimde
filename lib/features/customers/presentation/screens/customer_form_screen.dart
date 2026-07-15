@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
@@ -187,15 +186,15 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSizes.md),
+                  // Vergi/kimlik no ülkeye göre harf de içerebilir (ör. AB VAT
+                  // numaraları); biçim/uzunluk kontrolü yok, serbest metin.
                   TextFormField(
                     controller: _taxNumber,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    textCapitalization: TextCapitalization.characters,
                     decoration: InputDecoration(
                       labelText: l10n.taxNumberLabel,
                       helperText: l10n.optionalField,
                     ),
-                    validator: _validateTaxNumber,
                   ),
                   const SizedBox(height: AppSizes.md),
                   TextFormField(
@@ -243,19 +242,6 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
         : context.l10n.errorEmailInvalid;
   }
 
-  /// Vergi no 10 hanelidir. 11 hane de kabul edilir: bu alan eskiden bireysel
-  /// müşteride TC Kimlik No idi ve o kayıtlar hâlâ veritabanında duruyor —
-  /// düzenlemeye açan kullanıcıyı kendi verisiyle uğraştırmayız.
-  String? _validateTaxNumber(String? value) {
-    final digits = value?.trim() ?? '';
-    if (digits.isEmpty) return null; // isteğe bağlı
-
-    if (digits.length != 10 && digits.length != 11) {
-      return context.l10n.errorTaxNumberLength;
-    }
-    return null;
-  }
-
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -273,11 +259,14 @@ class _CustomerFormScreenState extends ConsumerState<CustomerFormScreen> {
       notes: _notes.text,
     );
 
+    // Kaydedilen müşteri geri döndürülür: müşteri picker'ı içinden açıldığında
+    // doğrudan teklife seçili gelir. Liste ekranından açıldığında sonuç
+    // yok sayılır (ProductFormScreen ile aynı desen).
     final saved = await ref
         .read(customerFormControllerProvider.notifier)
         .save(customer);
 
-    if (saved && mounted) Navigator.of(context).pop();
+    if (saved != null && mounted) Navigator.of(context).pop(saved);
   }
 
   Future<void> _confirmDelete() async {

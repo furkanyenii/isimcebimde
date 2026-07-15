@@ -47,6 +47,7 @@
   "moduleProductsSubtitle": "Price list and categories",
   "moduleCustomersSubtitle": "Saved customers",
   "moduleSettingsSubtitle": "Company, theme, language",
+  "quoteDraftLabel": "Quote-Draft",
   "quoteItemCount": "{count} items",
   "@quoteItemCount": {
     "placeholders": { "count": { "type": "int" } }

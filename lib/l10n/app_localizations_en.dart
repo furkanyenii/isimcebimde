@@ -89,6 +89,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleSettingsSubtitle => 'Company, theme, language';
 
   @override
+  String get quoteDraftLabel => 'Quote-Draft';
+
+  @override
   String quoteItemCount(int count) {
     return '$count items';
   }

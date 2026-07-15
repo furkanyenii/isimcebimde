@@ -53,10 +53,30 @@ class CategoryPicker extends ConsumerWidget {
 
     return DropdownButtonFormField<int>(
       initialValue: value,
+      // Uzun kategori adı satırı yatayda taşırmasın; menü ekranı aşmasın diye
+      // yüksekliği sınırlanır.
+      isExpanded: true,
+      menuMaxHeight: AppSizes.dropdownMaxHeight,
       decoration: InputDecoration(labelText: l10n.categoryLabel),
+      // Alan içindeki seçili metin: InputDecoration'ın kendi yatay boşluğuyla
+      // hizalanır, ek padding almaz.
+      selectedItemBuilder: (context) => [
+        for (final category in items)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(category.name, overflow: TextOverflow.ellipsis),
+          ),
+      ],
       items: [
         for (final category in items)
-          DropdownMenuItem(value: category.id, child: Text(category.name)),
+          DropdownMenuItem(
+            value: category.id,
+            // Açılır menü öğeleri ekranın kenarına yapışmasın diye yatay boşluk.
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.sm),
+              child: Text(category.name, overflow: TextOverflow.ellipsis),
+            ),
+          ),
       ],
       onChanged: (id) {
         if (id != null) onChanged(id);

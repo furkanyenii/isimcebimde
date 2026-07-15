@@ -44,18 +44,24 @@ Future<Uint8List> buildOfferPdfBytes({
   doc.addPage(
     pw.MultiPage(
       margin: const pw.EdgeInsets.all(32),
-      header: (context) => _Header(
-        company: company,
-        logoImage: logoImage,
-        offer: offer,
-        l10n: l10n,
-        localeName: localeName,
-      ),
-      // Teklifi hazırlayan kişi sayfanın altında, başlıksız. Hiçbir alanı
-      // doldurulmadıysa alt bilgi hiç çizilmez — boş bir çizgi bırakmayız.
+      // Şirket başlığı (logo, ad, adres, vergi) yalnızca ilk sayfada. Çok
+      // sayfalı tekliflerde her sayfada tekrarlanması alanı boşa harcıyordu.
+      header: (context) => context.pageNumber == 1
+          ? _Header(
+              company: company,
+              logoImage: logoImage,
+              offer: offer,
+              l10n: l10n,
+              localeName: localeName,
+            )
+          : pw.SizedBox(),
+      // Teklifi hazırlayan kişi başlıksız, yalnızca son sayfanın altında.
+      // Hiçbir alanı doldurulmadıysa alt bilgi hiç çizilmez.
       footer: preparer.isEmpty
           ? null
-          : (context) => _PreparerFooter(preparer: preparer),
+          : (context) => context.pageNumber == context.pagesCount
+                ? _PreparerFooter(preparer: preparer)
+                : pw.SizedBox(),
       build: (context) => [
         pw.SizedBox(height: 16),
         _CustomerSection(offer: offer, l10n: l10n),

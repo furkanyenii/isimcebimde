@@ -35,14 +35,13 @@ class CustomerListScreen extends ConsumerWidget {
               ),
               data: (items) {
                 if (items.isEmpty) {
+                  // Eylem butonu yok: yeni müşteri zaten sağ alttaki FAB ile açılır.
                   // Arama sonucu boş olmakla, hiç müşteri olmaması farklı şeylerdir.
                   return query.trim().isEmpty
                       ? AppEmptyView(
                           icon: Icons.people_outline,
                           title: l10n.customersEmptyTitle,
                           description: l10n.customersEmptyDescription,
-                          actionLabel: l10n.customerAdd,
-                          onAction: () => _openForm(context),
                         )
                       : AppEmptyView(
                           icon: Icons.search_off,

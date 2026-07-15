@@ -117,9 +117,12 @@ class _BrandHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Gradyan her iki temada koyu: marka adı her koşulda beyaz okunur.
               Text(
                 'Quotra',
-                style: context.textStyles.titleLarge,
+                style: context.textStyles.titleLarge?.copyWith(
+                  color: Colors.white,
+                ),
               ), // Marka adı çevrilmez.
               const Icon(Icons.bolt_rounded, size: AppSizes.iconSm),
             ],

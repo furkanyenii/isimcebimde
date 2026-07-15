@@ -86,17 +86,19 @@ flutter:
           weight: 700
 
 # `dart run flutter_launcher_icons` ile tüm platform ikonlarını üretir.
-# Kaynak görsel zaten tam kare + opak (alfa yok) — iOS App Store kuralına uygun.
+# Kaynak quotra_icon.png tam kare + opak (alfa yok): iOS App Store kuralına
+# uygun ve siyah köşeler rozet lacivertiyle dolduruldu — maskelenince temiz.
+# Splash ise şeffaf köşeli quotra_logo_transparent.png kullanır.
 flutter_launcher_icons:
-  image_path: "assets/images/quotra_logo.png"
+  image_path: "assets/images/quotra_icon.png"
   android: true
   ios: true
   macos:
     generate: true
-    image_path: "assets/images/quotra_logo.png"
+    image_path: "assets/images/quotra_icon.png"
   windows:
     generate: true
-    image_path: "assets/images/quotra_logo.png"
+    image_path: "assets/images/quotra_icon.png"
   web:
     generate: true
-    image_path: "assets/images/quotra_logo.png"
+    image_path: "assets/images/quotra_icon.png"

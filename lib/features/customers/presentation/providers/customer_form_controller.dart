@@ -13,19 +13,25 @@ class CustomerFormController extends _$CustomerFormController {
   @override
   FutureOr<void> build() {}
 
-  Future<bool> save(Customer customer) async {
+  /// Kaydedilen müşteriyi döner (yeni müşteride artık `id` doludur), hata
+  /// halinde `null`. Çağıran id'ye ihtiyaç duyabilir: müşteri picker'ı içinden
+  /// oluşturulan müşteri doğrudan teklife seçili gelir.
+  Future<Customer?> save(Customer customer) async {
     state = const AsyncLoading();
     final repository = ref.read(customerRepositoryProvider);
 
+    Customer? saved;
     state = await AsyncValue.guard(() async {
       if (customer.id == null) {
-        await repository.create(customer);
+        final id = await repository.create(customer);
+        saved = customer.copyWith(id: id);
       } else {
         await repository.update(customer);
+        saved = customer;
       }
     });
 
-    return !state.hasError;
+    return state.hasError ? null : saved;
   }
 
   Future<bool> delete(int id) async {

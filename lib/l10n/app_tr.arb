@@ -29,6 +29,7 @@
   "moduleProductsSubtitle": "Fiyat listesi ve kategoriler",
   "moduleCustomersSubtitle": "Kayıtlı müşteriler",
   "moduleSettingsSubtitle": "Firma, tema, dil",
+  "quoteDraftLabel": "Teklif-Taslak",
   "quoteItemCount": "{count} ürün",
   "@quoteItemCount": {
     "placeholders": { "count": { "type": "int" } }

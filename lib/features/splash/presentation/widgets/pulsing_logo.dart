@@ -12,8 +12,9 @@ class PulsingLogo extends StatefulWidget {
 
   final VoidCallback onFinished;
 
-  /// 5 döngü × [AppDurations.heartbeat] (500ms) = splash toplam 2.5sn.
-  static const int _pulseCount = 5;
+  /// 3 döngü × [AppDurations.heartbeat] (900ms) = splash toplam ~2.7sn.
+  /// Nabız bilinçli olarak yavaş: sakin, profesyonel bir açılış hissi.
+  static const int _pulseCount = 3;
 
   @override
   State<PulsingLogo> createState() => _PulsingLogoState();
@@ -61,8 +62,10 @@ class _PulsingLogoState extends State<PulsingLogo>
   Widget build(BuildContext context) {
     return ScaleTransition(
       scale: _scale,
+      // Şeffaf köşeli varyant: koyu splash üzerinde siyah kare çerçeve
+      // görünmez. Launcher ikonu ayrı bir opak varyant kullanır (quotra_icon.png).
       child: Image.asset(
-        'assets/images/quotra_logo.png',
+        'assets/images/quotra_logo_transparent.png',
         width: AppSizes.logoSplash,
         height: AppSizes.logoSplash,
       ),

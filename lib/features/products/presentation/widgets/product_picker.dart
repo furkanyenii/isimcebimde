@@ -70,6 +70,14 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: AppSizes.sm),
+          // Aranan ürün listede yoksa akış kesilmez: her zaman görünür bu buton
+          // ile ürün buradan oluşturulur ve doğrudan teklife eklenir.
+          OutlinedButton.icon(
+            onPressed: () => _createProduct(_searchController.text.trim()),
+            icon: const Icon(Icons.add),
+            label: Text(l10n.productNew),
+          ),
+          const SizedBox(height: AppSizes.sm),
           Expanded(
             child: products.when(
               loading: () => const AppLoadingView(),
@@ -88,10 +96,6 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
                     description: query.isEmpty
                         ? l10n.productsEmptyDescription
                         : l10n.emptySearchDescription,
-                    actionLabel: query.isEmpty
-                        ? l10n.productAdd
-                        : l10n.productCreateFromSearch(query),
-                    onAction: () => _createProduct(query),
                   );
                 }
 

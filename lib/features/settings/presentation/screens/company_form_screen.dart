@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/errors/failure_localizer.dart';
@@ -171,15 +170,15 @@ class _CompanyFormState extends ConsumerState<_CompanyForm> {
                   ),
                 ),
                 const SizedBox(height: AppSizes.md),
+                // Vergi/kimlik no ülkeye göre harf de içerebilir; biçim/uzunluk
+                // kontrolü yok, serbest metin.
                 TextFormField(
                   controller: _taxNumber,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  textCapitalization: TextCapitalization.characters,
                   decoration: InputDecoration(
                     labelText: l10n.taxNumberFieldLabel,
                     helperText: l10n.optionalField,
                   ),
-                  validator: _validateTaxNumber,
                 ),
                 const SizedBox(height: AppSizes.xl),
                 FilledButton(
@@ -208,12 +207,6 @@ class _CompanyFormState extends ConsumerState<_CompanyForm> {
     return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)
         ? null
         : context.l10n.errorEmailInvalid;
-  }
-
-  String? _validateTaxNumber(String? value) {
-    final digits = value?.trim() ?? '';
-    if (digits.isEmpty) return null; // isteğe bağlı
-    return digits.length == 10 ? null : context.l10n.errorTaxNumberLength;
   }
 
   Future<void> _save() async {

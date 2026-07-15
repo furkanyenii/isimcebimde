@@ -33,6 +33,10 @@ abstract final class AppSizes {
   /// kalır; kart tam ekrana yayılıp seyrelmez.
   static const double maxContentWidth = 640;
 
+  /// Açılır menü (dropdown) en fazla bu yükseklikte olur; uzun liste ekranı
+  /// aşıp taşmasın.
+  static const double dropdownMaxHeight = 320;
+
   /// Splash ekranındaki marka logosu.
   static const double logoSplash = 120;
 }
@@ -44,6 +48,6 @@ abstract final class AppDurations {
   static const Duration slow = Duration(milliseconds: 400);
 
   /// Splash logosunun tek bir "kalp atışı" (büyü-küçül) döngü süresi.
-  /// 5 döngü × 500ms = splash ekranının toplam 2.5sn sürmesini sağlar.
-  static const Duration heartbeat = Duration(milliseconds: 500);
+  /// Yavaş ve sakin: 3 döngü × 900ms ≈ splash ekranı ~2.7sn sürer.
+  static const Duration heartbeat = Duration(milliseconds: 900);
 }

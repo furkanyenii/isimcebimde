@@ -48,8 +48,10 @@ class OfferPdfPreviewScreen extends ConsumerWidget {
             l10n: l10n,
             localeName: context.localeTag,
           ),
-          pdfFileName: '${offer.quoteNumber}.pdf',
-          shareActionExtraSubject: offer.quoteNumber,
+          // Teklif henüz kaydedilmediyse numara yok; taslak etiketi kullanılır.
+          pdfFileName: '${offer.quoteNumberOrNull ?? l10n.quoteDraftLabel}.pdf',
+          shareActionExtraSubject:
+              offer.quoteNumberOrNull ?? l10n.quoteDraftLabel,
           shareActionExtraBody: l10n.shareEmailBody(offer.customerName),
           shareActionExtraEmails: customerEmail == null
               ? null
