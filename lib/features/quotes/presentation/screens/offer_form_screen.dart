@@ -37,7 +37,9 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
 
   late Offer _offer;
 
-  bool get _isEditing => widget.offer != null;
+  /// Şablondan gelen taslak da dolu bir [Offer]'dır ama henüz kaydedilmemiştir
+  /// (`id == null`) — o yüzden ölçüt `offer != null` değil, `id`'nin varlığıdır.
+  bool get _isEditing => widget.offer?.id != null;
 
   @override
   void initState() {
@@ -80,11 +82,15 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
           // PDF kaydetmeden de üretilebilir: numara yoksa taslak etiketiyle
           // basılır (bkz. Offer.quoteNumberOrNull). Boş teklifin PDF'i
           // anlamsız olduğu için yalnızca satır varken gösterilir.
+          // Metinli buton: ikon tek başına ne yaptığını anlatmıyordu.
           if (_offer.items.isNotEmpty)
-            IconButton(
-              onPressed: _openPdfPreview,
-              icon: const Icon(Icons.picture_as_pdf_outlined),
-              tooltip: l10n.pdfGenerateTooltip,
+            Padding(
+              padding: const EdgeInsets.only(right: AppSizes.sm),
+              child: TextButton.icon(
+                onPressed: _openPdfPreview,
+                icon: const Icon(Icons.picture_as_pdf_outlined),
+                label: Text(l10n.pdfAction),
+              ),
             ),
         ],
       ),

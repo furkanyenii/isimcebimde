@@ -37,6 +37,19 @@ class _FakeTemplateRepository implements TemplateRepository {
   Future<void> delete(int id) async {}
 }
 
+Template _template({required int id, required String name}) => Template(
+  id: id,
+  name: name,
+  items: [
+    OfferItem(
+      productName: 'Vida M8',
+      unitPrice: Money.fromLira(12, 50),
+      quantity: Quantity.of(100),
+      vatRate: Percent.of(20),
+    ),
+  ],
+);
+
 void main() {
   final tr = l10nFor(const Locale('tr'));
 
@@ -62,7 +75,9 @@ void main() {
     expect(find.byType(AppLoadingView), findsOneWidget);
   });
 
-  testWidgets('şablon yokken empty state ve yönlendirici eylem gösterir', (
+  // Empty state'in kendi eylem butonu yoktur: ekleme sağ alttaki FAB'ın işidir
+  // (ProductListScreen/OfferListScreen ile aynı desen).
+  testWidgets('şablon yokken empty state gösterir, FAB forma götürür', (
     tester,
   ) async {
     await tester.pumpWidget(buildSubject());
@@ -123,6 +138,39 @@ void main() {
 
     expect(find.byType(TemplateFormScreen), findsOneWidget);
     expect(find.text(tr.templateEdit), findsOneWidget);
+  });
+
+  testWidgets('arama, adı eşleşmeyen şablonları listeden çıkarır', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject());
+    controller.add([
+      _template(id: 1, name: 'Standart Hırdavat'),
+      _template(id: 2, name: 'Ofis Paketi'),
+    ]);
+    await tester.pumpAndSettle();
+
+    // Türkçe karakter duyarsız: "hirdavat" da "Hırdavat"ı bulmalı
+    // (bkz. core/utils/turkish_text.dart).
+    await tester.enterText(find.byType(TextField), 'hirdavat');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Standart Hırdavat'), findsOneWidget);
+    expect(find.text('Ofis Paketi'), findsNothing);
+  });
+
+  testWidgets('arama sonucu boşsa "hiç şablon yok" değil, "sonuç yok" denir', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildSubject());
+    controller.add([_template(id: 1, name: 'Ofis Paketi')]);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'bulunmayan');
+    await tester.pumpAndSettle();
+
+    expect(find.text(tr.emptySearchTitle), findsOneWidget);
+    expect(find.text(tr.templatesEmptyTitle), findsNothing);
   });
 
   testWidgets('hata durumunda error state ve tekrar dene gösterilir', (

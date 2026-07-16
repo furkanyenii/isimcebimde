@@ -60,6 +60,7 @@ class AppListCard extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.iconColor,
+    this.isHighlighted = false,
     super.key,
   });
 
@@ -72,10 +73,14 @@ class AppListCard extends StatelessWidget {
   final Color? iconColor;
   final VoidCallback onTap;
 
+  /// Satırı marka aksanıyla çerçeveler (bkz. [AppSurfaceCard.isHighlighted]).
+  final bool isHighlighted;
+
   @override
   Widget build(BuildContext context) {
     return AppSurfaceCard(
       onTap: onTap,
+      isHighlighted: isHighlighted,
       child: Row(
         children: [
           AppIconTile(icon: icon, color: iconColor),

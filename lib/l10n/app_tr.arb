@@ -17,6 +17,7 @@
   "splashInitError": "Uygulama başlatılamadı. Veritabanı açılamıyor.",
 
   "moduleQuotes": "Teklifler",
+  "moduleTemplates": "Şablonlar",
   "moduleProducts": "Ürünler",
   "moduleCustomers": "Müşteriler",
   "moduleSettings": "Ayarlar",
@@ -27,9 +28,13 @@
   "dashboardStatCustomers": "Müşteri",
   "dashboardSectionModules": "Yönet",
   "moduleQuotesSubtitle": "Oluştur, düzenle, paylaş",
+  "moduleTemplatesSubtitle": "Hazır teklif taslakları",
   "moduleProductsSubtitle": "Fiyat listesi ve kategoriler",
   "moduleCustomersSubtitle": "Kayıtlı müşteriler",
   "moduleSettingsSubtitle": "Firma, tema, dil",
+  "offerStartBlank": "Yeni teklif",
+  "offerStartBlankSubtitle": "Şablon kullanmadan başla",
+  "offerStartFromTemplate": "Şablondan başla",
   "quoteDraftLabel": "Teklif-Taslak",
   "quoteItemCount": "{count} ürün",
   "@quoteItemCount": {
@@ -90,7 +95,7 @@
   "quotesEmptyDescription": "İlk teklifini oluştur.",
   "quotesLoadError": "Teklifler yüklenemedi.",
 
-  "pdfGenerateTooltip": "PDF Oluştur",
+  "pdfAction": "PDF",
   "pdfPreviewTitle": "Teklif PDF'i",
   "quoteNumberLabel": "Teklif No",
   "quoteDateLabel": "Tarih",

@@ -355,6 +355,31 @@ Yeni teklifler şablonlardan oluşturulabiliyor. ✅
 
 Şema v7.
 
+## Revizyon (16 Tem 2026)
+
+Şablon akışı yeniden kurgulandı. Yukarıdaki kararların bir kısmı **artık
+geçerli değil**; bölümün geri kalanı o günün kaydı olarak duruyor.
+
+Değişimin sebebi: şablon, teklif formunun içinde bir araç olarak kaldığı
+sürece keşfedilmiyordu. Artık kendi modülü ve teklif akışının başlangıcı.
+
+- **"Teklifi şablon olarak kaydet" kaldırıldı.** Şablon yalnızca Şablonlar
+  sayfasından oluşturulur; teklif formunda şablona dair hiçbir iz yok.
+  Böylece formdaki tek birincil eylem kaydetmek olarak kalıyor.
+  `save_as_template_dialog.dart` ve `template_picker.dart` silindi.
+- **"Şablondan oluştur" butonu yerine başlangıç seçimi geldi.** "Yeni teklif"
+  tek bir girişten geçiyor (`openNewOfferFlow`): şablon varsa boş teklif /
+  şablon listesi sheet'i açılır, **yoksa hiç sorulmadan** boş form gelir —
+  boş kutuyla başlayana fazladan dokunuş yüklenmez.
+- **Şablonlar artık Dashboard'da kendi modülü.** `/quotes/templates` yerine
+  `/templates`, dashboard'un doğrudan çocuğu; düzen 5 kart. "4 kartlık düzen
+  bozulmasın" gerekçesi, şablonu teklif akışının başlangıcı yapma kararına
+  yenildi.
+- Şablon adı benzersizliği, en az bir satır zorunluluğu, `OfferItem`'ın
+  paylaşılması ve şablonun müşteriden bağımsızlığı **aynen geçerli**.
+
+Şema değişmedi (v7'de tanımlanan tablolar yerinde; güncel sürüm v10).
+
 ---
 
 # Phase 7 - PDF

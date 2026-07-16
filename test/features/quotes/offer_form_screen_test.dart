@@ -314,11 +314,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // Yeni (kaydedilmemiş) teklif: satır yokken PDF üretmek anlamsız.
-    expect(find.byTooltip(tr.pdfGenerateTooltip), findsNothing);
+    expect(find.text(tr.pdfAction), findsNothing);
 
     await addProduct(tester, 'Vida M8');
 
     // Kaydetmeden, sadece satır eklenerek PDF butonu erişilebilir olur.
-    expect(find.byTooltip(tr.pdfGenerateTooltip), findsOneWidget);
+    expect(find.text(tr.pdfAction), findsOneWidget);
   });
 }
