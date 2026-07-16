@@ -16,7 +16,9 @@ import 'package:isimcebimde/features/products/presentation/providers/product_pro
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/repositories/offer_repository.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
+import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 
+import '../../support/fake_template_repository.dart';
 import '../../support/localized_app.dart';
 
 /// Widget testi ekranı test eder, veritabanını değil (CLAUDE.md: Test Rules).
@@ -116,24 +118,30 @@ void main() {
       productRepositoryProvider.overrideWithValue(
         _FakeProductRepository(productController),
       ),
+      // Teklif kartının "+" alanı yeni teklif akışını açar; o akış şablonları
+      // okur. Şablonsuz takılır: seçim sorulmadan doğrudan form açılır.
+      templateRepositoryProvider.overrideWithValue(
+        const FakeTemplateRepository(),
+      ),
     ],
     child: localizedApp(const DashboardScreen()),
   );
 
-  /// Dört modül satırı bir ekrana sığmıyor; testler tam boy bir telefon
+  /// Modül satırları bir ekrana sığmıyor; testler tam boy bir telefon
   /// yüzeyinde koşar, aksi halde alttaki satır hiç build edilmez.
   void useTallSurface(WidgetTester tester) {
-    tester.view.physicalSize = const Size(400, 1000);
+    tester.view.physicalSize = const Size(400, 1200);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
   }
 
-  testWidgets('dört modül satırı da gösterilir', (tester) async {
+  testWidgets('beş modül satırı da gösterilir', (tester) async {
     useTallSurface(tester);
     await tester.pumpWidget(buildSubject());
     await tester.pump();
 
     expect(find.text(tr.moduleQuotes), findsOneWidget);
+    expect(find.text(tr.moduleTemplates), findsOneWidget);
     expect(find.text(tr.moduleProducts), findsOneWidget);
     expect(find.text(tr.moduleCustomers), findsOneWidget);
     expect(find.text(tr.moduleSettings), findsOneWidget);

@@ -56,6 +56,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleQuotes => 'Quotes';
 
   @override
+  String get moduleTemplates => 'Templates';
+
+  @override
   String get moduleProducts => 'Products';
 
   @override
@@ -83,6 +86,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleQuotesSubtitle => 'Create, edit, share';
 
   @override
+  String get moduleTemplatesSubtitle => 'Ready-made quote drafts';
+
+  @override
   String get moduleProductsSubtitle => 'Price list and categories';
 
   @override
@@ -90,6 +96,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moduleSettingsSubtitle => 'Company, theme, language';
+
+  @override
+  String get offerStartBlank => 'Blank quote';
+
+  @override
+  String get offerStartBlankSubtitle => 'Start from scratch';
+
+  @override
+  String get offerStartFromTemplate => 'Start from a template';
 
   @override
   String get quoteDraftLabel => 'Quote-Draft';
@@ -241,7 +256,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quotesLoadError => 'Quotes could not be loaded.';
 
   @override
-  String get pdfGenerateTooltip => 'Generate PDF';
+  String get pdfAction => 'PDF';
 
   @override
   String get pdfPreviewTitle => 'Quote PDF';

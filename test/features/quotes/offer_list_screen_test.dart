@@ -10,9 +10,11 @@ import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer_item.dart';
 import 'package:isimcebimde/features/quotes/domain/repositories/offer_repository.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
+import 'package:isimcebimde/features/quotes/presentation/providers/template_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_list_screen.dart';
 
+import '../../support/fake_template_repository.dart';
 import '../../support/localized_app.dart';
 
 /// Widget testi ekranı test eder, veritabanını değil (CLAUDE.md: Test Rules).
@@ -50,6 +52,11 @@ void main() {
     overrides: [
       offerRepositoryProvider.overrideWithValue(
         _FakeOfferRepository(controller),
+      ),
+      // Şablonsuz: FAB doğrudan forma gitsin, bu ekranın testi şablon seçimine
+      // bulaşmasın. O seçim offer_start_picker_test.dart'ta sınanır.
+      templateRepositoryProvider.overrideWithValue(
+        const FakeTemplateRepository(),
       ),
     ],
     child: localizedApp(const OfferListScreen()),

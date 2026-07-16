@@ -26,12 +26,12 @@ class TemplateListScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
+            // Eylem butonu yok: yeni şablon zaten sağ alttaki FAB ile açılır
+            // (ProductListScreen/OfferListScreen ile aynı desen).
             return AppEmptyView(
               icon: Icons.bookmarks_outlined,
               title: l10n.templatesEmptyTitle,
               description: l10n.templatesEmptyDescription,
-              actionLabel: l10n.templateAdd,
-              onAction: () => _openTemplateForm(context),
             );
           }
           return ListView.separated(

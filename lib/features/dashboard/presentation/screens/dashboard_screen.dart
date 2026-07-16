@@ -15,7 +15,7 @@ import 'package:isimcebimde/features/products/presentation/providers/product_pro
 import 'package:isimcebimde/features/products/presentation/screens/product_form_screen.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
-import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/offer_start_picker.dart';
 
 /// Ana ekran: marka paneli + özet rakamlar + modül listesi.
 ///
@@ -67,6 +67,14 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSizes.sm),
                 _ModuleRow(
+                  icon: Icons.bookmarks_outlined,
+                  color: AppColors.accentDeep,
+                  label: l10n.moduleTemplates,
+                  description: l10n.moduleTemplatesSubtitle,
+                  onTap: () => context.go(AppRoutes.templates),
+                ),
+                const SizedBox(height: AppSizes.sm),
+                _ModuleRow(
                   icon: Icons.inventory_2_outlined,
                   color: AppColors.success,
                   label: l10n.moduleProducts,
@@ -107,7 +115,11 @@ class DashboardScreen extends ConsumerWidget {
 ///
 /// Her özetin iki eylemi vardır: rakam/etiket → ilgili **liste** sayfası,
 /// kartın kalan (harici) alanı → o türden **yeni ekleme** sayfası.
-class _BrandHeader extends StatelessWidget {
+///
+/// `ConsumerWidget`: yeni teklif eylemi `openNewOfferFlow`'a `ref` geçirmek
+/// zorunda (şablon listesini okur). Provider dinlenmez — `ref` yalnızca
+/// dokunma anında kullanılır.
+class _BrandHeader extends ConsumerWidget {
   const _BrandHeader({
     required this.offers,
     required this.products,
@@ -119,7 +131,7 @@ class _BrandHeader extends StatelessWidget {
   final AsyncValue<List<Customer>> customers;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final offerCount = offers.value?.length;
     final productCount = products.value?.length;
@@ -152,11 +164,7 @@ class _BrandHeader extends StatelessWidget {
                   label: l10n.dashboardStatQuotes,
                   value: offerCount == null ? '—' : '$offerCount',
                   onStatTap: () => context.go(AppRoutes.quotes),
-                  onAddTap: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (context) => const OfferFormScreen(),
-                    ),
-                  ),
+                  onAddTap: () => openNewOfferFlow(context, ref),
                 ),
               ),
               const SizedBox(width: AppSizes.sm),

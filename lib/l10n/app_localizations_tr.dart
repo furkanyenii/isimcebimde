@@ -56,6 +56,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get moduleQuotes => 'Teklifler';
 
   @override
+  String get moduleTemplates => 'Şablonlar';
+
+  @override
   String get moduleProducts => 'Ürünler';
 
   @override
@@ -83,6 +86,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get moduleQuotesSubtitle => 'Oluştur, düzenle, paylaş';
 
   @override
+  String get moduleTemplatesSubtitle => 'Hazır teklif taslakları';
+
+  @override
   String get moduleProductsSubtitle => 'Fiyat listesi ve kategoriler';
 
   @override
@@ -90,6 +96,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get moduleSettingsSubtitle => 'Firma, tema, dil';
+
+  @override
+  String get offerStartBlank => 'Boş teklif';
+
+  @override
+  String get offerStartBlankSubtitle => 'Sıfırdan başla';
+
+  @override
+  String get offerStartFromTemplate => 'Şablondan başla';
 
   @override
   String get quoteDraftLabel => 'Teklif-Taslak';
@@ -241,7 +256,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get quotesLoadError => 'Teklifler yüklenemedi.';
 
   @override
-  String get pdfGenerateTooltip => 'PDF Oluştur';
+  String get pdfAction => 'PDF';
 
   @override
   String get pdfPreviewTitle => 'Teklif PDF\'i';

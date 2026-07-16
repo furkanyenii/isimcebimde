@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'Quotes'**
   String get moduleQuotes;
 
+  /// No description provided for @moduleTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Templates'**
+  String get moduleTemplates;
+
   /// No description provided for @moduleProducts.
   ///
   /// In en, this message translates to:
@@ -236,6 +242,12 @@ abstract class AppLocalizations {
   /// **'Create, edit, share'**
   String get moduleQuotesSubtitle;
 
+  /// No description provided for @moduleTemplatesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready-made quote drafts'**
+  String get moduleTemplatesSubtitle;
+
   /// No description provided for @moduleProductsSubtitle.
   ///
   /// In en, this message translates to:
@@ -253,6 +265,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Company, theme, language'**
   String get moduleSettingsSubtitle;
+
+  /// No description provided for @offerStartBlank.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank quote'**
+  String get offerStartBlank;
+
+  /// No description provided for @offerStartBlankSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from scratch'**
+  String get offerStartBlankSubtitle;
+
+  /// No description provided for @offerStartFromTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a template'**
+  String get offerStartFromTemplate;
 
   /// No description provided for @quoteDraftLabel.
   ///
@@ -548,11 +578,11 @@ abstract class AppLocalizations {
   /// **'Quotes could not be loaded.'**
   String get quotesLoadError;
 
-  /// No description provided for @pdfGenerateTooltip.
+  /// No description provided for @pdfAction.
   ///
   /// In en, this message translates to:
-  /// **'Generate PDF'**
-  String get pdfGenerateTooltip;
+  /// **'PDF'**
+  String get pdfAction;
 
   /// No description provided for @pdfPreviewTitle.
   ///

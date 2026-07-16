@@ -3,8 +3,7 @@ import 'package:isimcebimde/features/customers/presentation/screens/customer_lis
 import 'package:isimcebimde/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:isimcebimde/features/products/presentation/screens/product_list_screen.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_list_screen.dart';
-// Şablon özelliği geçici olarak devre dışı (sonra geliştirilecek):
-// import 'package:isimcebimde/features/quotes/presentation/screens/template_list_screen.dart';
+import 'package:isimcebimde/features/quotes/presentation/screens/template_list_screen.dart';
 import 'package:isimcebimde/features/settings/presentation/screens/company_form_screen.dart';
 import 'package:isimcebimde/features/settings/presentation/screens/preparer_form_screen.dart';
 import 'package:isimcebimde/features/settings/presentation/screens/settings_screen.dart';
@@ -17,8 +16,9 @@ abstract final class AppRoutes {
   static const String products = '/products';
   static const String customers = '/customers';
   static const String quotes = '/quotes';
-  // Şablon özelliği geçici olarak devre dışı (sonra geliştirilecek):
-  // static const String templates = '/quotes/templates';
+  // Şablonlar teklifin alt sayfası değil, kendi modülü: dashboard'dan doğrudan
+  // girilir ve teklif akışının başlangıcını besler.
+  static const String templates = '/templates';
   static const String settings = '/settings';
   static const String company = '/settings/company';
   static const String preparer = '/settings/preparer';
@@ -51,14 +51,11 @@ final GoRouter appRouter = GoRouter(
           path: 'quotes',
           name: 'quotes',
           builder: (context, state) => const OfferListScreen(),
-          // Şablon özelliği geçici olarak devre dışı (sonra geliştirilecek):
-          // routes: [
-          //   GoRoute(
-          //     path: 'templates',
-          //     name: 'templates',
-          //     builder: (context, state) => const TemplateListScreen(),
-          //   ),
-          // ],
+        ),
+        GoRoute(
+          path: 'templates',
+          name: 'templates',
+          builder: (context, state) => const TemplateListScreen(),
         ),
         GoRoute(
           path: 'settings',

@@ -9,6 +9,7 @@ import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
+import 'package:isimcebimde/features/quotes/presentation/widgets/offer_start_picker.dart';
 
 class OfferListScreen extends ConsumerWidget {
   const OfferListScreen({super.key});
@@ -50,7 +51,7 @@ class OfferListScreen extends ConsumerWidget {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openOfferForm(context),
+        onPressed: () => openNewOfferFlow(context, ref),
         icon: const Icon(Icons.add),
         label: Text(l10n.quoteNew),
       ),
@@ -58,7 +59,9 @@ class OfferListScreen extends ConsumerWidget {
   }
 }
 
-void _openOfferForm(BuildContext context, {Offer? offer}) {
+/// Kayıtlı bir teklifi düzenlemeye açar. Yeni teklif bu yoldan geçmez:
+/// başlangıç seçimi için `openNewOfferFlow` kullanılır.
+void _openOfferForm(BuildContext context, {required Offer offer}) {
   Navigator.of(context).push(
     MaterialPageRoute<void>(
       builder: (context) => OfferFormScreen(offer: offer),

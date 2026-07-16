@@ -35,6 +35,7 @@
   "splashInitError": "The app could not start. The database cannot be opened.",
 
   "moduleQuotes": "Quotes",
+  "moduleTemplates": "Templates",
   "moduleProducts": "Products",
   "moduleCustomers": "Customers",
   "moduleSettings": "Settings",
@@ -45,9 +46,13 @@
   "dashboardStatCustomers": "Customers",
   "dashboardSectionModules": "Manage",
   "moduleQuotesSubtitle": "Create, edit, share",
+  "moduleTemplatesSubtitle": "Ready-made quote drafts",
   "moduleProductsSubtitle": "Price list and categories",
   "moduleCustomersSubtitle": "Saved customers",
   "moduleSettingsSubtitle": "Company, theme, language",
+  "offerStartBlank": "Blank quote",
+  "offerStartBlankSubtitle": "Start from scratch",
+  "offerStartFromTemplate": "Start from a template",
   "quoteDraftLabel": "Quote-Draft",
   "quoteItemCount": "{count} items",
   "@quoteItemCount": {
@@ -111,7 +116,7 @@
   "quotesEmptyDescription": "Create your first quote.",
   "quotesLoadError": "Quotes could not be loaded.",
 
-  "pdfGenerateTooltip": "Generate PDF",
+  "pdfAction": "PDF",
   "pdfPreviewTitle": "Quote PDF",
   "quoteNumberLabel": "Quote No",
   "quoteDateLabel": "Date",

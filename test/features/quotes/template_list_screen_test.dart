@@ -62,7 +62,9 @@ void main() {
     expect(find.byType(AppLoadingView), findsOneWidget);
   });
 
-  testWidgets('şablon yokken empty state ve yönlendirici eylem gösterir', (
+  // Empty state'in kendi eylem butonu yoktur: ekleme sağ alttaki FAB'ın işidir
+  // (ProductListScreen/OfferListScreen ile aynı desen).
+  testWidgets('şablon yokken empty state gösterir, FAB forma götürür', (
     tester,
   ) async {
     await tester.pumpWidget(buildSubject());
