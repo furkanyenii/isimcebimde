@@ -5,6 +5,7 @@ import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/features/customers/presentation/providers/customer_providers.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
 import 'package:isimcebimde/features/quotes/presentation/pdf/offer_pdf_document.dart';
+import 'package:isimcebimde/features/quotes/presentation/pdf/offer_pdf_file_name.dart';
 import 'package:isimcebimde/features/settings/presentation/providers/settings_providers.dart';
 import 'package:printing/printing.dart';
 
@@ -14,13 +15,29 @@ import 'package:printing/printing.dart';
 /// zenginleştirmekten sorumludur. WhatsApp ve Mail için ayrı bir buton
 /// yoktur: sistem paylaşım ekranı ikisini de native olarak destekler
 /// (Faz 8 kararı — bkz. docs/ROADMAP.md).
-class OfferPdfPreviewScreen extends ConsumerWidget {
+class OfferPdfPreviewScreen extends ConsumerStatefulWidget {
   const OfferPdfPreviewScreen({required this.offer, super.key});
 
   final Offer offer;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OfferPdfPreviewScreen> createState() =>
+      _OfferPdfPreviewScreenState();
+}
+
+class _OfferPdfPreviewScreenState extends ConsumerState<OfferPdfPreviewScreen> {
+  /// Paylaşım anı ekran açılırken bir kez sabitlenir.
+  ///
+  /// StatefulWidget'ın gerekçesi bu: hem belgenin üstündeki tarih hem dosya
+  /// adı bu değerden üretiliyor ve **aynı** olmak zorunda. `DateTime.now()`
+  /// her build'de yeniden okunsaydı — `PdfPreview` içeriği kağıt boyutu
+  /// değiştikçe yeniden üretir — gece yarısını geçen bir paylaşımda belge ile
+  /// dosya adı farklı güne düşerdi.
+  late final DateTime _documentDate = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    final offer = widget.offer;
     final l10n = context.l10n;
     final settings = ref.watch(settingsProvider);
 
@@ -47,9 +64,13 @@ class OfferPdfPreviewScreen extends ConsumerWidget {
             preparer: appSettings.preparer,
             l10n: l10n,
             localeName: context.localeTag,
+            documentDate: _documentDate,
           ),
-          // Teklif henüz kaydedilmediyse numara yok; taslak etiketi kullanılır.
-          pdfFileName: '${offer.quoteNumberOrNull ?? l10n.quoteDraftLabel}.pdf',
+          pdfFileName: offerPdfFileName(
+            offer,
+            draftLabel: l10n.quoteDraftLabel,
+            sharedAt: _documentDate,
+          ),
           shareActionExtraSubject:
               offer.quoteNumberOrNull ?? l10n.quoteDraftLabel,
           shareActionExtraBody: l10n.shareEmailBody(offer.customerName),

@@ -19,11 +19,19 @@ import 'package:pdf/widgets.dart' as pw;
 ///
 /// Varsayılan Helvetica Türkçe karakterleri (ç, ğ, ı, ö, ş, ü) basamadığı
 /// için gömülü Noto Sans fontu kullanılır (`assets/fonts/`).
+///
+/// [documentDate] belgenin üstüne basılan tarihtir ve teklifin oluşturulma
+/// tarihi **değildir**: teklif, gönderildiği gün geçerlidir. Üç gün önce
+/// hazırlanan bir teklif bugün paylaşıldığında belgede bugünün tarihi yazar
+/// ve dosya adıyla aynı olur (bkz. `offer_pdf_file_name.dart`) — belge
+/// kendiyle çelişmemelidir. Çağıran, dosya adıyla **aynı** [DateTime]'ı
+/// geçmelidir.
 Future<Uint8List> buildOfferPdfBytes({
   required Offer offer,
   required CompanyInfo company,
   required AppLocalizations l10n,
   required String localeName,
+  required DateTime documentDate,
   PreparerInfo preparer = const PreparerInfo(),
 }) async {
   final regularFont = pw.Font.ttf(
@@ -50,7 +58,7 @@ Future<Uint8List> buildOfferPdfBytes({
           ? _Header(
               company: company,
               logoImage: logoImage,
-              offer: offer,
+              documentDate: documentDate,
               l10n: l10n,
               localeName: localeName,
             )
@@ -84,14 +92,14 @@ class _Header extends pw.StatelessWidget {
   _Header({
     required this.company,
     required this.logoImage,
-    required this.offer,
+    required this.documentDate,
     required this.l10n,
     required this.localeName,
   });
 
   final CompanyInfo company;
   final pw.MemoryImage? logoImage;
-  final Offer offer;
+  final DateTime documentDate;
   final AppLocalizations l10n;
   final String localeName;
 
@@ -120,7 +128,7 @@ class _Header extends pw.StatelessWidget {
             pw.SizedBox(width: 16),
             pw.Text(
               '${l10n.quoteDateLabel}: '
-              '${_formatDate(offer.createdAt, localeName)}',
+              '${_formatDate(documentDate, localeName)}',
               style: const pw.TextStyle(fontSize: 10),
             ),
           ],

@@ -36,6 +36,7 @@ void main() {
       company: const CompanyInfo(name: 'Şahin Yapı Malzemeleri'),
       l10n: l10nFor(const Locale('tr')),
       localeName: 'tr',
+      documentDate: DateTime(2026, 3, 8),
     );
 
     expect(bytes, isNotEmpty);
@@ -61,6 +62,7 @@ void main() {
       company: const CompanyInfo(name: 'Şahin Yapı Malzemeleri'),
       l10n: l10nFor(const Locale('tr')),
       localeName: 'tr',
+      documentDate: DateTime(2026, 3, 8),
     );
 
     expect(bytes, isNotEmpty);
@@ -75,6 +77,7 @@ void main() {
       company: const CompanyInfo(),
       l10n: l10nFor(const Locale('en')),
       localeName: 'en',
+      documentDate: DateTime(2026, 3, 8),
     );
 
     expect(bytes, isNotEmpty);
