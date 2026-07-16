@@ -4,6 +4,7 @@ import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/theme/app_colors.dart';
 import 'package:isimcebimde/core/theme/app_typography.dart';
+import 'package:isimcebimde/core/widgets/app_search_field.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/products/domain/entities/product.dart';
@@ -24,9 +25,13 @@ class ProductListScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.moduleProducts)),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(AppSizes.md),
-            child: _SearchField(),
+          Padding(
+            padding: const EdgeInsets.all(AppSizes.md),
+            child: AppSearchField(
+              hintText: l10n.productSearchHint,
+              onChanged: (value) =>
+                  ref.read(productSearchQueryProvider.notifier).update(value),
+            ),
           ),
           Expanded(
             child: groups.when(
@@ -84,48 +89,6 @@ class ProductListScreen extends ConsumerWidget {
       MaterialPageRoute<void>(
         builder: (context) => ProductFormScreen(product: product),
       ),
-    );
-  }
-}
-
-class _SearchField extends ConsumerStatefulWidget {
-  const _SearchField();
-
-  @override
-  ConsumerState<_SearchField> createState() => _SearchFieldState();
-}
-
-class _SearchFieldState extends ConsumerState<_SearchField> {
-  final _controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: _controller,
-      decoration: InputDecoration(
-        hintText: context.l10n.productSearchHint,
-        prefixIcon: const Icon(Icons.search),
-        suffixIcon: _controller.text.isEmpty
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  _controller.clear();
-                  ref.read(productSearchQueryProvider.notifier).update('');
-                  setState(() {});
-                },
-              ),
-      ),
-      onChanged: (value) {
-        ref.read(productSearchQueryProvider.notifier).update(value);
-        setState(() {}); // yalnızca temizle butonunun görünürlüğü için
-      },
     );
   }
 }
