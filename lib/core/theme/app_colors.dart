@@ -44,4 +44,9 @@ abstract final class AppColors {
   static const Color success = Color(0xFF2FBF71);
   static const Color warning = Color(0xFFF5A524);
   static const Color danger = Color(0xFFE5484D);
+
+  /// Nötr vurgu. Modül listesinde şablonların kimliği: aksan (indigo) ile
+  /// [success] (yeşil) arasında durduğu için ikisinden de net ayrışan bir ton
+  /// gerekiyor — mor ya da teal komşularına karışırdı.
+  static const Color info = Color(0xFF06B6D4);
 }

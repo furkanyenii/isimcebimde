@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
+import 'package:isimcebimde/core/theme/app_colors.dart';
 import 'package:isimcebimde/core/utils/turkish_text.dart';
+import 'package:isimcebimde/core/widgets/app_search_field.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/quotes/domain/entities/offer.dart';
@@ -82,21 +84,18 @@ class _OfferStartSheet extends StatefulWidget {
 }
 
 class _OfferStartSheetState extends State<_OfferStartSheet> {
-  final _searchController = TextEditingController();
+  /// Sheet'e özel arama metni; ekranın paylaşılan `templateSearchQueryProvider`
+  /// state'i buraya sızmamalı — kullanıcı listede ne aradıysa teklife
+  /// başlarken onunla karşılaşmasın.
+  String _query = '';
 
   bool get _hasSearch => widget.templates.length > _searchThreshold;
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final filtered = widget.templates
-        .where((t) => containsNormalized(t.name, _searchController.text))
+        .where((t) => containsNormalized(t.name, _query))
         .toList();
 
     return SafeArea(
@@ -108,8 +107,11 @@ class _OfferStartSheetState extends State<_OfferStartSheet> {
           children: [
             Text(l10n.quoteNew, style: context.textStyles.titleLarge),
             const SizedBox(height: AppSizes.md),
+            // Vurgulu: şablon listesi uzadıkça "sıfırdan başla" seçeneği
+            // sıradan bir satıra dönüşüp kaybolmamalı.
             AppListCard(
               icon: Icons.add,
+              isHighlighted: true,
               title: l10n.offerStartBlank,
               subtitle: l10n.offerStartBlankSubtitle,
               onTap: () => Navigator.of(context).pop(_blankOffer()),
@@ -126,13 +128,9 @@ class _OfferStartSheetState extends State<_OfferStartSheet> {
               ),
             ),
             if (_hasSearch) ...[
-              TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: l10n.templateSearchHint,
-                  prefixIcon: const Icon(Icons.search),
-                ),
-                onChanged: (_) => setState(() {}),
+              AppSearchField(
+                hintText: l10n.templateSearchHint,
+                onChanged: (value) => setState(() => _query = value),
               ),
               const SizedBox(height: AppSizes.sm),
             ],
@@ -168,6 +166,7 @@ class _TemplateOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppListCard(
       icon: Icons.bookmark_outline,
+      iconColor: AppColors.info,
       title: template.name,
       subtitle: context.l10n.quoteItemCount(template.items.length),
       // Şablon satırları yeni/kaydedilmemiş satırlara kopyalanır; şablonun

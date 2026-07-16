@@ -68,7 +68,7 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: AppSizes.sm),
                 _ModuleRow(
                   icon: Icons.bookmarks_outlined,
-                  color: AppColors.accentDeep,
+                  color: AppColors.info,
                   label: l10n.moduleTemplates,
                   description: l10n.moduleTemplatesSubtitle,
                   onTap: () => context.go(AppRoutes.templates),
