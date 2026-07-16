@@ -98,10 +98,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moduleSettingsSubtitle => 'Company, theme, language';
 
   @override
-  String get offerStartBlank => 'Blank quote';
+  String get offerStartBlank => 'New quote';
 
   @override
-  String get offerStartBlankSubtitle => 'Start from scratch';
+  String get offerStartBlankSubtitle => 'Start without a template';
 
   @override
   String get offerStartFromTemplate => 'Start from a template';

@@ -269,13 +269,13 @@ abstract class AppLocalizations {
   /// No description provided for @offerStartBlank.
   ///
   /// In en, this message translates to:
-  /// **'Blank quote'**
+  /// **'New quote'**
   String get offerStartBlank;
 
   /// No description provided for @offerStartBlankSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Start from scratch'**
+  /// **'Start without a template'**
   String get offerStartBlankSubtitle;
 
   /// No description provided for @offerStartFromTemplate.

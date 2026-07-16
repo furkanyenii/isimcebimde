@@ -16,6 +16,11 @@ import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_scre
 /// yalnızca gürültüdür; liste uzayınca gerekli olur.
 const int _searchThreshold = 5;
 
+/// Sheet ekranın en fazla bu kadarını kaplar; üstte kalan boşluk hem altındaki
+/// ekranı görünür tutar hem sheet'i tam ekran bir sayfa gibi okunmaktan
+/// kurtarır. Şablon listesi uzasa da sheet tepeye dayanmaz, kendi içinde kayar.
+const double _sheetMaxHeightFactor = 0.8;
+
 /// "Yeni teklif" akışının tek girişi: gerekiyorsa başlangıç seçimini sorar,
 /// sonra teklif formunu açar. Teklif listesi ve ana ekran bu akışı paylaşır.
 ///
@@ -43,6 +48,9 @@ Future<Offer?> _pickOfferStart(BuildContext context, WidgetRef ref) async {
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.sizeOf(context).height * _sheetMaxHeightFactor,
+    ),
     builder: (context) => _OfferStartSheet(templates: templates),
   );
 }

@@ -150,6 +150,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Sheet açık mı? Kart başlığı ("Yeni teklif") teklif formunun AppBar
+  /// başlığından ("Yeni Teklif") yalnızca bir harfin büyüklüğüyle ayrılıyor;
+  /// sheet'in varlığı bu farka bel bağlamasın diye benzersiz olan alt satırdan
+  /// okunur.
+  final startSheet = find.text(tr.offerStartBlankSubtitle);
+
   testWidgets('şablon yokken seçim sorulmaz, doğrudan boş form açılır', (
     tester,
   ) async {
@@ -158,7 +164,7 @@ void main() {
 
     await tapNewOffer(tester);
 
-    expect(find.text(tr.offerStartBlank), findsNothing);
+    expect(startSheet, findsNothing);
     expect(find.byType(OfferFormScreen), findsOneWidget);
   });
 
@@ -171,7 +177,7 @@ void main() {
     await tapNewOffer(tester);
 
     expect(find.byType(OfferFormScreen), findsNothing);
-    expect(find.text(tr.offerStartBlank), findsOneWidget);
+    expect(startSheet, findsOneWidget);
     expect(find.text('Ofis'), findsOneWidget);
     expect(find.text(tr.quoteItemCount(1)), findsOneWidget);
   });
@@ -198,7 +204,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tapNewOffer(tester);
-    await tester.tap(find.text(tr.offerStartBlank));
+    await tester.tap(startSheet);
     await tester.pumpAndSettle();
 
     expect(find.byType(OfferFormScreen), findsOneWidget);
@@ -215,7 +221,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(OfferFormScreen), findsNothing);
-    expect(find.text(tr.offerStartBlank), findsNothing);
+    expect(startSheet, findsNothing);
   });
 
   testWidgets('şablonlar okunamazsa teklif akışı durmaz, boş form açılır', (

@@ -98,10 +98,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get moduleSettingsSubtitle => 'Firma, tema, dil';
 
   @override
-  String get offerStartBlank => 'Boş teklif';
+  String get offerStartBlank => 'Yeni teklif';
 
   @override
-  String get offerStartBlankSubtitle => 'Sıfırdan başla';
+  String get offerStartBlankSubtitle => 'Şablon kullanmadan başla';
 
   @override
   String get offerStartFromTemplate => 'Şablondan başla';
