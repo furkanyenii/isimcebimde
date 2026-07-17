@@ -20,6 +20,55 @@ class ProductGroup {
   final List<Product> products;
 }
 
+/// Kategori bilgisini yanında taşıyan tek ürün. Sayfalama ürün bazında (15
+/// ürün/sayfa) yapılırken kullanılır: gruplar düzleştirilip dilimlenir, sonra
+/// dilim tekrar gruplanır. Bir kategori sayfa sınırında bölünürse başlığı
+/// sonraki sayfada yeniden görünür — beklenen davranıştır.
+@immutable
+class FlatProduct {
+  const FlatProduct({
+    required this.categoryId,
+    required this.categoryName,
+    required this.product,
+  });
+
+  final int categoryId;
+  final String categoryName;
+  final Product product;
+}
+
+/// [groups]'ı, grup ve ürün sırasını koruyarak düz bir [FlatProduct] listesine
+/// çevirir. [regroupProducts] bunun tersidir.
+List<FlatProduct> flattenGroups(List<ProductGroup> groups) => [
+  for (final group in groups)
+    for (final product in group.products)
+      FlatProduct(
+        categoryId: group.categoryId,
+        categoryName: group.categoryName,
+        product: product,
+      ),
+];
+
+/// Ardışık aynı kategorideki [flat] ürünleri tekrar [ProductGroup]'lara toplar.
+/// Sıra korunduğundan bir sayfa dilimi tek geçişte gruplanabilir.
+List<ProductGroup> regroupProducts(List<FlatProduct> flat) {
+  final result = <ProductGroup>[];
+  for (final item in flat) {
+    if (result.isNotEmpty && result.last.categoryId == item.categoryId) {
+      result.last.products.add(item.product);
+    } else {
+      result.add(
+        ProductGroup(
+          categoryId: item.categoryId,
+          categoryName: item.categoryName,
+          products: [item.product],
+        ),
+      );
+    }
+  }
+  return result;
+}
+
 /// [products]'ı kategorilerine göre gruplar.
 ///
 /// [query] hem ürün adında hem kategori adında aranır (Türkçe karakter

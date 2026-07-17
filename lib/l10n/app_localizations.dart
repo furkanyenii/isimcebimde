@@ -164,6 +164,24 @@ abstract class AppLocalizations {
   /// **'Try a different search.'**
   String get emptySearchDescription;
 
+  /// No description provided for @paginationPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous page'**
+  String get paginationPrevious;
+
+  /// No description provided for @paginationNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next page'**
+  String get paginationNext;
+
+  /// No description provided for @paginationPageSemantic.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String paginationPageSemantic(int page);
+
   /// No description provided for @appTagline.
   ///
   /// In en, this message translates to:
@@ -560,6 +578,18 @@ abstract class AppLocalizations {
   /// **'Edit Quote'**
   String get offerEdit;
 
+  /// No description provided for @quoteDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Quote'**
+  String get quoteDelete;
+
+  /// No description provided for @quoteDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This quote for {customer} will be permanently deleted. This action cannot be undone.'**
+  String quoteDeleteConfirm(String customer);
+
   /// No description provided for @quotesEmptyTitle.
   ///
   /// In en, this message translates to:
@@ -577,6 +607,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quotes could not be loaded.'**
   String get quotesLoadError;
+
+  /// No description provided for @quotesFilterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by customer name'**
+  String get quotesFilterHint;
+
+  /// No description provided for @quotesFilterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filter'**
+  String get quotesFilterClear;
+
+  /// No description provided for @quotesFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All customers'**
+  String get quotesFilterAll;
 
   /// No description provided for @pdfAction.
   ///

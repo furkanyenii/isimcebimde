@@ -92,6 +92,13 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
                 label: Text(l10n.pdfAction),
               ),
             ),
+          // Silme yalnızca kayıtlı teklifte anlamlı (ürün/şablon ile aynı desen).
+          if (_isEditing)
+            IconButton(
+              onPressed: isSaving ? null : _confirmDelete,
+              icon: const Icon(Icons.delete_outline),
+              tooltip: l10n.actionDelete,
+            ),
         ],
       ),
       body: KeyboardDismissOnTap(
@@ -206,6 +213,44 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
         builder: (context) => OfferPdfPreviewScreen(offer: _offer),
       ),
     );
+  }
+
+  Future<void> _confirmDelete() async {
+    final id = widget.offer?.id;
+    if (id == null) return;
+
+    // Kalıcı silme geri alınamaz; onay zorunlu (CLAUDE.md: UI Rules).
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        final l10n = context.l10n;
+        return AlertDialog(
+          title: Text(l10n.quoteDelete),
+          content: Text(l10n.quoteDeleteConfirm(_offer.customerName)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.actionCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: context.colors.error,
+              ),
+              child: Text(l10n.actionDelete),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final deleted = await ref
+        .read(offerFormControllerProvider.notifier)
+        .delete(id);
+
+    if (deleted && mounted) Navigator.of(context).pop();
   }
 
   /// Kullanıcının yazdığı birim kalıcılaştırılır; sonraki tekliflerde de

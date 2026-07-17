@@ -12,6 +12,12 @@
   "deleteConfirmMessage": "\"{name}\" kalıcı olarak silinecek. Bu işlem geri alınamaz.",
   "emptySearchTitle": "Sonuç yok",
   "emptySearchDescription": "Farklı bir arama dene.",
+  "paginationPrevious": "Önceki sayfa",
+  "paginationNext": "Sonraki sayfa",
+  "paginationPageSemantic": "Sayfa {page}",
+  "@paginationPageSemantic": {
+    "placeholders": { "page": { "type": "int" } }
+  },
 
   "appTagline": "Dakikalar içinde teklif oluştur",
   "splashInitError": "Uygulama başlatılamadı. Veritabanı açılamıyor.",
@@ -91,9 +97,17 @@
   "grandTotalLabel": "Genel toplam",
 
   "offerEdit": "Teklifi Düzenle",
+  "quoteDelete": "Teklifi Sil",
+  "quoteDeleteConfirm": "{customer} müşterisine ait bu teklif kalıcı olarak silinecek. Bu işlem geri alınamaz.",
+  "@quoteDeleteConfirm": {
+    "placeholders": { "customer": { "type": "String" } }
+  },
   "quotesEmptyTitle": "Henüz teklif yok",
   "quotesEmptyDescription": "İlk teklifini oluştur.",
   "quotesLoadError": "Teklifler yüklenemedi.",
+  "quotesFilterHint": "Müşteri adı ile ara",
+  "quotesFilterClear": "Filtreyi temizle",
+  "quotesFilterAll": "Tüm müşteriler",
 
   "pdfAction": "PDF",
   "pdfPreviewTitle": "Teklif PDF'i",

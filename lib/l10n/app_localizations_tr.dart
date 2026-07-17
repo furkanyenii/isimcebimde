@@ -46,6 +46,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get emptySearchDescription => 'Farklı bir arama dene.';
 
   @override
+  String get paginationPrevious => 'Önceki sayfa';
+
+  @override
+  String get paginationNext => 'Sonraki sayfa';
+
+  @override
+  String paginationPageSemantic(int page) {
+    return 'Sayfa $page';
+  }
+
+  @override
   String get appTagline => 'Dakikalar içinde teklif oluştur';
 
   @override
@@ -247,6 +258,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get offerEdit => 'Teklifi Düzenle';
 
   @override
+  String get quoteDelete => 'Teklifi Sil';
+
+  @override
+  String quoteDeleteConfirm(String customer) {
+    return '$customer müşterisine ait bu teklif kalıcı olarak silinecek. Bu işlem geri alınamaz.';
+  }
+
+  @override
   String get quotesEmptyTitle => 'Henüz teklif yok';
 
   @override
@@ -254,6 +273,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get quotesLoadError => 'Teklifler yüklenemedi.';
+
+  @override
+  String get quotesFilterHint => 'Müşteri adı ile ara';
+
+  @override
+  String get quotesFilterClear => 'Filtreyi temizle';
+
+  @override
+  String get quotesFilterAll => 'Tüm müşteriler';
 
   @override
   String get pdfAction => 'PDF';

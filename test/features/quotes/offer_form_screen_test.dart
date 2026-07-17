@@ -87,6 +87,7 @@ class _FakeCategoryRepository implements CategoryRepository {
 class _FakeOfferRepository implements OfferRepository {
   final List<Offer> created = [];
   final List<Offer> updated = [];
+  final List<int> deleted = [];
   Failure? failure;
 
   @override
@@ -103,7 +104,10 @@ class _FakeOfferRepository implements OfferRepository {
   }
 
   @override
-  Future<void> delete(int id) async {}
+  Future<void> delete(int id) async {
+    if (failure != null) throw failure!;
+    deleted.add(id);
+  }
 
   @override
   Stream<List<Offer>> watchAll() => const Stream.empty();
@@ -290,6 +294,79 @@ void main() {
     expect(offers.created, isEmpty);
     expect(offers.updated, hasLength(1));
     expect(offers.updated.single.id, 7);
+  });
+
+  testWidgets('yeni teklifte silme butonu görünmez', (tester) async {
+    await pumpTallSurface(tester, buildSubject());
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.delete_outline), findsNothing);
+  });
+
+  testWidgets('düzenlenen teklif onaylanınca silinir', (tester) async {
+    final existing = Offer(
+      id: 7,
+      customerId: 2,
+      customerName: 'Yılmaz İnşaat',
+      items: [
+        OfferItem(
+          productName: 'Vida M8',
+          unitPrice: Money.fromLira(12, 50),
+          quantity: Quantity.of(1),
+          vatRate: Percent.of(20),
+        ),
+      ],
+    );
+
+    await pumpTallSurface(tester, buildSubject(offer: existing));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.delete_outline),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    // Onay dialogu çıkar; onaylanınca repository.delete çağrılır.
+    expect(find.text(tr.quoteDelete), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, tr.actionDelete));
+    await tester.pumpAndSettle();
+
+    expect(offers.deleted, [7]);
+  });
+
+  testWidgets('silme onaylanmazsa teklif silinmez', (tester) async {
+    final existing = Offer(
+      id: 7,
+      customerId: 2,
+      customerName: 'Yılmaz İnşaat',
+      items: [
+        OfferItem(
+          productName: 'Vida M8',
+          unitPrice: Money.fromLira(12, 50),
+          quantity: Quantity.of(1),
+          vatRate: Percent.of(20),
+        ),
+      ],
+    );
+
+    await pumpTallSurface(tester, buildSubject(offer: existing));
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AppBar),
+        matching: find.byIcon(Icons.delete_outline),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(TextButton, tr.actionCancel));
+    await tester.pumpAndSettle();
+
+    expect(offers.deleted, isEmpty);
   });
 
   testWidgets('kayıt hatası kullanıcıya gösterilir', (tester) async {

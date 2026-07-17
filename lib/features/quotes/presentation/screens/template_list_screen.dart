@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isimcebimde/core/constants/app_paging.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/theme/app_colors.dart';
+import 'package:isimcebimde/core/widgets/app_paginated_list_view.dart';
 import 'package:isimcebimde/core/widgets/app_search_field.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/core/widgets/app_surfaces.dart';
@@ -17,6 +19,8 @@ class TemplateListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final query = ref.watch(templateSearchQueryProvider);
     final templates = ref.watch(filteredTemplateListProvider);
+    final hasPagination =
+        (templates.asData?.value.length ?? 0) > AppPaging.pageSize;
     final l10n = context.l10n;
 
     return Scaffold(
@@ -55,29 +59,38 @@ class TemplateListScreen extends ConsumerWidget {
                           description: l10n.emptySearchDescription,
                         );
                 }
-                return ListView.separated(
-                  // FAB son kartı örtmesin.
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSizes.md,
-                    0,
-                    AppSizes.md,
-                    AppSizes.xxl + AppSizes.lg,
+                return AppPaginatedListView<Template>(
+                  items: items,
+                  pageBuilder: (context, pageItems) => ListView.separated(
+                    // FAB son kartı örtmesin.
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.md,
+                      0,
+                      AppSizes.md,
+                      AppSizes.xxl + AppSizes.lg,
+                    ),
+                    itemCount: pageItems.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSizes.sm),
+                    itemBuilder: (context, index) =>
+                        _TemplateTile(template: pageItems[index]),
                   ),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSizes.sm),
-                  itemBuilder: (context, index) =>
-                      _TemplateTile(template: items[index]),
                 );
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openTemplateForm(context),
-        icon: const Icon(Icons.add),
-        label: Text(l10n.templateNew),
+      // Sayfalama çubuğu görünürken FAB'ı çubuk yüksekliği kadar kaldır.
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+          bottom: hasPagination ? AppPaging.barHeight : 0,
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () => _openTemplateForm(context),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.templateNew),
+        ),
       ),
     );
   }

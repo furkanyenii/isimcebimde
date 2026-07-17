@@ -46,6 +46,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptySearchDescription => 'Try a different search.';
 
   @override
+  String get paginationPrevious => 'Previous page';
+
+  @override
+  String get paginationNext => 'Next page';
+
+  @override
+  String paginationPageSemantic(int page) {
+    return 'Page $page';
+  }
+
+  @override
   String get appTagline => 'Create quotes in minutes';
 
   @override
@@ -247,6 +258,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerEdit => 'Edit Quote';
 
   @override
+  String get quoteDelete => 'Delete Quote';
+
+  @override
+  String quoteDeleteConfirm(String customer) {
+    return 'This quote for $customer will be permanently deleted. This action cannot be undone.';
+  }
+
+  @override
   String get quotesEmptyTitle => 'No quotes yet';
 
   @override
@@ -254,6 +273,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quotesLoadError => 'Quotes could not be loaded.';
+
+  @override
+  String get quotesFilterHint => 'Search by customer name';
+
+  @override
+  String get quotesFilterClear => 'Clear filter';
+
+  @override
+  String get quotesFilterAll => 'All customers';
 
   @override
   String get pdfAction => 'PDF';

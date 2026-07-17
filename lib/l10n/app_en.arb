@@ -30,6 +30,12 @@
   },
   "emptySearchTitle": "No results",
   "emptySearchDescription": "Try a different search.",
+  "paginationPrevious": "Previous page",
+  "paginationNext": "Next page",
+  "paginationPageSemantic": "Page {page}",
+  "@paginationPageSemantic": {
+    "placeholders": { "page": { "type": "int" } }
+  },
 
   "appTagline": "Create quotes in minutes",
   "splashInitError": "The app could not start. The database cannot be opened.",
@@ -112,9 +118,17 @@
   "grandTotalLabel": "Grand total",
 
   "offerEdit": "Edit Quote",
+  "quoteDelete": "Delete Quote",
+  "quoteDeleteConfirm": "This quote for {customer} will be permanently deleted. This action cannot be undone.",
+  "@quoteDeleteConfirm": {
+    "placeholders": { "customer": { "type": "String" } }
+  },
   "quotesEmptyTitle": "No quotes yet",
   "quotesEmptyDescription": "Create your first quote.",
   "quotesLoadError": "Quotes could not be loaded.",
+  "quotesFilterHint": "Search by customer name",
+  "quotesFilterClear": "Clear filter",
+  "quotesFilterAll": "All customers",
 
   "pdfAction": "PDF",
   "pdfPreviewTitle": "Quote PDF",

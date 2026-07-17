@@ -12,6 +12,35 @@ OfferRepository offerRepository(Ref ref) =>
     OfferRepositoryImpl(ref.watch(appDatabaseProvider));
 
 /// DB değiştikçe kendiliğinden yayın yapar; manuel invalidate gerekmez.
+/// Filtresiz tüm teklifler — dashboard'daki teklif sayısı bunu kullanır.
 @riverpod
 Stream<List<Offer>> offerList(Ref ref) =>
     ref.watch(offerRepositoryProvider).watchAll();
+
+/// Teklifler listesindeki müşteri filtresi. `null` = tüm müşteriler.
+/// Seçilen müşterinin `id`'sini tutar; gösterilecek ad, filtre bileşeni
+/// müşteri listesinden bu id ile çözer (böylece ad snapshot'ı bayatlamaz).
+@riverpod
+class OfferCustomerFilter extends _$OfferCustomerFilter {
+  @override
+  int? build() => null;
+
+  void select(int? customerId) => state = customerId;
+}
+
+/// Teklifler ekranının izlediği liste: [offerCustomerFilterProvider] seçiliyse
+/// o müşteriye ait tekliflere daraltır. Silinmiş müşteri (customerId == null)
+/// zaten filtre listesinde seçilemez, bu yüzden id eşitliği yeterli.
+///
+/// Repository'ye yeniden abone olmaz; [offerListProvider]'ın tek stream'i
+/// üzerine filtre uygular. Filtre değişince yeni bir DB aboneliği açılmaz ve
+/// dashboard'la aynı kaynak paylaşılır (loading/error durumları aynen taşınır).
+@riverpod
+AsyncValue<List<Offer>> filteredOfferList(Ref ref) {
+  final customerId = ref.watch(offerCustomerFilterProvider);
+  final offers = ref.watch(offerListProvider);
+  if (customerId == null) return offers;
+  return offers.whenData(
+    (list) => list.where((offer) => offer.customerId == customerId).toList(),
+  );
+}

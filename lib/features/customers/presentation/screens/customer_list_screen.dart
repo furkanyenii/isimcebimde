@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isimcebimde/core/constants/app_paging.dart';
 import 'package:isimcebimde/core/constants/app_sizes.dart';
 import 'package:isimcebimde/core/extensions/build_context_x.dart';
 import 'package:isimcebimde/core/theme/app_colors.dart';
+import 'package:isimcebimde/core/widgets/app_paginated_list_view.dart';
 import 'package:isimcebimde/core/widgets/app_state_views.dart';
 import 'package:isimcebimde/core/widgets/app_surfaces.dart';
 import 'package:isimcebimde/features/customers/domain/entities/customer.dart';
@@ -16,6 +18,8 @@ class CustomerListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final customers = ref.watch(customerListProvider);
     final query = ref.watch(customerSearchQueryProvider);
+    final hasPagination =
+        (customers.asData?.value.length ?? 0) > AppPaging.pageSize;
     final l10n = context.l10n;
 
     return Scaffold(
@@ -49,20 +53,24 @@ class CustomerListScreen extends ConsumerWidget {
                           description: l10n.emptySearchDescription,
                         );
                 }
-                return ListView.separated(
-                  // FAB son kartı örtmesin.
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSizes.md,
-                    0,
-                    AppSizes.md,
-                    AppSizes.xxl + AppSizes.lg,
-                  ),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: AppSizes.sm),
-                  itemBuilder: (context, index) => _CustomerTile(
-                    customer: items[index],
-                    onTap: () => _openForm(context, customer: items[index]),
+                return AppPaginatedListView<Customer>(
+                  items: items,
+                  pageBuilder: (context, pageItems) => ListView.separated(
+                    // FAB son kartı örtmesin.
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSizes.md,
+                      0,
+                      AppSizes.md,
+                      AppSizes.xxl + AppSizes.lg,
+                    ),
+                    itemCount: pageItems.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSizes.sm),
+                    itemBuilder: (context, index) => _CustomerTile(
+                      customer: pageItems[index],
+                      onTap: () =>
+                          _openForm(context, customer: pageItems[index]),
+                    ),
                   ),
                 );
               },
@@ -70,10 +78,16 @@ class CustomerListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openForm(context),
-        icon: const Icon(Icons.add),
-        label: Text(l10n.customerNew),
+      // Sayfalama çubuğu görünürken FAB'ı çubuk yüksekliği kadar kaldır.
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(
+          bottom: hasPagination ? AppPaging.barHeight : 0,
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () => _openForm(context),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.customerNew),
+        ),
       ),
     );
   }

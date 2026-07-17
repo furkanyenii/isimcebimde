@@ -74,4 +74,42 @@ void main() {
     expect(groups, hasLength(1));
     expect(groups.single.categoryName, 'Boya');
   });
+
+  group('flatten/regroup (sayfalama için)', () {
+    test('düzleştirme grup ve ürün sırasını korur', () {
+      final groups = groupProducts(products, categories, '');
+      final flat = flattenGroups(groups);
+
+      expect(flat.map((f) => f.product.name), [
+        'Beyaz Boya', // Boya kategorisi (ada göre önce)
+        'Vida M8',
+        'Somun',
+      ]);
+    });
+
+    test('düzleştir → tekrar grupla tam tur başa döner', () {
+      final groups = groupProducts(products, categories, '');
+      final regrouped = regroupProducts(flattenGroups(groups));
+
+      expect(regrouped.map((g) => g.categoryName), ['Boya', 'Hırdavat']);
+      expect(regrouped.map((g) => g.products.map((p) => p.name).toList()), [
+        ['Beyaz Boya'],
+        ['Vida M8', 'Somun'],
+      ]);
+    });
+
+    test(
+      'sayfa dilimi bir kategoriyi bölerse başlık dilimde tekrar oluşur',
+      () {
+        final flat = flattenGroups(groupProducts(products, categories, ''));
+        // İkinci sayfa Hırdavat'ın ortasından başlıyormuş gibi: yalnız 'Somun'.
+        final pageSlice = flat.where((f) => f.product.name == 'Somun').toList();
+        final regrouped = regroupProducts(pageSlice);
+
+        expect(regrouped, hasLength(1));
+        expect(regrouped.single.categoryName, 'Hırdavat');
+        expect(regrouped.single.products.map((p) => p.name), ['Somun']);
+      },
+    );
+  });
 }
