@@ -18,19 +18,25 @@ class OfferFormController extends _$OfferFormController {
   @override
   FutureOr<void> build() {}
 
-  Future<bool> save(Offer offer) async {
+  /// Kaydedilen teklifi **id'siyle** döner (hata olursa `null`). Çağıran, dönen
+  /// teklifle PDF önizlemesine geçer: yeni teklifte id create sırasında oluşur
+  /// ve teklif numarası (bkz. `Offer.quoteNumber`) ondan türer.
+  Future<Offer?> save(Offer offer) async {
     state = const AsyncLoading();
     final repository = ref.read(offerRepositoryProvider);
 
+    Offer? saved;
     state = await AsyncValue.guard(() async {
       if (offer.id == null) {
-        await repository.create(offer);
+        final id = await repository.create(offer);
+        saved = offer.copyWith(id: id);
       } else {
         await repository.update(offer);
+        saved = offer;
       }
     });
 
-    return !state.hasError;
+    return state.hasError ? null : saved;
   }
 
   Future<bool> delete(int id) async {

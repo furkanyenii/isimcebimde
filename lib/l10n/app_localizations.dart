@@ -578,6 +578,12 @@ abstract class AppLocalizations {
   /// **'Edit Quote'**
   String get offerEdit;
 
+  /// No description provided for @quoteSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Quote saved'**
+  String get quoteSaved;
+
   /// No description provided for @quoteDelete.
   ///
   /// In en, this message translates to:
@@ -848,6 +854,12 @@ abstract class AppLocalizations {
   /// **'Add product'**
   String get productAdd;
 
+  /// No description provided for @productAddSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Add {count} products'**
+  String productAddSelected(int count);
+
   /// No description provided for @productSearchHint.
   ///
   /// In en, this message translates to:
@@ -937,6 +949,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Categories could not be loaded.'**
   String get categoriesLoadError;
+
+  /// No description provided for @categoryDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete category'**
+  String get categoryDelete;
+
+  /// No description provided for @categoryDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'The category \"{name}\" will be deleted. This action cannot be undone.'**
+  String categoryDeleteConfirm(String name);
 
   /// No description provided for @customerNew.
   ///

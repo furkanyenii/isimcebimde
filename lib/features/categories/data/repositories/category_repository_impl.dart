@@ -19,6 +19,18 @@ class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @override
+  Stream<Set<int>> watchUsedCategoryIds() {
+    // Ürün tablosunda geçen distinct kategori id'leri. Tam ürün listesini
+    // taşımaya gerek yok; yalnızca "bu kategori kullanılıyor mu" bilgisi lazım.
+    final query = _db.selectOnly(_db.products, distinct: true)
+      ..addColumns([_db.products.categoryId]);
+
+    return query.watch().map(
+      (rows) => rows.map((row) => row.read(_db.products.categoryId)!).toSet(),
+    );
+  }
+
+  @override
   Future<int> create(String name) async {
     final trimmed = name.trim();
     if (trimmed.isEmpty) {

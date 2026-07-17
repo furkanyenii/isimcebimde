@@ -97,6 +97,7 @@
   "grandTotalLabel": "Genel toplam",
 
   "offerEdit": "Teklifi Düzenle",
+  "quoteSaved": "Teklif kaydedildi",
   "quoteDelete": "Teklifi Sil",
   "quoteDeleteConfirm": "{customer} müşterisine ait bu teklif kalıcı olarak silinecek. Bu işlem geri alınamaz.",
   "@quoteDeleteConfirm": {
@@ -150,6 +151,10 @@
   "productEdit": "Ürünü Düzenle",
   "productDelete": "Ürünü sil",
   "productAdd": "Ürün ekle",
+  "productAddSelected": "{count} ürün ekle",
+  "@productAddSelected": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "productSearchHint": "Ürün ara",
   "productNameLabel": "Ürün adı",
   "productsLoadError": "Ürünler yüklenemedi.",
@@ -168,6 +173,11 @@
   "categoryNew": "Yeni kategori",
   "categoryNameLabel": "Kategori adı",
   "categoriesLoadError": "Kategoriler yüklenemedi.",
+  "categoryDelete": "Kategoriyi sil",
+  "categoryDeleteConfirm": "\"{name}\" kategorisi silinecek. Bu işlem geri alınamaz.",
+  "@categoryDeleteConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
 
   "customerNew": "Yeni Müşteri",
   "customerEdit": "Müşteriyi Düzenle",

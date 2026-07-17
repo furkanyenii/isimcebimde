@@ -61,7 +61,7 @@ final class OfferFormControllerProvider
 }
 
 String _$offerFormControllerHash() =>
-    r'18d308e233f173c2478e2683694f52d2893b7450';
+    r'a3384a3d0711de138aeee1b4a06866e32e306ccf';
 
 /// Teklif kaydetme/silme işlemlerinin durumu.
 ///

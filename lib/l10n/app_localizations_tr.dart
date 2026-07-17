@@ -258,6 +258,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get offerEdit => 'Teklifi Düzenle';
 
   @override
+  String get quoteSaved => 'Teklif kaydedildi';
+
+  @override
   String get quoteDelete => 'Teklifi Sil';
 
   @override
@@ -400,6 +403,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get productAdd => 'Ürün ekle';
 
   @override
+  String productAddSelected(int count) {
+    return '$count ürün ekle';
+  }
+
+  @override
   String get productSearchHint => 'Ürün ara';
 
   @override
@@ -448,6 +456,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get categoriesLoadError => 'Kategoriler yüklenemedi.';
+
+  @override
+  String get categoryDelete => 'Kategoriyi sil';
+
+  @override
+  String categoryDeleteConfirm(String name) {
+    return '\"$name\" kategorisi silinecek. Bu işlem geri alınamaz.';
+  }
 
   @override
   String get customerNew => 'Yeni Müşteri';

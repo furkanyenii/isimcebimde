@@ -15,3 +15,9 @@ CategoryRepository categoryRepository(Ref ref) =>
 @riverpod
 Stream<List<Category>> categoryList(Ref ref) =>
     ref.watch(categoryRepositoryProvider).watchAll();
+
+/// En az bir ürüne bağlı kategorilerin id'leri. Kategori seçici, silme
+/// aksiyonunu (çöp kutusu) yalnızca bu kümede olmayan kategorilerde gösterir.
+@riverpod
+Stream<Set<int>> usedCategoryIds(Ref ref) =>
+    ref.watch(categoryRepositoryProvider).watchUsedCategoryIds();

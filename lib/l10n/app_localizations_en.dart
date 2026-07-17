@@ -258,6 +258,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerEdit => 'Edit Quote';
 
   @override
+  String get quoteSaved => 'Quote saved';
+
+  @override
   String get quoteDelete => 'Delete Quote';
 
   @override
@@ -400,6 +403,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productAdd => 'Add product';
 
   @override
+  String productAddSelected(int count) {
+    return 'Add $count products';
+  }
+
+  @override
   String get productSearchHint => 'Search products';
 
   @override
@@ -448,6 +456,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoriesLoadError => 'Categories could not be loaded.';
+
+  @override
+  String get categoryDelete => 'Delete category';
+
+  @override
+  String categoryDeleteConfirm(String name) {
+    return 'The category \"$name\" will be deleted. This action cannot be undone.';
+  }
 
   @override
   String get customerNew => 'New Customer';

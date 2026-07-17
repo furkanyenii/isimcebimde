@@ -41,9 +41,14 @@ Future<Uint8List> buildOfferPdfBytes({
     await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'),
   );
 
-  final logoImage = company.logoPath == null
-      ? null
-      : pw.MemoryImage(await File(company.logoPath!).readAsBytes());
+  // Logo opsiyoneldir ve `logoPath` bir dosyaya işaret etmeyebilir: iOS'ta
+  // uygulama yeniden kurulunca Documents container'ının UUID'si değişir ve
+  // kaydedilmiş mutlak yol geçersiz kalır. Dosya yoksa logo atlanır — eksik
+  // bir logo yüzünden tüm PDF üretimi çökmemeli (PathNotFoundException).
+  final logoFile = company.logoPath == null ? null : File(company.logoPath!);
+  final logoImage = logoFile != null && logoFile.existsSync()
+      ? pw.MemoryImage(await logoFile.readAsBytes())
+      : null;
 
   final doc = pw.Document(
     theme: pw.ThemeData.withFont(base: regularFont, bold: boldFont),
@@ -79,7 +84,7 @@ Future<Uint8List> buildOfferPdfBytes({
         _TotalsSection(offer: offer, l10n: l10n, localeName: localeName),
         if (offer.notes != null && offer.notes!.trim().isNotEmpty) ...[
           pw.SizedBox(height: 16),
-          _NotesSection(notes: offer.notes!, l10n: l10n),
+          _NotesSection(notes: offer.notes!),
         ],
       ],
     ),
@@ -380,27 +385,15 @@ class _TotalsSection extends pw.StatelessWidget {
   }
 }
 
+/// Teklif notu — başlıksız basılır. Not zaten kendi bağlamını taşır
+/// ("Fiyatlarımıza KDV dahildir" gibi); "Not:" başlığı gereksiz gürültüydü.
 class _NotesSection extends pw.StatelessWidget {
-  _NotesSection({required this.notes, required this.l10n});
+  _NotesSection({required this.notes});
 
   final String notes;
-  final AppLocalizations l10n;
 
   @override
   pw.Widget build(pw.Context context) {
-    return pw.Column(
-      crossAxisAlignment: pw.CrossAxisAlignment.start,
-      children: [
-        pw.Text(
-          l10n.notesLabel,
-          style: const pw.TextStyle(
-            fontSize: 10,
-            fontWeight: pw.FontWeight.bold,
-          ),
-        ),
-        pw.SizedBox(height: 2),
-        pw.Text(notes, style: const pw.TextStyle(fontSize: 9)),
-      ],
-    );
+    return pw.Text(notes, style: const pw.TextStyle(fontSize: 9));
   }
 }

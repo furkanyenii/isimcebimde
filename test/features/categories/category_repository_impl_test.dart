@@ -100,4 +100,26 @@ void main() {
     final names = (await repository.watchAll().first).map((c) => c.name);
     expect(names, contains('Hırdavat'));
   });
+
+  test(
+    'watchUsedCategoryIds yalnızca ürüne bağlı kategorileri döner',
+    () async {
+      final dolu = await repository.create('Dolu');
+      final bos = await repository.create('Boş');
+
+      await ProductRepositoryImpl(db).create(
+        Product(
+          id: null,
+          name: 'Vida',
+          price: Money.fromLira(1),
+          categoryId: dolu,
+        ),
+      );
+
+      final used = await repository.watchUsedCategoryIds().first;
+
+      expect(used, contains(dolu));
+      expect(used, isNot(contains(bos)));
+    },
+  );
 }

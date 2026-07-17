@@ -11,10 +11,15 @@ import 'package:isimcebimde/features/products/presentation/screens/product_form_
 
 /// Teklife ürün eklerken seçim ekranı.
 ///
+/// **Çoklu seçim:** her ürünün başında bir onay kutusu vardır; kullanıcı
+/// birden fazla ürünü işaretleyip tek seferde ekler (sahada "60 saniyede
+/// teklif" hedefi — tek tek eklemek yavaştı). Hiçbir ürün seçilmezse `null`
+/// döner (iptal).
+///
 /// `CustomerPicker` ile aynı gerekçe: kendi yerel arama metnini tutar, ekranın
 /// paylaşılan `productSearchQueryProvider`'ını kullanmaz.
-Future<Product?> showProductPicker(BuildContext context) {
-  return showAppPickerSheet<Product>(
+Future<List<Product>?> showProductPicker(BuildContext context) {
+  return showAppPickerSheet<List<Product>>(
     context: context,
     builder: (context) => const _ProductPickerSheet(),
   );
@@ -31,15 +36,31 @@ class _ProductPickerSheet extends ConsumerStatefulWidget {
 class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
   final _searchController = TextEditingController();
 
+  /// Seçili ürünler, id → ürün. Ürün id'si burada her zaman doludur (hepsi
+  /// veritabanından gelir); `Map` sıralamayı koruyup çift eklemeyi engeller.
+  final Map<int, Product> _selected = {};
+
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
   }
 
+  void _toggle(Product product, bool selected) {
+    final id = product.id;
+    if (id == null) return;
+    setState(() {
+      if (selected) {
+        _selected[id] = product;
+      } else {
+        _selected.remove(id);
+      }
+    });
+  }
+
   /// Aranan ürün yoksa akış kesilmez: kullanıcı ürünü buradan oluşturur ve
-  /// oluşturulan ürün doğrudan teklife seçili olarak döner — teklif ekranına
-  /// elleri boş dönüp "önce ürünü ekle" demek zorunda kalmaz.
+  /// oluşturulan ürün doğrudan seçime eklenir — kullanıcı listeyi kapatmadan
+  /// eklemeye devam edebilir.
   Future<void> _createProduct(String name) async {
     final created = await Navigator.of(context).push<Product>(
       MaterialPageRoute(
@@ -48,7 +69,11 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
     );
 
     if (created == null || !mounted) return;
-    Navigator.of(context).pop(created);
+    _toggle(created, true);
+  }
+
+  void _confirm() {
+    Navigator.of(context).pop(_selected.values.toList());
   }
 
   @override
@@ -74,7 +99,7 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
           ),
           const SizedBox(height: AppSizes.sm),
           // Aranan ürün listede yoksa akış kesilmez: her zaman görünür bu buton
-          // ile ürün buradan oluşturulur ve doğrudan teklife eklenir.
+          // ile ürün buradan oluşturulur ve doğrudan seçime eklenir.
           OutlinedButton.icon(
             onPressed: () => _createProduct(query),
             icon: const Icon(Icons.add),
@@ -101,12 +126,18 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
                   itemCount: items.length,
                   itemBuilder: (context, index) => _CategorySection(
                     group: items[index],
-                    onProductTap: (product) =>
-                        Navigator.of(context).pop(product),
+                    selectedIds: _selected.keys.toSet(),
+                    onToggle: _toggle,
                   ),
                 );
               },
             ),
+          ),
+          const SizedBox(height: AppSizes.sm),
+          // Seçili ürün sayısı butonda: kaç ürün ekleneceği tek bakışta görünür.
+          FilledButton(
+            onPressed: _selected.isEmpty ? null : _confirm,
+            child: Text(l10n.productAddSelected(_selected.length)),
           ),
         ],
       ),
@@ -116,10 +147,15 @@ class _ProductPickerSheetState extends ConsumerState<_ProductPickerSheet> {
 
 /// Bir kategori başlığı ve altındaki ürün satırları (seçici için).
 class _CategorySection extends StatelessWidget {
-  const _CategorySection({required this.group, required this.onProductTap});
+  const _CategorySection({
+    required this.group,
+    required this.selectedIds,
+    required this.onToggle,
+  });
 
   final ProductGroup group;
-  final ValueChanged<Product> onProductTap;
+  final Set<int> selectedIds;
+  final void Function(Product product, bool selected) onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -167,10 +203,12 @@ class _CategorySection extends StatelessWidget {
           ),
         ),
         for (final product in group.products)
-          ListTile(
+          CheckboxListTile(
+            value: selectedIds.contains(product.id),
+            onChanged: (checked) => onToggle(product, checked ?? false),
+            controlAffinity: ListTileControlAffinity.leading,
             title: Text(product.name),
-            trailing: Text(context.formatMoney(product.price)),
-            onTap: () => onProductTap(product),
+            secondary: Text(context.formatMoney(product.price)),
           ),
       ],
     );

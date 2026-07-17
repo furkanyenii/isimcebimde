@@ -118,6 +118,7 @@
   "grandTotalLabel": "Grand total",
 
   "offerEdit": "Edit Quote",
+  "quoteSaved": "Quote saved",
   "quoteDelete": "Delete Quote",
   "quoteDeleteConfirm": "This quote for {customer} will be permanently deleted. This action cannot be undone.",
   "@quoteDeleteConfirm": {
@@ -180,6 +181,10 @@
   "productEdit": "Edit Product",
   "productDelete": "Delete product",
   "productAdd": "Add product",
+  "productAddSelected": "Add {count} products",
+  "@productAddSelected": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "productSearchHint": "Search products",
   "productNameLabel": "Product name",
   "productsLoadError": "Products could not be loaded.",
@@ -215,6 +220,11 @@
   "categoryNew": "New category",
   "categoryNameLabel": "Category name",
   "categoriesLoadError": "Categories could not be loaded.",
+  "categoryDelete": "Delete category",
+  "categoryDeleteConfirm": "The category \"{name}\" will be deleted. This action cannot be undone.",
+  "@categoryDeleteConfirm": {
+    "placeholders": { "name": { "type": "String" } }
+  },
 
   "customerNew": "New Customer",
   "customerEdit": "Edit Customer",

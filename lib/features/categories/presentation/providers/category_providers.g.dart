@@ -103,3 +103,45 @@ final class CategoryListProvider
 }
 
 String _$categoryListHash() => r'3d906a7e7213488bae94afd56b12cf14deacaa0f';
+
+/// En az bir ürüne bağlı kategorilerin id'leri. Kategori seçici, silme
+/// aksiyonunu (çöp kutusu) yalnızca bu kümede olmayan kategorilerde gösterir.
+
+@ProviderFor(usedCategoryIds)
+final usedCategoryIdsProvider = UsedCategoryIdsProvider._();
+
+/// En az bir ürüne bağlı kategorilerin id'leri. Kategori seçici, silme
+/// aksiyonunu (çöp kutusu) yalnızca bu kümede olmayan kategorilerde gösterir.
+
+final class UsedCategoryIdsProvider
+    extends
+        $FunctionalProvider<AsyncValue<Set<int>>, Set<int>, Stream<Set<int>>>
+    with $FutureModifier<Set<int>>, $StreamProvider<Set<int>> {
+  /// En az bir ürüne bağlı kategorilerin id'leri. Kategori seçici, silme
+  /// aksiyonunu (çöp kutusu) yalnızca bu kümede olmayan kategorilerde gösterir.
+  UsedCategoryIdsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'usedCategoryIdsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$usedCategoryIdsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<Set<int>> $createElement($ProviderPointer pointer) =>
+      $StreamProviderElement(pointer);
+
+  @override
+  Stream<Set<int>> create(Ref ref) {
+    return usedCategoryIds(ref);
+  }
+}
+
+String _$usedCategoryIdsHash() => r'bd357f9f73ffec15c13af86b356ae401c1f419ca';

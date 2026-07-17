@@ -51,6 +51,9 @@ class _FakeCategoryRepository implements CategoryRepository {
       Stream.value(const [Category(id: 1, name: 'Genel')]);
 
   @override
+  Stream<Set<int>> watchUsedCategoryIds() => Stream.value(const {});
+
+  @override
   Future<int> create(String name) async => 1;
 
   @override
@@ -118,7 +121,11 @@ void main() {
   Future<void> addProduct(WidgetTester tester, String name) async {
     await tester.tap(find.text(tr.productAdd));
     await tester.pumpAndSettle();
+    // Ürün seçici artık çoklu seçim: önce onay kutusu işaretlenir, sonra
+    // "N ürün ekle" ile onaylanır.
     await tester.tap(find.text(name));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(tr.productAddSelected(1)));
     await tester.pumpAndSettle();
   }
 

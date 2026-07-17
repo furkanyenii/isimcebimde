@@ -182,19 +182,20 @@ class _TemplateFormScreenState extends ConsumerState<TemplateFormScreen> {
   }
 
   Future<void> _addProduct() async {
-    final product = await showProductPicker(context);
-    if (product == null || !mounted) return;
+    final products = await showProductPicker(context);
+    if (products == null || products.isEmpty || !mounted) return;
 
     setState(() {
       _template = _template.copyWith(
         items: [
           ..._template.items,
-          OfferItem(
-            productId: product.id,
-            productName: product.name,
-            unitPrice: product.price,
-            quantity: Quantity.one,
-          ),
+          for (final product in products)
+            OfferItem(
+              productId: product.id,
+              productName: product.name,
+              unitPrice: product.price,
+              quantity: Quantity.one,
+            ),
         ],
       );
     });

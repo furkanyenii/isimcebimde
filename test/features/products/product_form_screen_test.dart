@@ -49,11 +49,20 @@ class _FakeProductRepository implements ProductRepository {
 }
 
 class _FakeCategoryRepository implements CategoryRepository {
+  _FakeCategoryRepository({this.usedIds = const {}});
+
+  /// Kullanımdaki (en az bir ürüne bağlı) kategori id'leri. Kategori seçici
+  /// silme ikonunu yalnızca bu kümede olmayan kategorilerde gösterir.
+  final Set<int> usedIds;
+
   @override
   Stream<List<Category>> watchAll() => Stream.value(const [
     Category(id: 1, name: 'Genel'),
     Category(id: 2, name: 'Hırdavat'),
   ]);
+
+  @override
+  Stream<Set<int>> watchUsedCategoryIds() => Stream.value(usedIds);
 
   @override
   Future<int> create(String name) async => 3;
@@ -72,11 +81,16 @@ void main() {
 
   setUp(() => products = _FakeProductRepository());
 
-  Widget buildSubject({Product? product}) => ProviderScope(
+  Widget buildSubject({
+    Product? product,
+    Set<int> usedCategoryIds = const {},
+  }) => ProviderScope(
     retry: (retryCount, error) => null,
     overrides: [
       productRepositoryProvider.overrideWithValue(products),
-      categoryRepositoryProvider.overrideWithValue(_FakeCategoryRepository()),
+      categoryRepositoryProvider.overrideWithValue(
+        _FakeCategoryRepository(usedIds: usedCategoryIds),
+      ),
     ],
     child: localizedApp(ProductFormScreen(product: product)),
   );
@@ -129,6 +143,20 @@ void main() {
       expect(saved.price.minor, 1250);
       expect(saved.categoryId, 2);
       expect(saved.id, isNull);
+    });
+
+    testWidgets('kullanımdaki kategoride silme ikonu görünmez', (tester) async {
+      // Genel (id 1) bir ürüne bağlı, Hırdavat (id 2) boş. Yeni ürün ekranında
+      // AppBar'da silme ikonu yoktur; menüdeki tek çöp kutusu boş kategoriye ait.
+      await tester.pumpWidget(buildSubject(usedCategoryIds: const {1}));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DropdownButtonFormField<int>));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Genel'), findsWidgets);
+      expect(find.text('Hırdavat'), findsWidgets);
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
   });
 

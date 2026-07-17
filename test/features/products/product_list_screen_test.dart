@@ -48,6 +48,9 @@ class _FakeCategoryRepository implements CategoryRepository {
       Stream.value(const [Category(id: 1, name: 'Genel')]);
 
   @override
+  Stream<Set<int>> watchUsedCategoryIds() => Stream.value(const {});
+
+  @override
   Future<int> create(String name) async => 1;
 
   @override

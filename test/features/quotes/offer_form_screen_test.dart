@@ -21,8 +21,21 @@ import 'package:isimcebimde/features/quotes/domain/repositories/offer_repository
 import 'package:isimcebimde/features/quotes/presentation/providers/offer_providers.dart';
 import 'package:isimcebimde/features/quotes/presentation/screens/offer_form_screen.dart';
 import 'package:isimcebimde/features/quotes/presentation/widgets/quantity_field.dart';
+import 'package:isimcebimde/features/settings/domain/entities/app_settings.dart';
+import 'package:isimcebimde/features/settings/domain/repositories/settings_repository.dart';
+import 'package:isimcebimde/features/settings/presentation/providers/settings_providers.dart';
 
 import '../../support/localized_app.dart';
+
+/// Kaydetten sonra teklif PDF önizlemeye geçer; o ekran ayarları okur. Testte
+/// gerçek veritabanına gitmemek için sabit boş ayar döndüren sahte repository.
+class _FakeSettingsRepository implements SettingsRepository {
+  @override
+  Stream<AppSettings> watch() => Stream.value(const AppSettings());
+
+  @override
+  Future<void> save(AppSettings settings) async {}
+}
 
 class _FakeCustomerRepository implements CustomerRepository {
   @override
@@ -55,6 +68,12 @@ class _FakeProductRepository implements ProductRepository {
           price: Money.fromLira(12, 50),
           categoryId: 1,
         ),
+        Product(
+          id: 2,
+          name: 'Somun M8',
+          price: Money.fromLira(3, 00),
+          categoryId: 1,
+        ),
       ]);
 
   @override
@@ -76,6 +95,9 @@ class _FakeCategoryRepository implements CategoryRepository {
   @override
   Stream<List<Category>> watchAll() =>
       Stream.value(const [Category(id: 1, name: 'Genel')]);
+
+  @override
+  Stream<Set<int>> watchUsedCategoryIds() => Stream.value(const {});
 
   @override
   Future<int> create(String name) async => 1;
@@ -143,6 +165,7 @@ void main() {
       customerRepositoryProvider.overrideWithValue(_FakeCustomerRepository()),
       productRepositoryProvider.overrideWithValue(_FakeProductRepository()),
       categoryRepositoryProvider.overrideWithValue(_FakeCategoryRepository()),
+      settingsRepositoryProvider.overrideWithValue(_FakeSettingsRepository()),
     ],
     child: localizedApp(OfferFormScreen(offer: offer)),
   );
@@ -157,8 +180,22 @@ void main() {
   Future<void> addProduct(WidgetTester tester, String name) async {
     await tester.tap(find.text(tr.productAdd));
     await tester.pumpAndSettle();
+    // Ürün seçici artık çoklu seçim: önce onay kutusu işaretlenir, sonra
+    // "N ürün ekle" ile onaylanır.
     await tester.tap(find.text(name));
     await tester.pumpAndSettle();
+    await tester.tap(find.text(tr.productAddSelected(1)));
+    await tester.pumpAndSettle();
+  }
+
+  /// Kaydet sonrası ekran PDF önizlemeye geçer (`PdfPreview` sürekli kare
+  /// zamanladığından `pumpAndSettle` asılı kalır). Bu yüzden sınırlı sayıda
+  /// kare pompalanır: kaydetme future'ı ve geçiş tamamlanır, önizleme çizimi
+  /// beklenmez — testler kaydetme yan etkisini doğrular, PDF'i değil.
+  Future<void> tapSaveAndAwaitNavigation(WidgetTester tester) async {
+    await tester.tap(find.text(tr.actionSave));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
   }
 
   testWidgets('müşteri seçilmeden ve ürün eklenmeden Kaydet pasiftir', (
@@ -180,11 +217,12 @@ void main() {
       await selectCustomer(tester, 'Ahmet Yılmaz');
       await addProduct(tester, 'Vida M8');
 
-      final button = tester.widget<FilledButton>(find.byType(FilledButton));
+      final button = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, tr.actionSave),
+      );
       expect(button.onPressed, isNotNull);
 
-      await tester.tap(find.text(tr.actionSave));
-      await tester.pumpAndSettle();
+      await tapSaveAndAwaitNavigation(tester);
 
       expect(offers.created, hasLength(1));
       final saved = offers.created.single;
@@ -222,8 +260,7 @@ void main() {
       reason: 'Satır state\'i her tuş vuruşunda yeniden kurulmamalı',
     );
 
-    await tester.tap(find.text(tr.actionSave));
-    await tester.pumpAndSettle();
+    await tapSaveAndAwaitNavigation(tester);
     expect(offers.created.single.items.single.quantity, Quantity.of(12));
   });
 
@@ -288,8 +325,7 @@ void main() {
     await pumpTallSurface(tester, buildSubject(offer: existing));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text(tr.actionSave));
-    await tester.pumpAndSettle();
+    await tapSaveAndAwaitNavigation(tester);
 
     expect(offers.created, isEmpty);
     expect(offers.updated, hasLength(1));
@@ -382,6 +418,40 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(tr.errorOfferCustomerRequired), findsOneWidget);
+  });
+
+  testWidgets('birden fazla ürün tek seferde eklenir', (tester) async {
+    await pumpTallSurface(tester, buildSubject());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(tr.productAdd));
+    await tester.pumpAndSettle();
+    // İki ürün işaretlenir, sonra "2 ürün ekle" ile tek seferde eklenir.
+    await tester.tap(find.text('Vida M8'));
+    await tester.tap(find.text('Somun M8'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(tr.productAddSelected(2)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Vida M8'), findsOneWidget);
+    expect(find.text('Somun M8'), findsOneWidget);
+  });
+
+  testWidgets('kaydetten sonra bilgilendirilip PDF önizlemeye geçilir', (
+    tester,
+  ) async {
+    await pumpTallSurface(tester, buildSubject());
+    await tester.pumpAndSettle();
+
+    await selectCustomer(tester, 'Ahmet Yılmaz');
+    await addProduct(tester, 'Vida M8');
+
+    await tapSaveAndAwaitNavigation(tester);
+
+    expect(offers.created, hasLength(1));
+    // "Teklif kaydedildi" bilgisi + PDF önizleme ekranına geçiş.
+    expect(find.text(tr.quoteSaved), findsOneWidget);
+    expect(find.text(tr.pdfPreviewTitle), findsOneWidget);
   });
 
   testWidgets('PDF butonu satır eklenince görünür, kaydetmek gerekmez', (

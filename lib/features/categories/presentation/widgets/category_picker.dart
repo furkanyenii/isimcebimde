@@ -25,6 +25,10 @@ class CategoryPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categories = ref.watch(categoryListProvider);
+    // Kullanımdaki kategori id'leri. Bilinmiyorken (yükleme/hata) `null`:
+    // o durumda hiçbir kategoride silme gösterilmez — yanlışlıkla kullanımdaki
+    // bir kategoriyi silinebilir göstermektense aksiyonu gizlemek güvenli.
+    final usedCategoryIds = ref.watch(usedCategoryIdsProvider).value;
     final l10n = context.l10n;
 
     return categories.when(
@@ -35,7 +39,14 @@ class CategoryPicker extends ConsumerWidget {
       ),
       data: (items) => Row(
         children: [
-          Expanded(child: _dropdown(items, l10n)),
+          Expanded(
+            child: _dropdown(
+              items,
+              l10n,
+              usedCategoryIds: usedCategoryIds,
+              onDelete: (category) => _deleteCategory(context, ref, category),
+            ),
+          ),
           const SizedBox(width: AppSizes.sm),
           IconButton.filledTonal(
             onPressed: () => _createCategory(context, ref),
@@ -47,7 +58,12 @@ class CategoryPicker extends ConsumerWidget {
     );
   }
 
-  Widget _dropdown(List<Category> items, AppLocalizations l10n) {
+  Widget _dropdown(
+    List<Category> items,
+    AppLocalizations l10n, {
+    required Set<int>? usedCategoryIds,
+    required ValueChanged<Category> onDelete,
+  }) {
     // Seçili kategori silinmiş olabilir; geçersiz değer dropdown'ı çökertir.
     final value = items.any((c) => c.id == selectedId) ? selectedId : null;
 
@@ -71,14 +87,18 @@ class CategoryPicker extends ConsumerWidget {
         for (final category in items)
           DropdownMenuItem(
             value: category.id,
-            // Açılır menü öğeleri ekranın kenarına yapışmasın diye yatay boşluk.
-            // Menü, alandan daha dar açıldığı için bu boşluk belirgin olmalı.
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.md,
-                vertical: AppSizes.xs,
-              ),
-              child: Text(category.name, overflow: TextOverflow.ellipsis),
+            // Silme yalnızca ürüne bağlı OLMAYAN kategoride gösterilir: bağlı
+            // kategori zaten silinemez (repository engeller), ikonu göstermek
+            // yanıltıcı olurdu. Kullanım bilinmiyorsa (`usedCategoryIds == null`)
+            // ikon gizlenir.
+            child: _CategoryMenuItem(
+              category: category,
+              canDelete:
+                  usedCategoryIds != null &&
+                  category.id != null &&
+                  !usedCategoryIds.contains(category.id),
+              deleteTooltip: l10n.categoryDelete,
+              onDelete: () => onDelete(category),
             ),
           ),
       ],
@@ -106,6 +126,105 @@ class CategoryPicker extends ConsumerWidget {
     } on Failure catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(e.localized(l10n))));
     }
+  }
+
+  /// Kategoriyi siler. Ürüne bağlıysa repository [CategoryInUseFailure]
+  /// fırlatır; bu, kullanıcıya uyarı olarak gösterilir (silme yapılmaz).
+  /// Silme geri alınamaz, bu yüzden önce onay istenir (CLAUDE.md: UI Rules).
+  Future<void> _deleteCategory(
+    BuildContext context,
+    WidgetRef ref,
+    Category category,
+  ) async {
+    final id = category.id;
+    if (id == null) return;
+
+    // Await'ten önce alınır: sonrasında context kullanmak güvenli değil.
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.categoryDelete),
+        content: Text(l10n.categoryDeleteConfirm(category.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.actionCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: context.colors.error,
+            ),
+            child: Text(l10n.actionDelete),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(categoryRepositoryProvider).delete(id);
+    } on Failure catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.localized(l10n))));
+    }
+  }
+}
+
+/// Dropdown menüsündeki tek kategori satırı. [canDelete] ise sağında silme
+/// ikonu gösterilir; değilse (kategori ürüne bağlı) yalnızca ad görünür.
+class _CategoryMenuItem extends StatelessWidget {
+  const _CategoryMenuItem({
+    required this.category,
+    required this.canDelete,
+    required this.deleteTooltip,
+    required this.onDelete,
+  });
+
+  final Category category;
+  final bool canDelete;
+  final String deleteTooltip;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final name = Expanded(
+      child: Text(category.name, overflow: TextOverflow.ellipsis),
+    );
+
+    // Silme yokken satır, ikonun ayırdığı sağ boşluğu simetrik yatay padding
+    // ile telafi eder; böylece menüdeki tüm satırlar aynı hizada durur.
+    if (!canDelete) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSizes.md),
+        child: Row(children: [name]),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(left: AppSizes.md),
+      child: Row(
+        children: [
+          name,
+          // `Builder`, menü overlay'inin kendi context'ini verir; onPressed
+          // önce menüyü kapatır (pop(null) — değer döndürmez, dolayısıyla
+          // onChanged tetiklenmez), sonra silme akışını çalıştırır.
+          Builder(
+            builder: (menuContext) => IconButton(
+              onPressed: () {
+                Navigator.of(menuContext).pop();
+                onDelete();
+              },
+              icon: const Icon(Icons.delete_outline),
+              iconSize: AppSizes.iconSm,
+              tooltip: deleteTooltip,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

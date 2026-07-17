@@ -199,12 +199,27 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
     );
   }
 
+  /// Kaydedince kullanıcı listeye değil, doğrudan PDF önizlemeye geçer:
+  /// teklifin bir sonraki adımı neredeyse her zaman paylaşmaktır. Form yerine
+  /// `pushReplacement` konur — önizlemeden geri = teklif listesi (form araya
+  /// girmez). SnackBar, kök `ScaffoldMessenger`'da gösterildiği için geçişten
+  /// sonra da görünür kalır.
   Future<void> _save() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = context.l10n;
+
     final saved = await ref
         .read(offerFormControllerProvider.notifier)
         .save(_offer);
 
-    if (saved && mounted) Navigator.of(context).pop();
+    if (saved == null || !mounted) return;
+
+    messenger.showSnackBar(SnackBar(content: Text(l10n.quoteSaved)));
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (context) => OfferPdfPreviewScreen(offer: saved),
+      ),
+    );
   }
 
   Future<void> _openPdfPreview() async {
@@ -267,19 +282,20 @@ class _OfferFormScreenState extends ConsumerState<OfferFormScreen> {
   }
 
   Future<void> _addProduct() async {
-    final product = await showProductPicker(context);
-    if (product == null || !mounted) return;
+    final products = await showProductPicker(context);
+    if (products == null || products.isEmpty || !mounted) return;
 
     setState(() {
       _offer = _offer.copyWith(
         items: [
           ..._offer.items,
-          OfferItem(
-            productId: product.id,
-            productName: product.name,
-            unitPrice: product.price,
-            quantity: Quantity.one,
-          ),
+          for (final product in products)
+            OfferItem(
+              productId: product.id,
+              productName: product.name,
+              unitPrice: product.price,
+              quantity: Quantity.one,
+            ),
         ],
       );
     });
